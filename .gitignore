@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.so
+.venv/
+venv/
+
+# Data
+data/raw/*.xpt
+data/raw/*.XPT
+data/output/*.csv
+data/output/*.png
+!data/output/*.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Notebooks (output cells)
+notebooks/.ipynb_checkpoints/
+
+# Environment
+.env
+*.env.local
