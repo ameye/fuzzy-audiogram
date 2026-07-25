@@ -8,7 +8,7 @@ author:
 affiliations:
   - ^1 King Fahad Specialist Hospital, Tabuk, Saudi Arabia
 runninghead: "Fuzzy Logic for Audiometric Classification"
-date: August 2026
+date: July 2026
 format:
   pdf:
     documentclass: article
