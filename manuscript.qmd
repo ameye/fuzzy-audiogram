@@ -8,7 +8,7 @@ author:
 affiliations:
   - ^1 King Fahad Specialist Hospital, Tabuk, Saudi Arabia
 runninghead: "Fuzzy Logic for Audiometric Classification"
-date: July 2026
+date: August 2026
 format:
   pdf:
     documentclass: article
@@ -85,6 +85,100 @@ Each category exhibits approximately 5–10 dB of overlap with its neighbours at
 **Configuration fuzzification.** The slope of the audiogram (dB change from 500 Hz to 4 kHz) was fuzzified into five overlapping categories: *Rising* (negative slope, low frequencies worse than high), *Flat* (|Δ| ≤ 12 dB), *Gently Sloping* (5–28 dB), *Steeply Sloping* (22–50 dB), and *Precipitous* (>40 dB). Notch depth at 4 kHz (dip relative to average of 2 kHz and 8 kHz thresholds) was fuzzified as *No Notch*, *Shallow Notch* (<15 dB), or *Deep Notch* (≥15 dB), enabling detection of the characteristic Carhart notch associated with noise-induced hearing loss.
 
 **Asymmetry fuzzification.** Inter-aural difference (maximum absolute difference across frequencies) was fuzzified into *Symmetric* (≤15 dB), *Mildly Asymmetric* (12–32 dB), *Moderately Asymmetric* (25–48 dB), and *Severely Asymmetric* (>40 dB), with overlapping transitions at the clinical significance threshold of 15 dB.
+
+## Mathematical Foundations of Fuzzy Logic
+
+### Fuzzy Sets and Membership Functions
+
+Let $X$ be a universe of discourse (e.g., the set of all possible hearing thresholds in dB HL). A **fuzzy set** $A$ on $X$ is defined by its **membership function** $\mu_A: X \to [0, 1]$, which assigns to each element $x \in X$ a degree of membership in the interval $[0, 1]$ [@zadeh1965]:
+
+$$A = \{(x, \mu_A(x)) \mid x \in X\}$$
+
+where $\mu_A(x) = 0$ indicates complete non-membership, $\mu_A(x) = 1$ indicates complete membership, and intermediate values represent partial membership. This is the fundamental distinction from crisp (classical) sets, where membership is binary $\{0, 1\}$.
+
+For each audiometric severity category, we define a **trapezoidal membership function** parameterised by a quadruple $(a, b, c, d)$, where $[b, c]$ is the core (complete membership, $\mu = 1$) and $[a, b]$ and $[c, d]$ are the left and right shoulders:
+
+$$
+\mu(x; a, b, c, d) =
+\begin{cases}
+0, & x \leq a \\[4pt]
+\displaystyle\frac{x - a}{b - a}, & a < x \leq b \\[10pt]
+1, & b < x \leq c \\[4pt]
+\displaystyle\frac{d - x}{d - c}, & c < x \leq d \\[10pt]
+0, & x \geq d
+\end{cases}
+$$
+
+Trapezoidal functions were chosen over triangular ($b = c$) or Gaussian alternatives because the NHANES training set distributions within each WHO severity grade exhibited asymmetric, plateau-containing shapes poorly captured by symmetric or unimodal functions. The **support** of a fuzzy set, $\text{supp}(A) = \{x \mid \mu_A(x) > 0\}$, and the **core**, $\text{core}(A) = \{x \mid \mu_A(x) = 1\}$, are directly interpretable from the trapezoidal parameters and correspond to the clinically relevant range and the fully characteristic range of each severity category, respectively.
+
+### Fuzzy Set Operations
+
+Let $\mu_A$ and $\mu_B$ be membership functions of fuzzy sets $A$ and $B$ on the same universe $X$. The standard **Zadeh operators** define set-theoretic operations pointwise [@zadeh1965]:
+
+**Union (fuzzy OR):**
+$$\mu_{A \cup B}(x) = \max\bigl(\mu_A(x),\; \mu_B(x)\bigr)$$
+
+**Intersection (fuzzy AND):**
+$$\mu_{A \cap B}(x) = \min\bigl(\mu_A(x),\; \mu_B(x)\bigr)$$
+
+**Complement (fuzzy NOT):**
+$$\mu_{\bar{A}}(x) = 1 - \mu_A(x)$$
+
+These operations are used in the fuzzy rule evaluation: the antecedent of each rule is a conjunction (fuzzy AND) of multiple fuzzy propositions, evaluated by the minimum operator, and the aggregation of multiple rule outputs is a disjunction (fuzzy OR) evaluated by the maximum operator.
+
+### Mamdani Fuzzy Inference
+
+We employ **Mamdani-type inference** [@mamdani1975], in which both the antecedents and consequents of each rule are fuzzy sets. A typical fuzzy rule $R_k$ in the rule base has the form:
+
+$$R_k: \text{IF } x_1 \text{ is } A_{k,1} \text{ AND } x_2 \text{ is } A_{k,2} \text{ AND } \dots \text{ AND } x_7 \text{ is } A_{k,7} \text{ THEN } y \text{ is } B_k$$
+
+where $x_1 \dots x_7$ are the hearing thresholds at 0.5–8 kHz, $A_{k,i}$ are the antecedent fuzzy sets (e.g., *Normal*, *Mild*, *Moderate*), and $B_k$ is the consequent fuzzy set (e.g., *Moderate Severity*) or one of the configuration or asymmetry output categories.
+
+**Firing strength.** The degree to which rule $R_k$ is activated — its **firing strength** or **degree of fulfilment** — is computed as the minimum (fuzzy AND) of the individual antecedent memberships:
+
+$$\alpha_k = \min\bigl(\mu_{A_{k,1}}(x_1),\; \mu_{A_{k,2}}(x_2),\; \dots,\; \mu_{A_{k,7}}(x_7)\bigr)$$
+
+The firing strength $\alpha_k \in [0, 1]$ represents how strongly the rule's antecedent matches the observed audiometric pattern.
+
+**Implication (clipping).** The output of rule $R_k$ is a fuzzy set $\mu_{R_k}(y)$ obtained by clipping the consequent membership function $B_k$ at the firing strength $\alpha_k$:
+
+$$\mu_{R_k}(y) = \min\bigl(\alpha_k,\; \mu_{B_k}(y)\bigr)$$
+
+This **minimum (Mamdani) implication** preserves the shape of the consequent while scaling its height to $\alpha_k$, ensuring that rules with weaker antecedents contribute proportionally less to the final output.
+
+**Aggregation.** The outputs of all $N$ rules are combined into a single aggregated fuzzy set $\mu_{\text{agg}}(y)$ via the fuzzy union (maximum) operator:
+
+$$\mu_{\text{agg}}(y) = \max_{k=1}^{N} \bigl(\mu_{R_k}(y)\bigr)$$
+
+This aggregation ensures that every rule contributes to the final decision to a degree proportional to its firing strength.
+
+### Defuzzification: The Fuzzy Audiometric Index
+
+The aggregated fuzzy output $\mu_{\text{agg}}(y)$ must be converted to a crisp numerical value for clinical interpretation. We use the **centroid of area (CoA)** defuzzification method [@mamdani1975], which computes the centre of mass of the aggregated membership function:
+
+$$y^* = \frac{\displaystyle\int y \cdot \mu_{\text{agg}}(y) \, dy}{\displaystyle\int \mu_{\text{agg}}(y) \, dy}$$
+
+In the discrete implementation, the output universe $Y$ is sampled at $n$ discrete points $y_1, y_2, \dots, y_n$:
+
+$$\text{FAI} = \frac{\displaystyle\sum_{i=1}^{n} y_i \cdot \mu_{\text{agg}}(y_i)}{\displaystyle\sum_{i=1}^{n} \mu_{\text{agg}}(y_i)}$$
+
+The resulting **Fuzzy Audiometric Index (FAI)** is a continuous value in $[0, 100]$ that preserves the graded nature of hearing loss. A frequency-specific FAI$_f$ is computed at each test frequency $f$, and a **composite FAI** is obtained as a weighted average, with enhanced weights for speech frequencies:
+
+$$\text{FAI}_{\text{composite}} = \frac{\displaystyle\sum_{f} w_f \cdot \text{FAI}_f}{\displaystyle\sum_{f} w_f}$$
+
+where $w_f = 1.5$ for frequencies $f \in \{0.5, 1, 2, 4\}$ kHz (speech frequencies) and $w_f = 0.75$ for $f \in \{6, 8\}$ kHz (extended high frequencies).
+
+### Linguistic Hedges
+
+To capture nuanced clinical modifiers, **linguistic hedges** transform membership functions. The concentration hedge models the intensifier *very*:
+
+$$\mu_{\text{very } A}(x) = \bigl[\mu_A(x)\bigr]^2$$
+
+The dilation hedge models the qualifier *somewhat*:
+
+$$\mu_{\text{somewhat } A}(x) = \bigl[\mu_A(x)\bigr]^{0.5}$$
+
+These hedges were not required in the current rule base but are available for future refinements (e.g., "very mild" to designate thresholds at the extreme lower end of the mild category, or "somewhat severe" for borderline severe–moderately severe presentations).
 
 ## Fuzzy Inference System
 
