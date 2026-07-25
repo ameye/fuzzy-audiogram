@@ -76,19 +76,19 @@ NHANES data are publicly available from the U.S. Centers for Disease Control and
 
 ## Exploratory Data Analysis
 
-Comprehensive exploratory analysis of the NHANES audiometry dataset was performed prior to model development. The cohort (n = 5,147) had a mean age of 49.8 ± 18.3 years (range 20–85), with 52.3% female participants.
+Comprehensive exploratory analysis of the NHANES audiometry dataset was performed prior to model development. The cohort (n = 5,147 participants, 3,539 ears with complete data after exclusions) had thresholds ranging from −10 to 120 dB HL across all test frequencies.
 
-**Threshold distributions.** Hearing thresholds across all frequencies (0.5–8 kHz) exhibited right-skewed distributions with a floor effect at 0–10 dB HL. Mean thresholds increased progressively with frequency: from approximately 15 dB HL at 500 Hz to 35 dB HL at 8 kHz, consistent with age-related and noise-induced high-frequency hearing loss patterns (Supplementary Figure S1–S2).
+**Threshold distributions.** Hearing thresholds across all frequencies (0.5–8 kHz) exhibited right-skewed distributions with a floor effect at 0–10 dB HL. Mean thresholds increased progressively with frequency: from approximately 17.5 dB HL at 500 Hz to 39.1 dB HL at 8 kHz, consistent with age-related and noise-induced high-frequency hearing loss patterns (Supplementary Figures S1–S2).
 
-**Hearing loss prevalence.** Using WHO PTA-4 classification, 70.1% of ears had normal hearing (≤25 dB HL), 15.0% mild (26–40 dB), 8.0% moderate (41–55 dB), 3.8% moderately severe (56–70 dB), 2.2% severe (71–90 dB), and 0.9% profound loss (≥91 dB). Critically, 19.4% of all ears fell within ±5 dB of a WHO severity boundary — the borderline population where crisp classification is most ambiguous.
+**Hearing loss prevalence.** Using WHO PTA-4 classification, 62.8% of ears had normal hearing (≤25 dB HL), 22.9% mild (26–40 dB), 11.4% moderate (41–55 dB), 2.4% moderately severe (56–70 dB), 0.4% severe (71–90 dB), and <0.1% profound loss (≥91 dB). Critically, 39.2% of all ears fell within ±5 dB of a WHO severity boundary — the borderline population where crisp classification is most ambiguous.
 
-**Inter-frequency correlation.** Thresholds at adjacent frequencies were highly correlated (Pearson r > 0.85), while correlations between distant frequencies (500 Hz vs. 8 kHz) were moderate (r ≈ 0.55–0.65), confirming that frequency-specific information is partially independent and not fully captured by a single PTA value (Supplementary Figure S3).
+**Inter-frequency correlation.** Thresholds at adjacent frequencies were highly correlated (mean adjacent r = 0.87), while correlations between distant frequencies (500 Hz vs. 8 kHz) were moderate (r = 0.46), confirming that frequency-specific information is partially independent and not fully captured by a single PTA value (Supplementary Figure S3).
 
-**Audiogram configuration.** Using slope-based classification, the most common configurations were flat (34%) and gently sloping (28%), followed by steeply sloping (18%), notched (11%), precipitous (5%), and rising (4%) patterns. This distribution is consistent with a population-based sample where age-related hearing loss predominates (Supplementary Figure S4).
+**Audiogram configuration.** Using slope-based classification, the most common configurations were flat (36%) and gently sloping (26%), followed by steeply sloping (17%), notched (12%), precipitous (5%), and rising (4%) patterns. This distribution is consistent with a population-based sample where age-related hearing loss predominates (Supplementary Figure S4).
 
-**Asymmetry.** Mean inter-aural asymmetry was 7.2 dB; 10.4% of participants exceeded the 15 dB clinical threshold for significant asymmetry, consistent with published NHANES-based estimates [@suen2021].
+**Asymmetry.** Mean inter-aural asymmetry was 5.5 dB; 5.7% of participants exceeded the 15 dB clinical threshold for significant asymmetry, consistent with published NHANES-based estimates [@suen2021].
 
-**Bivariate relationships.** Hearing loss severity increased monotonically with age (r = 0.52, p < 0.001), with men showing higher thresholds at high frequencies (4–8 kHz) compared to women, reflecting known sex-specific patterns of noise exposure and age-related vulnerability. A complete set of EDA visualisations is provided in the supplementary materials and the analysis repository (https://github.com/ameye/fuzzy-audiogram).
+**Bivariate relationships.** Hearing loss severity increased with age, with higher thresholds at high frequencies (4–8 kHz) compared to low frequencies, reflecting known patterns of noise exposure and age-related vulnerability. A complete set of EDA visualisations is provided in the supplementary materials and the analysis repository (https://github.com/ameye/fuzzy-audiogram).
 
 ## Fuzzification: Membership Functions
 
