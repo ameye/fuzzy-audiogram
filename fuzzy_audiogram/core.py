@@ -37,12 +37,12 @@ CONFIG_LABELS_HUMAN = ['Normal', 'Flat', 'Sloping', 'Notched',
 
 # Membership function parameters (trapezoidal [a, b, c, d])
 SEVERITY_MF_PARAMS = {
-    'normal':           [0, 0, 20, 30],
-    'mild':             [20, 26, 35, 45],
-    'moderate':         [35, 41, 50, 60],
-    'moderately_severe': [50, 56, 65, 75],
-    'severe':           [65, 71, 85, 95],
-    'profound':         [85, 91, 120, 120],
+    'normal':           [0, 0, 14.3, 28.0],
+    'mild':             [26.0, 30.0, 39.3, 44.0],
+    'moderate':         [41.0, 45.0, 53.6, 59.0],
+    'moderately_severe': [56.0, 60.0, 67.9, 74.0],
+    'severe':           [71.0, 75.0, 85.4, 94.0],
+    'profound':         [91.9, 94.4, 103.5, 120.0],
 }
 
 SLOPE_MF_PARAMS = {

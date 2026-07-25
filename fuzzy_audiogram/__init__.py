@@ -9,7 +9,7 @@ configuration classification, NHANES data integration,
 temporal tracking, and validation against crisp/machine-learning models.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __author__ = "Sanyaolu Ameye"
 
 from .core import (
