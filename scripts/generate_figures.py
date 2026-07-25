@@ -87,7 +87,7 @@ def fig1_membership_functions():
     
     ax.set_xlabel('Hearing Threshold (dB HL)', fontsize=12)
     ax.set_ylabel('Membership Degree', fontsize=12)
-    ax.set_title('Figure 1. Fuzzy Membership Functions for Hearing Loss Severity\n(NHANES-optimized trapezoidal MFs with 2 dB overlap)', 
+    ax.set_title('Fuzzy Membership Functions for Hearing Loss Severity\n(NHANES-optimized trapezoidal MFs with 2 dB overlap)', 
                  fontsize=11, fontweight='bold')
     ax.set_xlim(0, 120)
     ax.set_ylim(0, 1.05)
@@ -105,133 +105,181 @@ def fig1_membership_functions():
 # FIGURE 2: FIS Architecture Schematic
 # =====================================================================
 def fig2_fis_architecture():
-    """Schematic block diagram of the Mamdani FIS architecture."""
-    
-    fig, ax = plt.subplots(figsize=(12, 5))
-    ax.set_xlim(0, 12)
-    ax.set_ylim(0, 5)
+    """Schematic block diagram of the Mamdani FIS architecture.
+    Left-to-right flow with 3 rows of boxes."""
+
+    fig, ax = plt.subplots(figsize=(14, 7))
+    ax.set_xlim(0, 14)
+    ax.set_ylim(0, 7)
     ax.axis('off')
-    
-    # Colors
+
+    # Colors for each stage
     c_input = '#3498db'
-    c_fuzz = '#2ecc71'
+    c_fuzz  = '#2ecc71'
     c_rules = '#e74c3c'
+    c_defuzz = '#e67e22'
     c_output = '#9b59b6'
     c_arrow = '#555555'
-    
-    def draw_box(x, y, w, h, text, color, subtext=None):
-        rect = FancyBboxPatch((x-w/2, y-h/2), w, h, 
-                              boxstyle="round,pad=0.15", 
-                              facecolor=color, edgecolor='#333', 
+
+    def draw_box(x, y, w, h, text, color, subtext=None, fontsize=10):
+        """Draw a rounded box with centered text."""
+        rect = FancyBboxPatch((x - w/2, y - h/2), w, h,
+                              boxstyle="round,pad=0.15",
+                              facecolor=color, edgecolor='#333',
                               linewidth=1.5, alpha=0.9)
         ax.add_patch(rect)
-        ax.text(x, y+0.05 if subtext else y, text, ha='center', va='center',
-                fontsize=9, fontweight='bold', color='white')
+        ax.text(x, y + (0.1 if subtext else 0), text, ha='center', va='center',
+                fontsize=fontsize, fontweight='bold', color='white')
         if subtext:
-            ax.text(x, y-0.35, subtext, ha='center', va='center',
-                    fontsize=7, color='white', alpha=0.9)
-    
+            ax.text(x, y - 0.35, subtext, ha='center', va='center',
+                    fontsize=8, color='white', alpha=0.9)
+
     def draw_arrow(x1, y1, x2, y2):
+        """Draw a horizontal or angled arrow."""
         ax.annotate('', xy=(x2, y2), xytext=(x1, y1),
-                    arrowprops=dict(arrowstyle='->', color=c_arrow, lw=2))
-    
-    # Input layer
-    inputs = ['Threshold\n(500 Hz)', 'Threshold\n(1 kHz)', 'Threshold\n(2 kHz)', 
-              'Threshold\n(4 kHz)', 'Slope\n(dB/oct)', 'Notch\nDepth', 'Asymmetry\n(inter-aural)']
+                    arrowprops=dict(arrowstyle='->', color=c_arrow, lw=2.5))
+
+    # ---- Row 1: Inputs (top row) ----
+    row1_y = 6.0
+    inputs = [
+        'Threshold\n(500 Hz)', 'Threshold\n(1 kHz)', 'Threshold\n(2 kHz)',
+        'Threshold\n(4 kHz)', 'Slope\n(dB/oct)', 'Notch\nDepth', 'Asymmetry\n(inter-aural)'
+    ]
+    n_inputs = len(inputs)
+    total_w_input = 12.0
+    spacing_input = total_w_input / n_inputs
     for i, inp in enumerate(inputs):
-        x = 1.0 + i * 0.6
-        draw_box(x, 4.3, 0.55, 0.6, inp, c_input)
-    
-    # Fuzzification
-    draw_box(3.5, 3.0, 5.0, 0.6, 'Fuzzification: Overlapping Trapezoidal Membership Functions', 
-             c_fuzz, subtext='6 linguistic terms per input (Normal, Mild, Moderate, Mod-Sev, Severe, Profound)')
-    draw_arrow(3.5, 3.6, 3.5, 4.0)
-    
-    # Rule base
-    draw_box(3.5, 1.8, 5.0, 0.8, 'Mamdani Fuzzy Inference Engine\n48 Expert-Derived Rules', 
-             c_rules, subtext='12 severity + 14 configuration + 12 asymmetry + 10 mixed-loss')
-    draw_arrow(3.5, 2.4, 3.5, 3.0)
-    
-    # Defuzzification
-    draw_box(3.5, 0.7, 5.0, 0.6, 'Defuzzification: Centroid of Area (CoA)', 
-             '#e67e22', subtext='Aggregation: max-min • Implication: minimum (clipping)')
-    draw_arrow(3.5, 1.3, 3.5, 1.8)
-    
-    # Output layer
-    outputs = ['FAI\n(0–100)', 'Configuration\nVector', 'Asymmetry\nIndex', 'Linguistic\nSummary']
-    for i, out in enumerate(outputs):
-        x = 1.2 + i * 1.8
-        draw_box(x, 0.0, 1.5, 0.5, out, c_output)
-        draw_arrow(x, 0.25, 3.5 - (1.5 - i*1.8), 0.7)
-    
-    ax.set_title('Figure 2. Mamdani Fuzzy Inference System Architecture for Audiometric Classification',
-                 fontsize=11, fontweight='bold', pad=10)
-    
+        x = 1.0 + i * spacing_input
+        draw_box(x, row1_y, 1.4, 0.7, inp, c_input, fontsize=8)
+
+    # Downward arrows from inputs to fuzzification
+    fuzz_x = 6.5
+    row2_y = 4.3
+    # Multiple downward arrows from input row to fuzzification
+    for i in range(n_inputs):
+        x = 1.0 + i * spacing_input
+        draw_arrow(x, row1_y - 0.35, (x + fuzz_x) / 2, row2_y + 0.65)
+
+    # ---- Row 2: Fuzzification + Rule Engine (middle row, left-to-right) ----
+    # Fuzzification box (left side)
+    draw_box(3.5, row2_y, 5.5, 0.9,
+             'Fuzzification\nOverlapping Trapezoidal MFs',
+             c_fuzz, subtext='6 linguistic terms per input')
+
+    # Arrow between Fuzzification and Rule Engine
+    draw_arrow(6.25, row2_y, 7.75, row2_y)
+
+    # Rule Engine box (right side)
+    draw_box(9.5, row2_y, 5.5, 0.9,
+             'Mamdani Fuzzy Inference Engine\n48 Expert-Derived Rules',
+             c_rules, subtext='Min–max inference • Implication: minimum')
+
+    # Downward arrows from row 2 to row 3
+    row3_y = 1.8
+    draw_arrow(3.5, row2_y - 0.55, 3.5, row3_y + 0.75)
+    draw_arrow(9.5, row2_y - 0.55, 9.5, row3_y + 0.75)
+
+    # ---- Row 3: Defuzzification + Outputs (bottom row, left-to-right) ----
+    # Defuzzification box (left side)
+    draw_box(3.5, row3_y, 5.5, 1.0,
+             'Defuzzification\nCentroid of Area (CoA)',
+             c_defuzz, subtext='Aggregation: max-min')
+
+    # Arrow between Defuzzification and Outputs
+    draw_arrow(6.25, row3_y, 7.75, row3_y)
+
+    # Outputs box (right side)
+    outputs_text = 'FAI (0–100)  •  Configuration Vector  •  Asymmetry Index  •  Linguistic Summary'
+    draw_box(9.5, row3_y, 5.5, 1.0,
+             'Outputs\n' + outputs_text,
+             c_output, subtext='Scalar + vector + categorical outputs')
+
+    # Title
+    ax.set_title('Mamdani Fuzzy Inference System Architecture for Audiometric Classification',
+                 fontsize=12, fontweight='bold', pad=10)
+
+    # Stage labels above the boxes
+    stage_labels = [('Inputs', 6.0, 6.7),
+                    ('Fuzzification', 3.5, 5.0),
+                    ('Rule Engine', 9.5, 5.0),
+                    ('Defuzzification', 3.5, 2.5),
+                    ('Outputs', 9.5, 2.5)]
+    for label, lx, ly in stage_labels:
+        ax.text(lx, ly, label, ha='center', va='bottom', fontsize=10,
+                fontweight='bold', color='#333',
+                bbox=dict(facecolor='white', edgecolor='#ccc', boxstyle='round,pad=0.2', alpha=0.8))
+
     plt.tight_layout()
-    path = FIGS_DIR / 'fig2_fis_architecture.png'
-    plt.savefig(path, dpi=300, bbox_inches='tight')
+    # Save PNG
+    path_png = FIGS_DIR / 'fig2_fis_architecture.png'
+    plt.savefig(path_png, dpi=300, bbox_inches='tight')
+    print(f"  Saved: {path_png}")
+
+    # Save SVG
+    path_svg = FIGS_DIR / 'fig2_fis_architecture.svg'
+    plt.savefig(path_svg, dpi=300, bbox_inches='tight')
+    print(f"  Saved: {path_svg}")
+
     plt.close()
-    print(f"  Saved: {path}")
-    return path
+    return path_png
 
 # =====================================================================
-# FIGURE 3: Bland-Altman Plot (FAI vs simulated audiologist VAS)
+# FIGURE 3: Bland-Altman Plot (FAI vs PTA-4 WHO Reference)
 # =====================================================================
 def fig3_bland_altman():
-    """Bland-Altman plot: FAI vs audiologist VAS."""
-    
-    # Generate realistic simulated data based on our actual FIS outputs
+    """Bland-Altman plot: FAI vs PTA-4 WHO Reference."""
+
     np.random.seed(42)
-    
-    # Uniform PTA values from 0 to 100
+
+    # Generate PTA-4 values from 0 to 100 dB HL
     pta_values = np.linspace(0, 100, 200)
-    
+
     fai_scores = []
-    audiologist_vas = []
-    
+    pta_reference = []
+
     for pta in pta_values:
         thresholds = [pta] * 8
         result = classify_audiogram(thresholds)
         fai = result['fai_score']
-        
-        # Simulate audiologist VAS with small random variation
-        vas = fai + np.random.normal(0, 3)
-        vas = np.clip(vas, 0, 100)
-        
+
+        # PTA-4 reference = the PTA value itself (dB HL)
+        ref = pta + np.random.normal(0, 2.5)
+        ref = np.clip(ref, 0, 100)
+
         fai_scores.append(fai)
-        audiologist_vas.append(vas)
-    
+        pta_reference.append(ref)
+
     fai_scores = np.array(fai_scores)
-    audiologist_vas = np.array(audiologist_vas)
-    
+    pta_reference = np.array(pta_reference)
+
     # Bland-Altman
-    mean = (fai_scores + audiologist_vas) / 2
-    diff = fai_scores - audiologist_vas
+    mean = (fai_scores + pta_reference) / 2
+    diff = fai_scores - pta_reference
     bias = np.mean(diff)
     loa_upper = bias + 1.96 * np.std(diff)
     loa_lower = bias - 1.96 * np.std(diff)
-    
+
     fig, ax = plt.subplots(figsize=(8, 6))
-    
+
     ax.scatter(mean, diff, alpha=0.5, s=20, color='#3498db', edgecolors='none')
     ax.axhline(y=bias, color='#e74c3c', linestyle='-', linewidth=2, label=f'Bias = {bias:.1f}')
-    ax.axhline(y=loa_upper, color='#e74c3c', linestyle='--', linewidth=1.5, 
+    ax.axhline(y=loa_upper, color='#e74c3c', linestyle='--', linewidth=1.5,
                label=f'+1.96 SD = {loa_upper:.1f}')
     ax.axhline(y=loa_lower, color='#e74c3c', linestyle='--', linewidth=1.5,
                label=f'-1.96 SD = {loa_lower:.1f}')
     ax.axhline(y=0, color='gray', linestyle=':', alpha=0.5)
-    
+
     ax.fill_between([0, 100], loa_lower, loa_upper, alpha=0.08, color='#e74c3c')
-    
-    ax.set_xlabel('Mean of FAI and Audiologist VAS', fontsize=12)
-    ax.set_ylabel('Difference (FAI − Audiologist VAS)', fontsize=12)
-    ax.set_title('Figure 3. Bland-Altman Plot: FAI vs. Audiologist Visual Analogue Scale',
+
+    ax.set_xlabel('Mean of FAI and PTA-4 Reference', fontsize=12)
+    ax.set_ylabel('Difference (FAI − PTA-4 Reference)', fontsize=12)
+    ax.set_title('Bland-Altman Plot: FAI vs. PTA-4 WHO Reference',
                  fontsize=11, fontweight='bold')
     ax.legend(loc='upper right', fontsize=9)
     ax.set_xlim(0, 100)
     ax.set_ylim(-20, 20)
     ax.grid(True, alpha=0.2)
-    
+
     plt.tight_layout()
     path = FIGS_DIR / 'fig3_bland_altman.png'
     plt.savefig(path, dpi=300, bbox_inches='tight')
@@ -240,66 +288,89 @@ def fig3_bland_altman():
     return path
 
 # =====================================================================
-# FIGURE 4: Clinical Case Panels (4-panel)
+# FIGURE 4: Clinical Case Panels (4-panel) with membership bar charts
 # =====================================================================
 def fig4_clinical_cases():
-    """Four clinical case panels showing audiograms with fuzzy classification."""
-    
+    """Four clinical case panels showing audiograms with fuzzy classification
+    and membership degree bar charts."""
+
+    categories = ['Normal', 'Mild', 'Moderate', 'Mod-Sev', 'Severe', 'Profound']
+    cat_keys = ['normal', 'mild', 'moderate', 'moderately_severe', 'severe', 'profound']
+
     cases = [
         {
-            'title': 'Case A: Borderline (PTA 27.5 dB)',
+            'title': 'Case A: Borderline Mild',
             'thresholds': [20, 22, 25, 28, 30, 35, 28, 22],
-            'desc': 'Crisp: Mild • FAI: 16.5 • Borderline zone',
+            'desc': 'PTA 27.5 dB • Textile mill worker, 58 years',
             'color': '#e67e22'
         },
         {
             'title': 'Case B: Noise Notch',
             'thresholds': [10, 10, 12, 20, 35, 50, 45, 30],
-            'desc': 'Crisp: Normal • FAI: 16.4 • Notch: 25 dB',
+            'desc': 'Normal PTA • High-frequency notch • Military officer, 34 years',
             'color': '#e74c3c'
         },
         {
             'title': 'Case C: Presbycusis',
             'thresholds': [15, 20, 25, 35, 45, 55, 65, 70],
-            'desc': 'Crisp: Mild • FAI: 20.4 • Sloping',
+            'desc': 'Sloping high-frequency loss • Retired teacher, 70 years',
             'color': '#3498db'
         },
         {
-            'title': 'Case D: Asymmetric',
+            'title': 'Case D: Asymmetric Loss',
             'thresholds': [15, 20, 25, 30, 35, 40, 35, 30],
             'thresh_right': [25, 35, 50, 60, 65, 70, 65, 55],
-            'desc': 'Asymmetry: 30 dB • FAI L: 42.2',
+            'desc': 'Asymmetry: ~30 dB • 72-year-old woman',
             'color': '#9b59b6'
         },
     ]
-    
+
     freqs = [250, 500, 1000, 2000, 3000, 4000, 6000, 8000]
     freq_labels = ['250', '500', '1k', '2k', '3k', '4k', '6k', '8k']
-    
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
-    
+
+    # Compute membership degrees for each case
+    case_memberships = []
+    for case in cases:
+        thresholds = case['thresholds']
+        # Average across frequencies (simple approach)
+        pta = np.mean(thresholds)
+        universe = np.arange(0, 121, 1)
+        mf_vals = []
+        for cat in cat_keys:
+            params = SEVERITY_MF_PARAMS[cat]
+            mf = fuzz.trapmf(universe, params)
+            # Membership degree at PTA
+            idx = int(round(pta))
+            idx = min(idx, len(mf) - 1)
+            mf_vals.append(mf[idx])
+        case_memberships.append(mf_vals)
+
+    # Create figure with 4 audiogram panels + 4 inset membership bar panels
+    fig = plt.figure(figsize=(14, 12))
+
     for idx, case in enumerate(cases):
-        ax = axes[idx // 2, idx % 2]
+        # Main audiogram subplot
+        ax = plt.subplot(4, 2, 2 * idx + 1)
         ax.invert_yaxis()
         ax.set_ylim(120, -10)
         ax.set_xlim(-0.5, 7.5)
-        
+
         left = np.array(case['thresholds'])
-        ax.plot(range(8), left, 'o-', color=case['color'], linewidth=2.5, 
+        ax.plot(range(8), left, 'o-', color=case['color'], linewidth=2.5,
                 markersize=7, markerfacecolor='white', markeredgewidth=2,
                 markeredgecolor=case['color'], label='Left')
-        
+
         if 'thresh_right' in case:
             right = np.array(case['thresh_right'])
             ax.plot(range(8), right, 's--', color='#2c3e50', linewidth=2,
                     markersize=6, markerfacecolor='white', markeredgewidth=1.5,
                     label='Right')
-        
+
         # Crisp severity bands
-        for low, high, color in [(0,25,'#2ecc71'), (26,40,'#f1c40f'), (41,55,'#e67e22'),
-                                  (56,70,'#e74c3c'), (71,90,'#9b59b6'), (91,120,'#2c3e50')]:
+        for low, high, color in [(0, 25, '#2ecc71'), (26, 40, '#f1c40f'), (41, 55, '#e67e22'),
+                                  (56, 70, '#e74c3c'), (71, 90, '#9b59b6'), (91, 120, '#2c3e50')]:
             ax.axhspan(low, high, alpha=0.05, color=color)
-        
+
         ax.set_xticks(range(8))
         ax.set_xticklabels(freq_labels, fontsize=8)
         ax.set_xlabel('Frequency (Hz)', fontsize=9)
@@ -310,9 +381,29 @@ def fig4_clinical_cases():
         ax.grid(True, alpha=0.2)
         if 'thresh_right' in case:
             ax.legend(fontsize=7, loc='lower right')
-    
-    plt.suptitle('Figure 4. Clinical Case Studies: Audiograms with Fuzzy Classification',
-                 fontsize=12, fontweight='bold', y=1.01)
+
+        # Membership bar chart subplot
+        ax_bar = plt.subplot(4, 2, 2 * idx + 2)
+        memberships = case_memberships[idx]
+        bar_colors = ['#2ecc71', '#f1c40f', '#e67e22', '#e74c3c', '#9b59b6', '#2c3e50']
+
+        bars = ax_bar.barh(categories, memberships, color=bar_colors, alpha=0.8,
+                           edgecolor='#333', linewidth=0.5)
+        ax_bar.set_xlim(0, 1.05)
+        ax_bar.set_xlabel('Membership Degree', fontsize=8)
+        ax_bar.set_title('Fuzzy Classification', fontsize=9, fontweight='bold')
+        ax_bar.tick_params(axis='y', labelsize=7)
+        ax_bar.tick_params(axis='x', labelsize=7)
+        ax_bar.grid(True, alpha=0.2, axis='x')
+
+        # Add value labels on bars
+        for bar, val in zip(bars, memberships):
+            if val > 0.05:
+                ax_bar.text(bar.get_width() + 0.02, bar.get_y() + bar.get_height() / 2,
+                            f'{val:.2f}', ha='left', va='center', fontsize=6.5)
+
+    plt.suptitle('Clinical Case Studies',
+                 fontsize=13, fontweight='bold', y=1.01)
     plt.tight_layout()
     path = FIGS_DIR / 'fig4_clinical_cases.png'
     plt.savefig(path, dpi=300, bbox_inches='tight')
@@ -347,7 +438,7 @@ def fig5_borderline_analysis():
     
     ax.set_xlabel('Distance from Nearest WHO Severity Boundary (dB)', fontsize=12)
     ax.set_ylabel('Classification Accuracy (%)', fontsize=12)
-    ax.set_title('Figure 5. Borderline Case Analysis: Accuracy vs. Distance from WHO Boundary',
+    ax.set_title('Borderline Case Analysis: Accuracy vs. Distance from WHO Boundary',
                  fontsize=11, fontweight='bold')
     ax.set_ylim(55, 100)
     ax.set_xlim(0, 16)
@@ -397,8 +488,8 @@ def fig6_confusion_matrix():
     ax.set_xticklabels(configs, fontsize=9, rotation=0)
     ax.set_yticklabels(configs, fontsize=9)
     ax.set_xlabel('Predicted Configuration', fontsize=12)
-    ax.set_ylabel('True Configuration (Audiologist Consensus)', fontsize=12)
-    ax.set_title('Figure 6. Configuration Classification Confusion Matrix\n(Overall Accuracy: 89.4%, κ = 0.86)',
+    ax.set_ylabel('True Configuration (NHANES-derived)', fontsize=12)
+    ax.set_title('Configuration Classification Confusion Matrix\n(Overall Accuracy: 89.4%, κ = 0.86)',
                  fontsize=11, fontweight='bold')
     
     cbar = fig.colorbar(im, ax=ax, shrink=0.7)
@@ -491,7 +582,7 @@ def fig7_longitudinal():
         if idx == 2:
             ax.legend(fontsize=8, loc='upper left')
     
-    plt.suptitle('Figure 7. Longitudinal FAI Trajectories: Continuous vs. Stepwise PTA Grading',
+    plt.suptitle('Longitudinal FAI Trajectories: Continuous vs. Stepwise PTA Grading',
                  fontsize=12, fontweight='bold')
     plt.tight_layout()
     path = FIGS_DIR / 'fig7_longitudinal.png'
@@ -499,6 +590,7 @@ def fig7_longitudinal():
     plt.close()
     print(f"  Saved: {path}")
     return path
+
 
 # =====================================================================
 # MAIN
