@@ -1,0 +1,44 @@
+NHANES AUDIOMETRY EDA — SUMMARY STATISTICS
+============================================================
+
+Dataset: NHANES P_AUX (2017-2020)
+Total participants: 5,147
+With audiometry data: 4,697
+
+PTA-4 Statistics (worse ear):
+  Mean ± SD: 77.4 ± 196.4 dB
+  Median [IQR]: 12.5 [7.5–35.0] dB
+  Range: -10–888 dB
+
+WHO Severity Distribution:
+  Normal              :   3129 ( 67.9%)
+  Mild                :    477 ( 10.4%)
+  Moderate            :    325 (  7.1%)
+  Moderately Severe   :    114 (  2.5%)
+  Severe              :     38 (  0.8%)
+  Profound            :    522 ( 11.3%)
+
+Borderline (±5 dB of WHO boundary): 945 (20.5%)
+
+Configuration (slope-based):
+  Rising              :   1717 ( 33.4%)
+  Flat                :   2125 ( 41.3%)
+  Gently Sloping      :    478 (  9.3%)
+  Steeply Sloping     :    545 ( 10.6%)
+  Precipitous         :    282 (  5.5%)
+
+Configuration (fuzzy classifier):
+  Normal              :      0 (  0.0%)
+
+  Flat                :    483 ( 27.7%)
+
+  Sloping             :    743 ( 42.7%)
+
+  Notched             :     56 (  3.2%)
+
+  Precipitous         :    116 (  6.7%)
+
+  Rising              :    344 ( 19.7%)
+
+Asymmetry >15 dB: 1,333 (28.8%)
+Complete cases: 1,795 (34.9%)
