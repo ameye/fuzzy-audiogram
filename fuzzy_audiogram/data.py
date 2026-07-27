@@ -43,10 +43,36 @@ TYMPANOMETRY_COLS = [
 # We treat any value with absolute < 1e-70 as NaN.
 _SUBNORMAL_THRESHOLD = 1e-70
 
+# NHANES sentinel codes for audiometry:
+# 666 = No response at maximum output (could not hear at max)
+# 888 = Could not obtain test result
+NHANES_SENTINELS = {666.0, 888.0}
+
+# Physiologically plausible threshold range for pure-tone audiometry
+MIN_PLAUSIBLE_THRESHOLD = -10
+MAX_PLAUSIBLE_THRESHOLD = 120
+
 
 def _clean_subnormal(series):
     """Replace SAS subnormal missing-value indicators with NaN."""
     return series.where(np.abs(series) > _SUBNORMAL_THRESHOLD, np.nan)
+
+
+def _clean_threshold(series):
+    """Clean a threshold series: remove subnormals, sentinels, and out-of-range values.
+
+    Converts to NaN:
+    - SAS subnormal values (~1e-79)
+    - NHANES sentinel codes (666 = no response, 888 = could not obtain)
+    - Values outside plausible range (-10 to 120 dB HL)
+    """
+    s = _clean_subnormal(series)
+    # Remove NHANES sentinel codes
+    for sentinel in NHANES_SENTINELS:
+        s = s.where(s != sentinel, np.nan)
+    # Remove physiologically implausible values
+    s = s.where((s >= MIN_PLAUSIBLE_THRESHOLD) & (s <= MAX_PLAUSIBLE_THRESHOLD), np.nan)
+    return s
 
 
 def load_nhanes(path):
@@ -103,7 +129,7 @@ def extract_audiometry(df):
     # Extract and clean right-ear thresholds
     for col, freq in COLUMN_MAP_RIGHT.items():
         if col in df.columns:
-            result[f'threshold_right_{freq}'] = _clean_subnormal(
+            result[f'threshold_right_{freq}'] = _clean_threshold(
                 df[col].astype(float)
             )
         else:
@@ -112,7 +138,7 @@ def extract_audiometry(df):
     # Extract and clean left-ear thresholds
     for col, freq in COLUMN_MAP_LEFT.items():
         if col in df.columns:
-            result[f'threshold_left_{freq}'] = _clean_subnormal(
+            result[f'threshold_left_{freq}'] = _clean_threshold(
                 df[col].astype(float)
             )
         else:
