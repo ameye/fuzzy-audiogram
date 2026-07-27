@@ -3,42 +3,42 @@ NHANES AUDIOMETRY EDA — SUMMARY STATISTICS
 
 Dataset: NHANES P_AUX (2017-2020)
 Total participants: 5,147
-With audiometry data: 4,697
+With audiometry data: 4,579
 
 PTA-4 Statistics (worse ear):
-  Mean ± SD: 77.4 ± 196.4 dB
-  Median [IQR]: 12.5 [7.5–35.0] dB
-  Range: -10–888 dB
+  Mean ± SD: 17.9 ± 17.1 dB
+  Median [IQR]: 11.2 [7.5–23.8] dB
+  Range: -10–105 dB
 
 WHO Severity Distribution:
-  Normal              :   3129 ( 67.9%)
-  Mild                :    477 ( 10.4%)
-  Moderate            :    325 (  7.1%)
-  Moderately Severe   :    114 (  2.5%)
-  Severe              :     38 (  0.8%)
-  Profound            :    522 ( 11.3%)
+  Normal              :   3360 ( 76.7%)
+  Mild                :    483 ( 11.0%)
+  Moderate            :    344 (  7.8%)
+  Moderately Severe   :    127 (  2.9%)
+  Severe              :     54 (  1.2%)
+  Profound            :     15 (  0.3%)
 
-Borderline (±5 dB of WHO boundary): 945 (20.5%)
+Borderline (±5 dB of WHO boundary): 1,003 (22.9%)
 
 Configuration (slope-based):
-  Rising              :   1717 ( 33.4%)
-  Flat                :   2125 ( 41.3%)
-  Gently Sloping      :    478 (  9.3%)
-  Steeply Sloping     :    545 ( 10.6%)
-  Precipitous         :    282 (  5.5%)
+  Rising              :   1948 ( 37.8%)
+  Flat                :   1924 ( 37.4%)
+  Gently Sloping      :    482 (  9.4%)
+  Steeply Sloping     :    563 ( 10.9%)
+  Precipitous         :    230 (  4.5%)
 
 Configuration (fuzzy classifier):
   Normal              :      0 (  0.0%)
 
-  Flat                :    483 ( 27.7%)
+  Flat                :    432 ( 25.4%)
 
-  Sloping             :    743 ( 42.7%)
+  Sloping             :    822 ( 48.4%)
 
-  Notched             :     56 (  3.2%)
+  Notched             :     39 (  2.3%)
 
-  Precipitous         :    116 (  6.7%)
+  Precipitous         :    146 (  8.6%)
 
-  Rising              :    344 ( 19.7%)
+  Rising              :    260 ( 15.3%)
 
-Asymmetry >15 dB: 1,333 (28.8%)
-Complete cases: 1,795 (34.9%)
+Asymmetry >15 dB: 1,079 (24.5%)
+Complete cases: 1,225 (23.8%)
