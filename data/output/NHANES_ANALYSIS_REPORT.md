@@ -3,7 +3,7 @@
 
 **Date:** July 2026
 **Data Source:** NHANES P_AUX (Pre-pandemic Audiometry Examination, 2015–2020)
-**n:** 5,147 participants (4,605 with at least one measurable PTA)
+**n:** 5,147 participants (4,383 with at least one measurable PTA)
 **Package:** fuzzy-audiogram v0.2.0
 
 ---
@@ -13,9 +13,9 @@
 | Metric | Value |
 |--------|-------|
 | **Total participants** | 5,147 |
-| **With PTA-4 (any ear)** | 4,605 (89.5%) |
-| **Missing all PTA data** | 542 (10.5%) |
-| **Successfully fuzzy-classified** | 4,475 |
+| **With PTA-4 (any ear)** | 4,383 (85.2%) |
+| **Missing all PTA data** | 764 (14.8%) |
+| **Successfully fuzzy-classified** | 4,404 |
 
 > **Note:** NHANES P_AUX contains audiometric data only (no linked demographic
 > variables like age/sex in this file). Demographic linkage requires merging
@@ -26,18 +26,18 @@
 ## 2. PTA-4 Distribution
 
 ### Right Ear
-- **Mean ± SD:** 64.0 ± 174.3 dB
-- **Median (IQR):** 10.0 (5.0–31.2) dB
-- **Range:** -10–888 dB
+- **Mean ± SD:** 15.0 ± 16.4 dB
+- **Median (IQR):** 8.8 (5.0–20.0) dB
+- **Range:** -10–105 dB
 
 ### Left Ear
-- **Mean ± SD:** 65.1 ± 176.1 dB
-- **Median (IQR):** 11.2 (6.2–31.2) dB
-- **Range:** -10–888 dB
+- **Mean ± SD:** 15.6 ± 16.4 dB
+- **Median (IQR):** 10.0 (5.0–21.2) dB
+- **Range:** -10–105 dB
 
 ### Worse Ear
-- **Mean ± SD:** 77.4 ± 196.4 dB
-- **Median (IQR):** 12.5 (7.5–35.0) dB
+- **Mean ± SD:** 17.9 ± 17.1 dB
+- **Median (IQR):** 11.2 (7.5–23.8) dB
 
 ---
 
@@ -45,23 +45,23 @@
 
 | Category | PTA Range | Count | Percentage |
 |----------|-----------|-------|------------|
-| **Normal** | ≤25 dB | 3,129 | 60.8% |
-| **Mild** | ≤40 dB | 477 | 9.3% |
-| **Moderate** | ≤55 dB | 325 | 6.3% |
-| **Moderately Severe** | ≤70 dB | 114 | 2.2% |
-| **Severe** | ≤90 dB | 38 | 0.7% |
-| **Profound** | ≤120 dB | 522 | 10.1% |
+| **Normal** | ≤25 dB | 3,360 | 65.3% |
+| **Mild** | ≤40 dB | 483 | 9.4% |
+| **Moderate** | ≤55 dB | 344 | 6.7% |
+| **Moderately Severe** | ≤70 dB | 127 | 2.5% |
+| **Severe** | ≤90 dB | 54 | 1.0% |
+| **Profound** | ≤120 dB | 15 | 0.3% |
 
 ### Better Ear Distribution
 
 | Category | Count | Percentage |
 |----------|-------|------------|
-| Normal | 3,393 | 65.9% |
-| Mild | 455 | 8.8% |
-| Moderate | 259 | 5.0% |
+| Normal | 3,586 | 69.7% |
+| Mild | 463 | 9.0% |
+| Moderate | 254 | 4.9% |
 | Moderately Severe | 67 | 1.3% |
-| Severe | 8 | 0.2% |
-| Profound | 423 | 8.2% |
+| Severe | 7 | 0.1% |
+| Profound | 6 | 0.1% |
 
 ---
 
@@ -71,15 +71,15 @@ Slope defined as: **Threshold at 4 kHz − Threshold at 500 Hz** (dB)
 
 | Slope Type | Range | Percentage |
 |------------|-------|------------|
-| Rising | < −8 dB | 11.8% |
-| Flat | −8 to 12 dB | 54.6% |
-| Gently Sloping | 12 to 28 dB | 12.3% |
-| Steeply Sloping | 28 to 50 dB | 12.0% |
-| Precipitous | > 50 dB | 9.2% |
+| Rising | < −8 dB | 12.7% |
+| Flat | −8 to 12 dB | 52.5% |
+| Gently Sloping | 12 to 28 dB | 13.2% |
+| Steeply Sloping | 28 to 50 dB | 13.2% |
+| Precipitous | > 50 dB | 8.4% |
 
-- **Mean slope:** 23.1 dB
+- **Mean slope:** 12.1 dB
 - **Median slope:** 5.0 dB
-- **Range:** -30 to 883 dB
+- **Range:** -30 to 95 dB
 
 ---
 
@@ -89,15 +89,15 @@ Maximum absolute difference across frequencies (500 Hz–8 kHz).
 
 | Asymmetry Category | Range | Percentage |
 |--------------------|-------|------------|
-| Symmetric | ≤15 dB | 71.2% |
-| Mildly Asymmetric | 16–30 dB | 17.0% |
-| Moderately Asymmetric | 31–45 dB | 2.3% |
-| Severely Asymmetric | >45 dB | 9.6% |
+| Symmetric | ≤15 dB | 75.5% |
+| Mildly Asymmetric | 16–30 dB | 20.0% |
+| Moderately Asymmetric | 31–45 dB | 3.2% |
+| Severely Asymmetric | >45 dB | 1.3% |
 
-- **Mean asymmetry:** 75.0 dB
+- **Mean asymmetry:** 13.9 dB
 - **Median:** 10.0 dB
-- **95th percentile:** 596.0 dB
-- **Maximum:** 898 dB
+- **95th percentile:** 30.0 dB
+- **Maximum:** 95 dB
 
 ---
 
@@ -107,13 +107,13 @@ Pearson correlations between thresholds at different frequencies (right ear):
 
 | Freq | 500 Hz | 1 kHz | 2 kHz | 3 kHz | 4 kHz | 6 kHz | 8 kHz |
 |------|--------|-------|-------|-------|-------|-------|-------|
-|   500 | 1.000 | 0.634 | 0.618 | 0.970 | 0.602 | 0.920 | 0.477 |
-|    1k | 0.634 | 1.000 | 0.975 | 0.618 | 0.898 | 0.598 | 0.702 |
-|    2k | 0.618 | 0.975 | 1.000 | 0.631 | 0.917 | 0.616 | 0.725 |
-|    3k | 0.970 | 0.618 | 0.631 | 1.000 | 0.637 | 0.939 | 0.511 |
-|    4k | 0.602 | 0.898 | 0.917 | 0.637 | 1.000 | 0.664 | 0.794 |
-|    6k | 0.920 | 0.598 | 0.616 | 0.939 | 0.664 | 1.000 | 0.597 |
-|    8k | 0.477 | 0.702 | 0.725 | 0.511 | 0.794 | 0.597 | 1.000 |
+|   500 | 1.000 | 0.860 | 0.725 | 0.662 | 0.630 | 0.620 | 0.568 |
+|    1k | 0.860 | 1.000 | 0.842 | 0.756 | 0.722 | 0.696 | 0.643 |
+|    2k | 0.725 | 0.842 | 1.000 | 0.898 | 0.865 | 0.826 | 0.765 |
+|    3k | 0.662 | 0.756 | 0.898 | 1.000 | 0.943 | 0.885 | 0.823 |
+|    4k | 0.630 | 0.722 | 0.865 | 0.943 | 1.000 | 0.913 | 0.859 |
+|    6k | 0.620 | 0.696 | 0.826 | 0.885 | 0.913 | 1.000 | 0.914 |
+|    8k | 0.568 | 0.643 | 0.765 | 0.823 | 0.859 | 0.914 | 1.000 |
 
 **Key observations:**
 - Adjacent frequencies are strongly correlated (r > 0.85)
@@ -125,32 +125,32 @@ Pearson correlations between thresholds at different frequencies (right ear):
 ## 7. Fuzzy Classification Results (FAI)
 
 ### Fuzzy Audiometric Index Summary
-- **Mean FAI:** 27.8 (range: 9–96)
+- **Mean FAI:** 27.5 (range: 9–96)
 - **Median FAI:** 30.6
-- **SD:** 17.2
+- **SD:** 14.6
 
 ### Fuzzy Label Distribution
 | FAI Label | Count | Percentage |
 |-----------|-------|------------|
-| Normal | 1,510 | 33.7% |
-| Mild | 2,058 | 46.0% |
-| Moderate | 387 | 8.6% |
-| Moderately Severe | 256 | 5.7% |
-| Severe | 213 | 4.8% |
-| Profound | 51 | 1.1% |
+| Normal | 1,280 | 29.1% |
+| Mild | 2,278 | 51.7% |
+| Moderate | 408 | 9.3% |
+| Moderately Severe | 254 | 5.8% |
+| Severe | 98 | 2.2% |
+| Profound | 86 | 2.0% |
 
 ### Configuration Label Distribution
 | Configuration | Count | Percentage |
 |---------------|-------|------------|
 | Normal | 0 | 0.0% |
-| Flat | 1,266 | 28.3% |
-| Sloping | 1,906 | 42.6% |
-| Notched | 136 | 3.0% |
-| Precipitous | 296 | 6.6% |
-| Rising | 871 | 19.5% |
+| Flat | 1,147 | 26.0% |
+| Sloping | 2,124 | 48.2% |
+| Notched | 131 | 3.0% |
+| Precipitous | 369 | 8.4% |
+| Rising | 633 | 14.4% |
 
 ### Spearman Correlation: FAI vs PTA-4
-- **ρ = 0.3591** (p < 1.39e-132, n = 4,350)
+- **ρ = 0.4476** (p < 8.52e-207, n = 4,215)
 - This very high correlation confirms FAI is strongly concordant with PTA while providing additional frequency-specific gradation
 
 ---
@@ -158,17 +158,17 @@ Pearson correlations between thresholds at different frequencies (right ear):
 ## 8. Fuzzy vs Crisp Classification Comparison
 
 ### Overall Agreement
-- **34.6%** (1,516/4,376 cases agree)
+- **36.5%** (1,565/4,289 cases agree)
 
 ### Agreement by Category
 | Category | Total Crisp | Agree with Fuzzy | Agreement % |
 |----------|-------------|-------------------|-------------|
-| Normal | 3,090 | 1,211 | 39.2% |
-| Mild | 432 | 179 | 41.4% |
-| Moderate | 305 | 78 | 25.6% |
-| Moderately Severe | 111 | 15 | 13.5% |
-| Severe | 39 | 17 | 43.6% |
-| Profound | 399 | 16 | 4.0% |
+| Normal | 3,395 | 1,221 | 36.0% |
+| Mild | 428 | 189 | 44.2% |
+| Moderate | 290 | 102 | 35.2% |
+| Moderately Severe | 110 | 22 | 20.0% |
+| Severe | 50 | 27 | 54.0% |
+| Profound | 16 | 4 | 25.0% |
 
 
 ### Boundary Zone Reclassification
@@ -176,14 +176,14 @@ Cases within ±3 dB of WHO category boundaries where fuzzy and crisp classifiers
 
 | Boundary Zone | Total Cases | Reclassified | Reclass % |
 |---------------|-------------|--------------|-----------|
-| Normal↔Mild (23–28 dB) | 172 | 112 | 65.1% |
-| Mild↔Moderate (38–43 dB) | 128 | 89 | 69.5% |
-| Moderate↔Mod. Severe (53–58 dB) | 65 | 55 | 84.6% |
-| Mod. Severe↔Severe (68–73 dB) | 17 | 9 | 52.9% |
-| Severe↔Profound (88–93 dB) | 6 | 5 | 83.3% |
+| Normal↔Mild (23–28 dB) | 175 | 114 | 65.1% |
+| Mild↔Moderate (38–43 dB) | 124 | 75 | 60.5% |
+| Moderate↔Mod. Severe (53–58 dB) | 57 | 43 | 75.4% |
+| Mod. Severe↔Severe (68–73 dB) | 23 | 16 | 69.6% |
+| Severe↔Profound (88–93 dB) | 9 | 7 | 77.8% |
 
 **Total in all boundary zones:** 388 cases
-**Total reclassified:** 270 (69.6% of boundary cases)
+**Total reclassified:** 255 (65.7% of boundary cases)
 
 This shows that the fuzzy classifier provides meaningful reclassification for
 a substantial proportion of borderline cases — precisely the patients for whom
@@ -224,19 +224,19 @@ clinical decisions are most uncertain.
 
 ## 11. Key Findings
 
-1. **NHANES cohort is predominantly normal-to-mild:** 60.8% have normal hearing,
-   and 70.1% are normal or mild — reflecting the population-based sampling.
+1. **NHANES cohort is predominantly normal-to-mild:** 65.3% have normal hearing,
+   and 74.7% are normal or mild — reflecting the population-based sampling.
 
 2. **Slope distribution is right-skewed:** most participants have flat or gently sloping
    audiograms, consistent with age-related hearing loss patterns.
 
-3. **Asymmetry is typically ≤15 dB:** 71.2% are symmetric by clinical criteria.
+3. **Asymmetry is typically ≤15 dB:** 75.5% are symmetric by clinical criteria.
 
-4. **Strong FAI-PTA correlation (ρ = 0.3591):** The fuzzy classifier preserves the
+4. **Strong FAI-PTA correlation (ρ = 0.4476):** The fuzzy classifier preserves the
    information in PTA while adding frequency-specific resolution.
 
-5. **Meaningful reclassification at boundaries:** 270/388
-   (69.6%) of borderline cases are reclassified by the
+5. **Meaningful reclassification at boundaries:** 255/388
+   (65.7%) of borderline cases are reclassified by the
    fuzzy system — representing patients whose clinical classification would be
    uncertain under standard WHO criteria.
 
