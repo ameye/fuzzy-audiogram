@@ -366,10 +366,19 @@ def fig4_clinical_cases():
                     markersize=6, markerfacecolor='white', markeredgewidth=1.5,
                     label='Right')
 
-        # Crisp severity bands
-        for low, high, color in [(0, 25, '#2ecc71'), (26, 40, '#f1c40f'), (41, 55, '#e67e22'),
-                                  (56, 70, '#e74c3c'), (71, 90, '#9b59b6'), (91, 120, '#2c3e50')]:
-            ax.axhspan(low, high, alpha=0.05, color=color)
+        # WHO severity bands (light background shading)
+        severity_info = [
+            (0, 25, '#2ecc71', 'Normal'),
+            (26, 40, '#f1c40f', 'Mild'),
+            (41, 55, '#e67e22', 'Moderate'),
+            (56, 70, '#e74c3c', 'Mod-Sev'),
+            (71, 90, '#9b59b6', 'Severe'),
+            (91, 120, '#2c3e50', 'Profound'),
+        ]
+        for low, high, color, label in severity_info:
+            ax.axhspan(low, high, alpha=0.15, color=color, label=label)
+        ax.legend(fontsize=6, loc='upper left', title='Severity',
+                  title_fontsize=7, ncol=2)
 
         ax.set_xticks(range(8))
         ax.set_xticklabels(freq_labels, fontsize=8)
