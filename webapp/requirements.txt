@@ -1,0 +1,18 @@
+# FAI Calculator — web app + OCR
+# Run: uvicorn main:app --host 0.0.0.0 --port 8000
+
+fastapi>=0.110
+uvicorn>=0.29
+python-multipart>=0.0.9
+
+# Scientific stack (fuzzy inference + OCR)
+numpy>=1.26
+pandas>=2.0
+matplotlib>=3.8
+scikit-fuzzy>=0.5.0
+scikit-learn>=1.4
+networkx>=3.0
+opencv-python-headless>=4.9
+pillow>=10.0
+
+# The core fuzzy_audiogram package (repo root, pip install -e .)

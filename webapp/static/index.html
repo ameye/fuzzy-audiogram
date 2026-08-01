@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAI Calculator — Fuzzy Audiogram</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js" defer></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace !important; }
+    body { background: #07070d; min-height: 100vh; margin: 0; color: #fff; overflow-x: hidden; }
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 20% 30%, rgba(88, 28, 135, 0.15), transparent 55%),
+        radial-gradient(ellipse at 80% 70%, rgba(14, 116, 144, 0.10), transparent 55%),
+        radial-gradient(ellipse at 50% 90%, rgba(6, 78, 59, 0.08), transparent 50%);
+    }
+    .glass { background: rgba(255,255,255,0.035); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.07); }
+    .glass-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; transition: all 0.3s ease; }
+    .glass-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); }
+    .input-dark { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 10px; color: #fff; outline: none; transition: all 0.2s; }
+    .input-dark:focus { border-color: rgba(139,92,246,0.5); background: rgba(255,255,255,0.07); }
+    .btn-primary { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.35); color: #c4b5fd; border-radius: 10px; padding: 10px 18px; font-weight: 600; transition: all 0.25s; cursor: pointer; }
+    .btn-primary:hover { background: rgba(139,92,246,0.25); box-shadow: 0 0 20px rgba(139,92,246,0.2); }
+    .btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border-radius: 10px; padding: 10px 18px; font-weight: 500; transition: all 0.25s; cursor: pointer; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    .badge-violet { background: rgba(139,92,246,0.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.3); }
+    .badge-emerald { background: rgba(52,211,153,0.12); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.3); }
+    .badge-amber { background: rgba(251,191,36,0.12); color: #fcd34d; border: 1px solid rgba(251,191,36,0.3); }
+    .badge-rose { background: rgba(244,63,94,0.12); color: #fda4af; border: 1px solid rgba(244,63,94,0.3); }
+    .fade-in { animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .drop-zone { border: 2px dashed rgba(255,255,255,0.15); border-radius: 14px; transition: all 0.3s; }
+    .drop-zone.drag { border-color: rgba(139,92,246,0.6); background: rgba(139,92,246,0.06); }
+    .scanline::after { content:''; position:absolute; left:0; right:0; height:50px; background: linear-gradient(180deg, transparent, rgba(139,92,246,0.05), transparent); animation: scan 4s linear infinite; pointer-events:none; }
+    @keyframes scan { 0% { top:-50px; } 100% { top:100%; } }
+    [x-cloak] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="relative z-10 max-w-6xl mx-auto px-6 py-8" x-data="faiApp()" x-init="init()">
+
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-lg">🦻</div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">FAI <span class="text-violet-400">Calculator</span></h1>
+          <p class="text-xs text-white/40">Fuzzy Audiometric Index — preserving diagnostic gradation</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <span class="status-dot w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
+        <span class="text-white/40" x-text="backendStatus"></span>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <nav class="flex gap-2 mb-6">
+      <button class="px-4 py-2 rounded-lg text-sm font-medium transition-all" :class="tab==='manual' ? 'bg-violet-500/15 text-violet-300 border border-violet-500/30' : 'bg-white/5 text-white/50 border border-white/5 hover:bg-white/10'" @click="tab='manual'">⌨️ Manual Entry</button>
+      <button class="px-4 py-2 rounded-lg text-sm font-medium transition-all" :class="tab==='ocr' ? 'bg-violet-500/15 text-violet-300 border border-violet-500/30' : 'bg-white/5 text-white/50 border border-white/5 hover:bg-white/10'" @click="tab='ocr'">📷 Audiogram OCR</button>
+      <button class="px-4 py-2 rounded-lg text-sm font-medium transition-all" :class="tab==='api' ? 'bg-violet-500/15 text-violet-300 border border-violet-500/30' : 'bg-white/5 text-white/50 border border-white/5 hover:bg-white/10'" @click="tab='api'">🔌 API / EHR</button>
+    </nav>
+
+    <!-- ═══ MANUAL ENTRY ═══ -->
+    <div x-show="tab==='manual'" class="fade-in">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Left ear inputs -->
+        <div class="glass-card p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-semibold">👈 Left Ear (X)</h2>
+            <span class="text-xs text-white/40">dB HL</span>
+          </div>
+          <div class="grid grid-cols-4 gap-2">
+            <template x-for="f in freqLabels" :key="'l'+f">
+              <div>
+                <div class="text-[10px] text-white/40 text-center mb-1 mono" x-text="f+''"></div>
+                <input type="number" class="input-dark w-full text-center mono" placeholder="—" x-model.number="leftVals[f]" @input="clearResult">
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Right ear inputs -->
+        <div class="glass-card p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-semibold">👉 Right Ear (O)</h2>
+            <span class="text-xs text-white/40">dB HL</span>
+          </div>
+          <div class="grid grid-cols-4 gap-2">
+            <template x-for="f in freqLabels" :key="'r'+f">
+              <div>
+                <div class="text-[10px] text-white/40 text-center mb-1 mono" x-text="f+''"></div>
+                <input type="number" class="input-dark w-full text-center mono" placeholder="—" x-model.number="rightVals[f]" @input="clearResult">
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 mt-6">
+        <select class="input-dark text-sm" x-model="earMode">
+          <option value="both">Better ear (auto)</option>
+          <option value="left">Left ear primary</option>
+          <option value="right">Right ear primary</option>
+        </select>
+        <button class="btn-primary" @click="classifyManual()">Classify ⚡</button>
+        <button class="btn-ghost" @click="loadSample()">Load Sample</button>
+        <button class="btn-ghost" @click="clearAll()">Clear</button>
+      </div>
+
+      <!-- Result -->
+      <div x-show="result" class="mt-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="glass-card p-5 fade-in">
+            <div class="text-[10px] text-white/40 uppercase tracking-wider mb-1">FAI Score</div>
+            <div class="text-3xl font-bold text-violet-300" x-text="result?.fai_score ?? '—'"></div>
+            <div class="text-xs text-white/40 mt-1" x-text="result?.fai_label"></div>
+          </div>
+          <div class="glass-card p-5 fade-in">
+            <div class="text-[10px] text-white/40 uppercase tracking-wider mb-1">Configuration</div>
+            <div class="text-lg font-bold" x-text="result?.configuration_label"></div>
+            <div class="text-xs text-white/40 mt-1" x-text="'score ' + (result?.configuration_score ?? '—')"></div>
+          </div>
+          <div class="glass-card p-5 fade-in">
+            <div class="text-[10px] text-white/40 uppercase tracking-wider mb-1">PTA-4</div>
+            <div class="text-3xl font-bold" x-text="result?.pta != null ? result.pta + ' dB' : '—'"></div>
+            <div class="text-xs text-white/40 mt-1">Crisp: <span x-text="result?.crisp_label"></span></div>
+          </div>
+          <div class="glass-card p-5 fade-in">
+            <div class="text-[10px] text-white/40 uppercase tracking-wider mb-1">Features</div>
+            <div class="text-sm space-y-0.5 mono">
+              <div>Slope: <span x-text="result?.features?.slope"></span></div>
+              <div>Notch: <span x-text="result?.features?.notch_depth"></span></div>
+              <div>Asym: <span x-text="result?.features?.asymmetry"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Memberships -->
+        <div class="glass-card p-5 mt-4 fade-in" x-show="result?.threshold_memberships">
+          <h3 class="text-xs text-white/40 uppercase tracking-wider mb-3">Severity Membership Degrees</h3>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <template x-for="(mu, label) in result.threshold_memberships" :key="label">
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="capitalize text-white/60" x-text="label.replace('_',' ')"></span>
+                  <span class="mono text-violet-300" x-text="mu.toFixed(2)"></span>
+                </div>
+                <div class="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                  <div class="h-full rounded-full bg-violet-500/60 transition-all duration-500" :style="'width:'+(mu*100)+'%'"></div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ OCR TAB ═══ -->
+    <div x-show="tab==='ocr'" class="fade-in">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          <div class="glass-card p-6 mb-4"
+               @dragover.prevent="$el.classList.add('drag')"
+               @dragleave="$el.classList.remove('drag')"
+               @drop.prevent="handleDrop($event)">
+            <div class="drop-zone p-10 text-center" :class="ocrLoading ? 'drag' : ''">
+              <div class="text-4xl mb-3" x-text="ocrImage ? '✅' : '📷'"></div>
+              <p class="text-sm text-white/50 mb-2">Drag & drop an audiogram image, or</p>
+              <label class="btn-primary inline-block cursor-pointer">
+                Browse File
+                <input type="file" accept="image/*" class="hidden" @change="handleFile($event)">
+              </label>
+              <p class="text-xs text-white/30 mt-3" x-text="ocrImage ? ocrImage.name : 'PNG / JPG / BMP — standard clinical layout'"></p>
+            </div>
+          </div>
+
+          <div class="glass-card p-6" x-show="ocrImage">
+            <img :src="ocrPreview" class="w-full rounded-lg border border-white/10" alt="Audiogram preview">
+          </div>
+        </div>
+
+        <div class="glass-card p-6 scanline relative" x-show="ocrResult || ocrLoading">
+          <h2 class="font-semibold mb-4" x-text="ocrLoading ? 'Extracting thresholds…' : 'OCR Result'"></h2>
+
+          <div x-show="ocrLoading" class="py-12 text-center">
+            <div class="w-8 h-8 border-2 border-violet-500/30 border-t-violet-400 rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-sm text-white/40">Detecting grid, symbols & calibrating axes…</p>
+          </div>
+
+          <template x-if="!ocrLoading && ocrResult">
+            <div>
+              <!-- Warning -->
+              <div x-show="ocrResult.warnings?.length" class="bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs rounded-lg p-3 mb-4">
+                <template x-for="w in ocrResult.warnings" :key="w"><div>⚠️ <span x-text="w"></span></div></template>
+              </div>
+
+              <!-- Thresholds table -->
+              <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <h4 class="text-xs text-white/40 mb-2">👈 Left Ear (X)</h4>
+                  <div class="space-y-1">
+                    <template x-for="(db, f) in sortedDict(ocrResult.thresholds_left)" :key="'ol'+f">
+                      <div class="flex justify-between text-sm bg-white/[0.03] rounded px-2 py-1">
+                        <span class="text-white/60 mono" x-text="f + ' Hz'"></span>
+                        <span class="font-medium text-blue-300 mono" x-text="db + ' dB'"></span>
+                      </div>
+                    </template>
+                    <div x-show="!Object.keys(ocrResult.thresholds_left||{}).length" class="text-xs text-white/30 text-center py-2">No symbols detected</div>
+                  </div>
+                </div>
+                <div>
+                  <h4 class="text-xs text-white/40 mb-2">👉 Right Ear (O)</h4>
+                  <div class="space-y-1">
+                    <template x-for="(db, f) in sortedDict(ocrResult.thresholds_right)" :key="'or'+f">
+                      <div class="flex justify-between text-sm bg-white/[0.03] rounded px-2 py-1">
+                        <span class="text-white/60 mono" x-text="f + ' Hz'"></span>
+                        <span class="font-medium text-rose-300 mono" x-text="db + ' dB'"></span>
+                      </div>
+                    </template>
+                    <div x-show="!Object.keys(ocrResult.thresholds_right||{}).length" class="text-xs text-white/30 text-center py-2">No symbols detected</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Masked -->
+              <div x-show="Object.keys(ocrResult.masked_left||{}).length || Object.keys(ocrResult.masked_right||{}).length" class="mb-4">
+                <h4 class="text-xs text-white/40 mb-2">Masked (Δ/□)</h4>
+                <div class="flex gap-4 text-xs">
+                  <div><span class="text-white/40">L:</span> <span class="mono" x-text="JSON.stringify(ocrResult.masked_left)"></span></div>
+                  <div><span class="text-white/40">R:</span> <span class="mono" x-text="JSON.stringify(ocrResult.masked_right)"></span></div>
+                </div>
+              </div>
+
+              <!-- Calibration -->
+              <div class="text-xs text-white/30 bg-white/[0.02] rounded-lg p-3 mb-4">
+                <div class="flex flex-wrap gap-4">
+                  <span>px/dB: <span class="mono" x-text="ocrResult.calibration?.px_per_db"></span></span>
+                  <span>Top dB: <span class="mono" x-text="ocrResult.calibration?.top_db"></span></span>
+                  <span>Freqs: <span class="mono" x-text="(ocrResult.calibration?.frequencies||[]).join(',')"></span></span>
+                  <span>Symbols: <span class="mono" x-text="ocrResult.symbols?.length"></span></span>
+                </div>
+              </div>
+
+              <button class="btn-primary w-full" @click="classifyOcr()">Classify Extracted Values ⚡</button>
+            </div>
+          </template>
+
+          <!-- OCR Classification -->
+          <div x-show="ocrClassification" class="mt-5">
+            <div class="grid grid-cols-3 gap-3">
+              <div class="glass rounded-lg p-3 text-center">
+                <div class="text-[10px] text-white/40">FAI</div>
+                <div class="text-xl font-bold text-violet-300" x-text="ocrClassification?.fai_score"></div>
+                <div class="text-[10px] text-white/50" x-text="ocrClassification?.fai_label"></div>
+              </div>
+              <div class="glass rounded-lg p-3 text-center">
+                <div class="text-[10px] text-white/40">Config</div>
+                <div class="text-sm font-bold" x-text="ocrClassification?.configuration_label"></div>
+              </div>
+              <div class="glass rounded-lg p-3 text-center">
+                <div class="text-[10px] text-white/40">PTA-4</div>
+                <div class="text-xl font-bold" x-text="ocrClassification?.pta + ' dB'"></div>
+                <div class="text-[10px] text-white/50" x-text="ocrClassification?.crisp_label"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ API / EHR TAB ═══ -->
+    <div x-show="tab==='api'" class="fade-in">
+      <div class="glass-card p-6 mb-4">
+        <h2 class="font-semibold mb-2">🔌 REST API</h2>
+        <p class="text-sm text-white/50 mb-4">Integrate with EHR systems or external tools.</p>
+        <div class="space-y-3 text-sm">
+          <div class="bg-black/30 rounded-lg p-3">
+            <div class="text-emerald-400 mono text-xs mb-1">POST /api/classify</div>
+            <pre class="text-xs text-white/40 whitespace-pre-wrap mono">{
+  "thresholds_left": {"250": 20, "500": 25, "1000": 30, "2000": 35, "4000": 40, "8000": 50},
+  "thresholds_right": {"250": 40, "500": 45, "1000": 50, "2000": 55, "4000": 60, "8000": 70}
+}</pre>
+          </div>
+          <div class="bg-black/30 rounded-lg p-3">
+            <div class="text-emerald-400 mono text-xs mb-1">POST /api/ocr  (multipart: file)</div>
+            <pre class="text-xs text-white/40 whitespace-pre-wrap mono">curl -F "file=@audiogram.png" http://localhost:8000/api/ocr</pre>
+          </div>
+          <div class="bg-black/30 rounded-lg p-3">
+            <div class="text-emerald-400 mono text-xs mb-1">POST /api/ocr-classify  (multipart: file)</div>
+            <pre class="text-xs text-white/40 whitespace-pre-wrap mono">curl -F "file=@audiogram.png" http://localhost:8000/api/ocr-classify</pre>
+          </div>
+          <div class="bg-black/30 rounded-lg p-3">
+            <div class="text-emerald-400 mono text-xs mb-1">GET /api/fhir/observation?patient_id=…</div>
+            <pre class="text-xs text-white/40 whitespace-pre-wrap mono">FHIR Observation bundle (EHR integration stub)</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error toast -->
+    <div x-show="error" class="fixed bottom-6 right-6 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-sm rounded-xl p-4 max-w-sm z-50 fade-in">
+      <span x-text="error"></span>
+      <button class="ml-3 text-rose-400 hover:text-white" @click="error=null">✕</button>
+    </div>
+  </div>
+
+  <script>
+    function faiApp() {
+      return {
+        tab: 'manual',
+        backendStatus: '…',
+        freqLabels: [250, 500, 1000, 2000, 3000, 4000, 6000, 8000],
+        leftVals: {},
+        rightVals: {},
+        earMode: 'both',
+        result: null,
+        error: null,
+
+        // OCR state
+        ocrImage: null,
+        ocrPreview: '',
+        ocrLoading: false,
+        ocrResult: null,
+        ocrClassification: null,
+
+        async init() {
+          const r = await fetch('/api/health');
+          const d = await r.json();
+          this.backendStatus = d.fuzzy_backend ? 'FIS ready' : 'FIS not ready';
+        },
+
+        clearResult() { this.result = null; },
+
+        buildPayload() {
+          const left = {}, right = {};
+          for (const f of this.freqLabels) {
+            if (this.leftVals[f] != null) left[f] = this.leftVals[f];
+            if (this.rightVals[f] != null) right[f] = this.rightVals[f];
+          }
+          return { thresholds_left: left, thresholds_right: right, ear: this.earMode };
+        },
+
+        async classifyManual() {
+          this.error = null;
+          try {
+            const res = await fetch('/api/classify', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(this.buildPayload())
+            });
+            const data = await res.json();
+            if (!res.ok) { this.error = data.error; return; }
+            this.result = data;
+          } catch (e) { this.error = 'Request failed: ' + e; }
+        },
+
+        loadSample() {
+          this.leftVals = {250: 20, 500: 25, 1000: 30, 2000: 35, 3000: 38, 4000: 42, 6000: 40, 8000: 45};
+          this.rightVals = {250: 15, 500: 18, 1000: 22, 2000: 26, 3000: 30, 4000: 35, 6000: 33, 8000: 38};
+          this.result = null;
+        },
+
+        clearAll() {
+          this.leftVals = {}; this.rightVals = {}; this.result = null;
+          this.ocrImage = null; this.ocrPreview = ''; this.ocrResult = null; this.ocrClassification = null;
+        },
+
+        handleFile(ev) { const f = ev.target.files[0]; if (f) this.loadOcrFile(f); },
+        handleDrop(ev) { ev.currentTarget.classList.remove('drag'); const f = ev.dataTransfer.files[0]; if (f) this.loadOcrFile(f); },
+
+        async loadOcrFile(file) {
+          this.ocrImage = file;
+          this.ocrPreview = URL.createObjectURL(file);
+          this.ocrLoading = true; this.ocrResult = null; this.ocrClassification = null;
+          const fd = new FormData();
+          fd.append('file', file);
+          try {
+            const res = await fetch('/api/ocr', { method: 'POST', body: fd });
+            const data = await res.json();
+            if (!res.ok) { this.error = data.error; return; }
+            this.ocrResult = data;
+          } catch (e) { this.error = 'OCR failed: ' + e; }
+          finally { this.ocrLoading = false; }
+        },
+
+        async classifyOcr() {
+          this.error = null;
+          try {
+            const res = await fetch('/api/ocr-classify', {
+              method: 'POST', body: (() => { const fd = new FormData(); fd.append('file', this.ocrImage); return fd; })()
+            });
+            const data = await res.json();
+            if (!res.ok) { this.error = data.error; return; }
+            this.ocrClassification = data.classification;
+          } catch (e) { this.error = 'Classification failed: ' + e; }
+        },
+
+        sortedDict(obj) {
+          if (!obj) return {};
+          return Object.fromEntries(Object.entries(obj).sort((a, b) => a[0] - b[0]));
+        }
+      };
+    }
+  </script>
+</body>
+</html>

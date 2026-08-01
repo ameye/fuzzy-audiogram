@@ -1,0 +1,12 @@
+services:
+  fai-calculator:
+    build:
+      context: ..          # repo root (has fuzzy_audiogram/ + pyproject.toml)
+      dockerfile: webapp/Dockerfile
+    container_name: fai-calculator
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - FAI_CALCULATOR_HOST=0.0.0.0
+      - FAI_CALCULATOR_PORT=8000
