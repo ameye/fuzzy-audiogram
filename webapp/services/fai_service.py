@@ -125,8 +125,15 @@ def classify_values(thresholds_left: Optional[dict[int, float]] = None,
             primary = left
     elif ear == "right":
         primary = right
-    else:  # 'left' or 'both' (both defaults to left-primary)
+    elif ear == "left":
         primary = left
+    else:  # 'both' → better ear (auto), matching the UI label
+        pta_l = _approx_pta(left)
+        pta_r = _approx_pta(right)
+        if pta_r is not None and (pta_l is None or pta_r < pta_l):
+            primary = right
+        else:
+            primary = left
 
     # Interpolate to canonical array
     left_arr = interpolate_to_canonical(left)
@@ -159,13 +166,27 @@ def classify_values(thresholds_left: Optional[dict[int, float]] = None,
     left_filled = fill(left_arr)
     right_filled = fill(right_arr)
 
-    # Add left-ear (or right-ear) as the 'other' ear for asymmetry
-    # Only pass it when we actually have data (all-None confuses the FIS)
+    # Pass the contralateral ear for the asymmetry feature ONLY when the
+    # primary ear is NOT clearly better than it. The FIS's asymmetry rules
+    # UPGRADE severity ("severely asymmetric → moderate/severe"), so feeding
+    # a normal ear alongside a much worse contralateral ear inflates the
+    # good ear's FAI (e.g. PTA 20 → FAI 48). The asymmetry upgrade belongs to
+    # the WORSE ear; the better ear must be judged on its own thresholds.
+    def _arr_pta(arr8):
+        vals = [arr8[i] for i in (1, 2, 3, 5) if arr8[i] is not None]
+        return float(np.mean(vals)) if vals else None
+
     other = None
     if primary is left and any(v is not None for v in right_filled):
-        other = right_filled
+        p_primary = _arr_pta(primary_filled)
+        p_other = _arr_pta(right_filled)
+        if p_primary is None or p_other is None or p_primary >= p_other:
+            other = right_filled
     elif primary is right and any(v is not None for v in left_filled):
-        other = left_filled
+        p_primary = _arr_pta(primary_filled)
+        p_other = _arr_pta(left_filled)
+        if p_primary is None or p_other is None or p_primary >= p_other:
+            other = left_filled
 
     try:
         result = fuzzy["classify"](primary_filled, other)

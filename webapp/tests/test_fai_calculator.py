@@ -110,11 +110,33 @@ def test_classify_single_ear():
 
 
 def test_classify_both_ears_uses_asymmetry():
-    res = classify_values(
+    # Left is the BETTER ear here (PTA ~32.5 vs right ~52.5) — the asymmetry
+    # upgrade must NOT inflate the better ear's FAI, so its asymmetry feature
+    # is 0. The worse ear carries the asymmetry signal.
+    res_left = classify_values(
         thresholds_left={250: 20, 500: 25, 1000: 30, 2000: 35, 4000: 40, 8000: 50},
         thresholds_right={250: 40, 500: 45, 1000: 50, 2000: 55, 4000: 60, 8000: 70},
+        ear="left",
     )
-    assert res["features"]["asymmetry"] > 0
+    assert res_left["features"]["asymmetry"] == 0, "better ear must not be asymmetry-upgraded"
+
+    res_right = classify_values(
+        thresholds_left={250: 20, 500: 25, 1000: 30, 2000: 35, 4000: 40, 8000: 50},
+        thresholds_right={250: 40, 500: 45, 1000: 50, 2000: 55, 4000: 60, 8000: 70},
+        ear="right",
+    )
+    assert res_right["features"]["asymmetry"] > 0, "worse ear should report the asymmetry signal"
+
+
+def test_classify_flat_20db_not_inflated_by_worse_contralateral():
+    # Regression: a normal ear (20 dB flat) next to a severely impaired
+    # contralateral ear must stay Normal, not jump to Moderate (~48).
+    twenties = {250: 20, 500: 20, 1000: 20, 2000: 20, 3000: 20, 4000: 20, 6000: 20, 8000: 20}
+    sample_right = {250: 45, 500: 50, 1000: 55, 2000: 60, 3000: 65, 4000: 70, 6000: 75, 8000: 80}
+    res = classify_values(thresholds_left=twenties, thresholds_right=sample_right, ear="left")
+    assert res["pta"] == 20.0
+    assert res["fai_score"] < 20, f"flat 20 dB ear inflated to FAI {res['fai_score']}"
+    assert res["fai_label"] == "Normal"
 
 
 def test_classify_empty_returns_error():
