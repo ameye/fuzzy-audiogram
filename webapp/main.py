@@ -90,6 +90,8 @@ async def api_classify(payload: dict):
         "masked_left":      {...},                           # optional
         "masked_right":     {...},                           # optional
         "ear": "left" | "right" | "better"                   # optional, default both
+        "compare": true | false                              # optional — classify
+                                                              # BOTH ears side by side
       }
     """
     try:
@@ -99,13 +101,21 @@ async def api_classify(payload: dict):
         masked_right = _parse_threshold_dict(payload, "masked_right")
         ear = payload.get("ear", "both")
 
-        result = fai_service.classify_values(
-            thresholds_left=left or None,
-            thresholds_right=right or None,
-            masked_left=masked_left or None,
-            masked_right=masked_right or None,
-            ear=ear,
-        )
+        if payload.get("compare"):
+            result = fai_service.classify_compare(
+                thresholds_left=left or None,
+                thresholds_right=right or None,
+                masked_left=masked_left or None,
+                masked_right=masked_right or None,
+            )
+        else:
+            result = fai_service.classify_values(
+                thresholds_left=left or None,
+                thresholds_right=right or None,
+                masked_left=masked_left or None,
+                masked_right=masked_right or None,
+                ear=ear,
+            )
         if "error" in result:
             return JSONResponse({"error": result["error"]}, 400)
         return result

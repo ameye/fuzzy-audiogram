@@ -176,6 +176,31 @@ def classify_values(thresholds_left: Optional[dict[int, float]] = None,
     # Clean up the result into API shape
     feats = result.get("features", {})
     pta = result.get("pt4a") or feats.get("pta")
+
+    # Data-quality transparency: which canonical frequencies were measured
+    # directly vs inferred (interpolated / edge-held / filled) by the FIS.
+    def quality(measured: dict) -> dict:
+        measured_freqs = [f for f in CANONICAL_FREQS if f in measured]
+        inferred = [f for f in CANONICAL_FREQS if f not in measured_freqs]
+        return {
+            "measured": measured_freqs,
+            "inferred": inferred,
+            "coverage": round(len(measured_freqs) / len(CANONICAL_FREQS), 2),
+        }
+
+    dq_left = quality(left)
+    dq_right = quality(right)
+    dq_primary = quality(primary)
+
+    warnings = []
+    for side, dq in (("left", dq_left), ("right", dq_right)):
+        if dq["coverage"] < 0.5:
+            warnings.append(
+                f"{side.capitalize()} ear: only {len(dq['measured'])}/8 frequencies "
+                f"measured — {len(dq['inferred'])} values inferred by interpolation; "
+                "interpret with caution."
+            )
+
     return {
         "fai_score": round(result.get("fai_score", 0), 2),
         "fai_label": result.get("fai_label", "unknown"),
@@ -197,6 +222,49 @@ def classify_values(thresholds_left: Optional[dict[int, float]] = None,
             "right": right_filled,
             "primary": primary_filled,
         },
+        "data_quality": {
+            "left": dq_left,
+            "right": dq_right,
+            "primary": dq_primary,
+        },
+        "warnings": warnings,
+    }
+
+
+def classify_compare(thresholds_left: Optional[dict[int, float]] = None,
+                     thresholds_right: Optional[dict[int, float]] = None,
+                     masked_left: Optional[dict[int, float]] = None,
+                     masked_right: Optional[dict[int, float]] = None) -> dict:
+    """Classify BOTH ears independently and return a side-by-side comparison.
+
+    Each ear runs the full FIS (the other ear is still passed for the
+    asymmetry feature). 'better' is the ear with the lower PTA-4.
+    """
+    left_res = classify_values(thresholds_left, thresholds_right,
+                               masked_left, masked_right, ear="left")
+    right_res = classify_values(thresholds_left, thresholds_right,
+                                masked_left, masked_right, ear="right")
+
+    better = None
+    delta = {}
+    if "error" not in left_res and "error" not in right_res:
+        l_pta = left_res.get("pta")
+        r_pta = right_res.get("pta")
+        if r_pta is not None and (l_pta is None or r_pta < l_pta):
+            better = "right"
+        elif l_pta is not None:
+            better = "left"
+        delta = {
+            "fai_delta": round(left_res.get("fai_score", 0) - right_res.get("fai_score", 0), 2),
+            "pta_delta": round((l_pta or 0) - (r_pta or 0), 1),
+        }
+
+    return {
+        "mode": "compare",
+        "left": left_res,
+        "right": right_res,
+        "better": better,
+        "delta": delta,
     }
 
 
