@@ -7,49 +7,55 @@
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js" defer></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-    * { font-family: 'Inter', system-ui, sans-serif; }
-    .mono { font-family: 'JetBrains Mono', monospace !important; }
-    body { background: #07070d; min-height: 100vh; margin: 0; color: #fff; overflow-x: hidden; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+    * { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; }
+    .mono { font-family: 'JetBrains Mono', 'Courier New', monospace !important; }
+    body { background: #f4f6fa; min-height: 100vh; margin: 0; color: #0f172a; overflow-x: hidden; }
     body::before {
       content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
       background:
-        radial-gradient(ellipse at 20% 30%, rgba(88, 28, 135, 0.15), transparent 55%),
-        radial-gradient(ellipse at 80% 70%, rgba(14, 116, 144, 0.10), transparent 55%),
-        radial-gradient(ellipse at 50% 90%, rgba(6, 78, 59, 0.08), transparent 50%);
+        radial-gradient(ellipse at 15% 10%, rgba(124, 58, 237, 0.06), transparent 55%),
+        radial-gradient(ellipse at 85% 80%, rgba(14, 116, 144, 0.05), transparent 55%);
     }
-    .glass { background: rgba(255,255,255,0.035); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.07); }
-    .glass-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; transition: all .3s ease; }
-    .glass-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); }
-    .input-dark { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 9px 6px; color: #fff; outline: none; transition: all .2s; text-align: center; }
-    .input-dark:hover { border-color: rgba(255,255,255,0.2); }
-    .input-dark:focus { border-color: rgba(139,92,246,0.55); background: rgba(139,92,246,0.08); box-shadow: 0 0 0 3px rgba(139,92,246,0.12); }
-    .input-dark.invalid { border-color: rgba(244,63,94,0.6); background: rgba(244,63,94,0.08); box-shadow: 0 0 0 3px rgba(244,63,94,0.12); }
-    .input-dark::placeholder { color: rgba(255,255,255,0.2); }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 4px 14px rgba(15,23,42,0.05); transition: all .25s ease; }
+    .card:hover { border-color: #cbd5e1; box-shadow: 0 2px 4px rgba(15,23,42,0.05), 0 8px 20px rgba(15,23,42,0.07); }
+    .input-light { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 9px 6px; color: #0f172a; outline: none; transition: all .2s; text-align: center; }
+    .input-light:hover { border-color: #94a3b8; }
+    .input-light:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+    .input-light.invalid { border-color: #e11d48; background: #fff1f2; box-shadow: 0 0 0 3px rgba(225,29,72,0.12); }
+    .input-light::placeholder { color: #94a3b8; }
     /* Hide number input spinners for a sleeker look */
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; appearance: textfield; }
-    .btn-primary { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.35); color: #c4b5fd; border-radius: 10px; padding: 10px 18px; font-weight: 600; transition: all .25s; cursor: pointer; }
-    .btn-primary:hover { background: rgba(139,92,246,0.25); box-shadow: 0 0 20px rgba(139,92,246,0.2); transform: translateY(-1px); }
+    .btn-primary { background: #7c3aed; border: 1px solid #7c3aed; color: #ffffff; border-radius: 10px; padding: 10px 18px; font-weight: 600; transition: all .2s; cursor: pointer; }
+    .btn-primary:hover { background: #6d28d9; box-shadow: 0 4px 14px rgba(124,58,237,0.3); transform: translateY(-1px); }
     .btn-primary:disabled { opacity: .5; cursor: default; transform: none; box-shadow: none; }
-    .btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border-radius: 10px; padding: 10px 18px; font-weight: 500; transition: all .25s; cursor: pointer; }
-    .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+    .btn-primary:focus-visible { outline: 2px solid #4c1d95; outline-offset: 2px; }
+    .btn-ghost { background: #ffffff; border: 1px solid #cbd5e1; color: #334155; border-radius: 10px; padding: 10px 18px; font-weight: 500; transition: all .2s; cursor: pointer; }
+    .btn-ghost:hover { background: #f8fafc; border-color: #94a3b8; }
+    .btn-ghost:focus-visible { outline: 2px solid #7c3aed; outline-offset: 2px; }
     .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-    .badge-violet { background: rgba(139,92,246,0.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.3); }
-    .badge-emerald { background: rgba(52,211,153,0.12); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.3); }
-    .badge-amber { background: rgba(251,191,36,0.12); color: #fcd34d; border: 1px solid rgba(251,191,36,0.3); }
-    .badge-rose { background: rgba(244,63,94,0.12); color: #fda4af; border: 1px solid rgba(244,63,94,0.3); }
+    .badge-violet { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .badge-emerald { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .badge-amber { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+    .badge-rose { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
     .fade-in { animation: fadeIn .4s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .drop-zone { border: 2px dashed rgba(255,255,255,0.15); border-radius: 14px; transition: all .3s; }
-    .drop-zone.drag { border-color: rgba(139,92,246,0.6); background: rgba(139,92,246,0.06); }
-    .scanline::after { content:''; position:absolute; left:0; right:0; height:50px; background: linear-gradient(180deg, transparent, rgba(139,92,246,0.05), transparent); animation: scan 4s linear infinite; pointer-events:none; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .drop-zone { border: 2px dashed #cbd5e1; border-radius: 14px; transition: all .3s; }
+    .drop-zone.drag { border-color: #7c3aed; background: #f5f3ff; }
+    .scanline::after { content:''; position:absolute; left:0; right:0; height:50px; background: linear-gradient(180deg, transparent, rgba(124,58,237,0.06), transparent); animation: scan 4s linear infinite; pointer-events:none; }
     @keyframes scan { 0% { top:-50px; } 100% { top:100%; } }
-    .toggle { position: relative; width: 42px; height: 24px; border-radius: 999px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); transition: all .25s; cursor: pointer; flex-shrink: 0; }
-    .toggle.on { background: rgba(139,92,246,0.4); border-color: rgba(139,92,246,0.5); }
-    .toggle::after { content:''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: all .25s; }
+    .toggle { position: relative; width: 42px; height: 24px; border-radius: 999px; background: #cbd5e1; border: 1px solid #94a3b8; transition: all .25s; cursor: pointer; flex-shrink: 0; }
+    .toggle.on { background: #7c3aed; border-color: #6d28d9; }
+    .toggle::after { content:''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #ffffff; box-shadow: 0 1px 2px rgba(15,23,42,0.25); transition: all .25s; }
     .toggle.on::after { left: 20px; }
     .ear-chip { display:inline-flex; align-items:center; gap:6px; padding:2px 10px; border-radius:999px; font-size:11px; font-weight:600; }
+    .tab-btn { padding: 9px 18px; border-radius: 10px; font-size: 14px; font-weight: 500; transition: all .2s; cursor: pointer; border: 1px solid transparent; }
+    .tab-btn.active { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; font-weight: 600; }
+    .tab-btn.idle { background: #ffffff; color: #64748b; border-color: #e2e8f0; }
+    .tab-btn.idle:hover { background: #f8fafc; color: #334155; }
+    .code-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #7c3aed; outline-offset: 2px; }
     [x-cloak] { display: none !important; }
   </style>
 </head>
@@ -59,23 +65,23 @@
     <!-- Header -->
     <header class="flex items-center justify-between mb-8">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-lg">🦻</div>
+        <div class="w-10 h-10 rounded-xl bg-violet-100 border border-violet-200 flex items-center justify-center text-lg" aria-hidden="true">🦻</div>
         <div>
-          <h1 class="text-xl font-bold tracking-tight">FAI <span class="text-violet-400">Calculator</span></h1>
-          <p class="text-xs text-white/40">Fuzzy Audiometric Index — preserving diagnostic gradation</p>
+          <h1 class="text-2xl font-bold tracking-tight text-slate-900">FAI <span class="text-violet-700">Calculator</span></h1>
+          <p class="text-sm text-slate-500">Fuzzy Audiometric Index — preserving diagnostic gradation</p>
         </div>
       </div>
-      <div class="flex items-center gap-2 text-xs">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
-        <span class="text-white/40" x-text="backendStatus"></span>
+      <div class="flex items-center gap-2 text-sm text-slate-500">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" aria-hidden="true"></span>
+        <span x-text="backendStatus"></span>
       </div>
     </header>
 
     <!-- Tabs -->
-    <nav class="flex gap-2 mb-6">
-      <button class="px-4 py-2 rounded-lg text-sm font-medium transition-all" :class="tab==='manual' ? 'bg-violet-500/15 text-violet-300 border border-violet-500/30' : 'bg-white/5 text-white/50 border border-white/5 hover:bg-white/10'" @click="tab='manual'">⌨️ Manual Entry</button>
-      <button class="px-4 py-2 rounded-lg text-sm font-medium transition-all" :class="tab==='ocr' ? 'bg-violet-500/15 text-violet-300 border border-violet-500/30' : 'bg-white/5 text-white/50 border border-white/5 hover:bg-white/10'" @click="tab='ocr'">📷 Audiogram OCR</button>
-      <button class="px-4 py-2 rounded-lg text-sm font-medium transition-all" :class="tab==='api' ? 'bg-violet-500/15 text-violet-300 border border-violet-500/30' : 'bg-white/5 text-white/50 border border-white/5 hover:bg-white/10'" @click="tab='api'">🔌 API / EHR</button>
+    <nav class="flex gap-2 mb-6" aria-label="Input method">
+      <button class="tab-btn" :class="tab==='manual' ? 'active' : 'idle'" @click="tab='manual'">⌨️ Manual Entry</button>
+      <button class="tab-btn" :class="tab==='ocr' ? 'active' : 'idle'" @click="tab='ocr'">📷 Audiogram OCR</button>
+      <button class="tab-btn" :class="tab==='api' ? 'active' : 'idle'" @click="tab='api'">🔌 API / EHR</button>
     </nav>
 
     <!-- ═══ MANUAL ENTRY ═══ -->
@@ -86,20 +92,20 @@
         <div class="lg:col-span-7 space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Left ear -->
-            <div class="glass-card p-5">
+            <div class="card p-5">
               <div class="flex items-center justify-between mb-3">
-                <h2 class="font-semibold text-sm flex items-center gap-2">
-                  <span class="w-5 h-5 rounded-md bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-[10px] text-blue-300 font-bold">X</span>
+                <h2 class="font-semibold text-sm text-slate-800 flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-md bg-blue-100 border border-blue-300 flex items-center justify-center text-[10px] text-blue-700 font-bold" aria-hidden="true">X</span>
                   Left Ear
                 </h2>
-                <span class="text-[10px] text-white/35 mono">dB HL</span>
+                <span class="text-[11px] text-slate-400 mono">dB HL</span>
               </div>
               <div class="grid grid-cols-4 gap-1.5">
                 <template x-for="f in freqLabels" :key="'l'+f">
                   <div>
-                    <div class="text-[9px] text-white/35 text-center mb-1 mono" x-text="f"></div>
+                    <div class="text-[11px] text-slate-500 text-center mb-1 mono" x-text="f"></div>
                     <input type="number" inputmode="decimal" min="-10" max="120" step="1"
-                           class="input-dark w-full mono text-sm"
+                           class="input-light w-full mono text-sm"
                            placeholder="–"
                            :class="invalid['l'+f] ? 'invalid' : ''"
                            x-model.number="leftVals[f]"
@@ -110,20 +116,20 @@
             </div>
 
             <!-- Right ear -->
-            <div class="glass-card p-5">
+            <div class="card p-5">
               <div class="flex items-center justify-between mb-3">
-                <h2 class="font-semibold text-sm flex items-center gap-2">
-                  <span class="w-5 h-5 rounded-md bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-[10px] text-rose-300 font-bold">O</span>
+                <h2 class="font-semibold text-sm text-slate-800 flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-md bg-rose-100 border border-rose-300 flex items-center justify-center text-[10px] text-rose-700 font-bold" aria-hidden="true">O</span>
                   Right Ear
                 </h2>
-                <span class="text-[10px] text-white/35 mono">dB HL</span>
+                <span class="text-[11px] text-slate-400 mono">dB HL</span>
               </div>
               <div class="grid grid-cols-4 gap-1.5">
                 <template x-for="f in freqLabels" :key="'r'+f">
                   <div>
-                    <div class="text-[9px] text-white/35 text-center mb-1 mono" x-text="f"></div>
+                    <div class="text-[11px] text-slate-500 text-center mb-1 mono" x-text="f"></div>
                     <input type="number" inputmode="decimal" min="-10" max="120" step="1"
-                           class="input-dark w-full mono text-sm"
+                           class="input-light w-full mono text-sm"
                            placeholder="–"
                            :class="invalid['r'+f] ? 'invalid' : ''"
                            x-model.number="rightVals[f]"
@@ -135,14 +141,14 @@
           </div>
 
           <!-- Controls -->
-          <div class="glass-card p-4 flex flex-wrap items-center gap-3">
-            <select class="input-dark text-sm px-3" x-model="earMode" style="width:auto">
+          <div class="card p-4 flex flex-wrap items-center gap-3">
+            <select class="input-light text-sm px-3 text-slate-700" x-model="earMode" style="width:auto">
               <option value="both">Better ear (auto)</option>
               <option value="left">Left ear primary</option>
               <option value="right">Right ear primary</option>
             </select>
-            <button class="flex items-center gap-2 text-xs text-white/50 hover:text-white/80 transition-colors" @click="compareMode = !compareMode; clearResult()">
-              <span class="toggle" :class="compareMode ? 'on' : ''"></span>
+            <button class="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors" @click="compareMode = !compareMode; clearResult()">
+              <span class="toggle" :class="compareMode ? 'on' : ''" aria-hidden="true"></span>
               Compare ears side-by-side
             </button>
             <div class="flex-1"></div>
@@ -152,10 +158,10 @@
           </div>
 
           <!-- Inline validation / warnings -->
-          <div x-show="fieldError" class="bg-rose-500/10 border border-rose-500/25 text-rose-300 text-xs rounded-xl p-3 fade-in">
+          <div x-show="fieldError" role="alert" class="bg-rose-50 border border-rose-200 text-rose-700 text-sm rounded-xl p-3 fade-in">
             ⚠️ <span x-text="fieldError"></span>
           </div>
-          <div x-show="backendWarnings.length" class="bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs rounded-xl p-3 fade-in">
+          <div x-show="backendWarnings.length" role="alert" class="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-xl p-3 fade-in">
             <template x-for="(w,i) in backendWarnings" :key="i"><div>⚠️ <span x-text="w"></span></div></template>
           </div>
 
@@ -167,48 +173,48 @@
               <div class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <!-- Left card -->
-                  <div class="glass-card p-5 relative overflow-hidden" :class="resultCompare.better === 'left' ? 'ring-1 ring-emerald-500/40' : ''">
+                  <div class="card p-5 relative overflow-hidden" :class="resultCompare.better === 'left' ? 'ring-2 ring-emerald-500/50' : ''">
                     <div x-show="resultCompare.better === 'left'" class="absolute top-3 right-3 badge badge-emerald">✓ Better ear</div>
                     <template x-if="resultCompare.left.error">
-                      <div class="text-sm text-white/40 py-8 text-center">No threshold data for this ear.</div>
+                      <div class="text-sm text-slate-400 py-8 text-center">No threshold data for this ear.</div>
                     </template>
                     <template x-if="!resultCompare.left.error">
                     <div>
                     <div class="flex items-center justify-between mb-3">
-                      <h3 class="font-semibold text-sm flex items-center gap-2">
-                        <span class="w-5 h-5 rounded-md bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-[10px] text-blue-300 font-bold">X</span>
+                      <h3 class="font-semibold text-sm text-slate-800 flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-md bg-blue-100 border border-blue-300 flex items-center justify-center text-[10px] text-blue-700 font-bold" aria-hidden="true">X</span>
                         Left Ear
                       </h3>
-                      <span class="ear-chip text-blue-300 bg-blue-500/10 border border-blue-500/20" x-text="resultCompare.left.fai_label"></span>
+                      <span class="ear-chip text-blue-700 bg-blue-50 border border-blue-200" x-text="resultCompare.left.fai_label"></span>
                     </div>
                     <div class="flex items-end gap-4 mb-3">
                       <div>
-                        <div class="text-[10px] text-white/40 uppercase tracking-wider">FAI</div>
-                        <div class="text-3xl font-bold text-blue-300 mono" x-text="resultCompare.left.fai_score"></div>
+                        <div class="text-[11px] text-slate-500 uppercase tracking-wider">FAI</div>
+                        <div class="text-3xl font-bold text-blue-700 mono" x-text="resultCompare.left.fai_score"></div>
                       </div>
                       <div>
-                        <div class="text-[10px] text-white/40 uppercase tracking-wider">PTA-4</div>
-                        <div class="text-2xl font-bold mono" x-text="resultCompare.left.pta != null ? resultCompare.left.pta + ' dB' : '—'"></div>
-                        <div class="text-[10px] text-white/40">crisp: <span x-text="resultCompare.left.crisp_label"></span></div>
+                        <div class="text-[11px] text-slate-500 uppercase tracking-wider">PTA-4</div>
+                        <div class="text-2xl font-bold text-slate-800 mono" x-text="resultCompare.left.pta != null ? resultCompare.left.pta + ' dB' : '—'"></div>
+                        <div class="text-[11px] text-slate-500">crisp: <span x-text="resultCompare.left.crisp_label"></span></div>
                       </div>
                       <div>
-                        <div class="text-[10px] text-white/40 uppercase tracking-wider">Config</div>
-                        <div class="text-sm font-semibold" x-text="resultCompare.left.configuration_label"></div>
+                        <div class="text-[11px] text-slate-500 uppercase tracking-wider">Config</div>
+                        <div class="text-sm font-semibold text-slate-800" x-text="resultCompare.left.configuration_label"></div>
                       </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-2 text-[11px] text-white/50 mb-3">
-                      <div>Slope <span class="mono text-white/80" x-text="resultCompare.left.features.slope"></span></div>
-                      <div>Notch <span class="mono text-white/80" x-text="resultCompare.left.features.notch_depth"></span></div>
-                      <div>Asym <span class="mono text-white/80" x-text="resultCompare.left.features.asymmetry"></span></div>
+                    <div class="grid grid-cols-3 gap-2 text-xs text-slate-500 mb-3">
+                      <div>Slope <span class="mono text-slate-700" x-text="resultCompare.left.features.slope"></span></div>
+                      <div>Notch <span class="mono text-slate-700" x-text="resultCompare.left.features.notch_depth"></span></div>
+                      <div>Asym <span class="mono text-slate-700" x-text="resultCompare.left.features.asymmetry"></span></div>
                     </div>
                     <div class="space-y-1.5">
                       <template x-for="(mu, label) in resultCompare.left.threshold_memberships" :key="'l'+label">
                         <div class="flex items-center gap-2">
-                          <span class="text-[10px] text-white/40 capitalize w-24 truncate" x-text="label.replace('_',' ')"></span>
-                          <div class="flex-1 h-1 rounded-full bg-white/5 overflow-hidden">
-                            <div class="h-full rounded-full bg-blue-500/60 transition-all duration-500" :style="'width:'+(mu*100)+'%'"></div>
+                          <span class="text-[11px] text-slate-500 capitalize w-24 truncate" x-text="label.replace('_',' ')"></span>
+                          <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                            <div class="h-full rounded-full bg-blue-600/70 transition-all duration-500" :style="'width:'+(mu*100)+'%'"></div>
                           </div>
-                          <span class="text-[10px] mono text-white/50 w-9 text-right" x-text="mu.toFixed(2)"></span>
+                          <span class="text-[11px] mono text-slate-600 w-9 text-right" x-text="mu.toFixed(2)"></span>
                         </div>
                       </template>
                     </div>
@@ -217,48 +223,48 @@
                   </div>
 
                   <!-- Right card -->
-                  <div class="glass-card p-5 relative overflow-hidden" :class="resultCompare.better === 'right' ? 'ring-1 ring-emerald-500/40' : ''">
+                  <div class="card p-5 relative overflow-hidden" :class="resultCompare.better === 'right' ? 'ring-2 ring-emerald-500/50' : ''">
                     <div x-show="resultCompare.better === 'right'" class="absolute top-3 right-3 badge badge-emerald">✓ Better ear</div>
                     <template x-if="resultCompare.right.error">
-                      <div class="text-sm text-white/40 py-8 text-center">No threshold data for this ear.</div>
+                      <div class="text-sm text-slate-400 py-8 text-center">No threshold data for this ear.</div>
                     </template>
                     <template x-if="!resultCompare.right.error">
                     <div>
                     <div class="flex items-center justify-between mb-3">
-                      <h3 class="font-semibold text-sm flex items-center gap-2">
-                        <span class="w-5 h-5 rounded-md bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-[10px] text-rose-300 font-bold">O</span>
+                      <h3 class="font-semibold text-sm text-slate-800 flex items-center gap-2">
+                        <span class="w-5 h-5 rounded-md bg-rose-100 border border-rose-300 flex items-center justify-center text-[10px] text-rose-700 font-bold" aria-hidden="true">O</span>
                         Right Ear
                       </h3>
-                      <span class="ear-chip text-rose-300 bg-rose-500/10 border border-rose-500/20" x-text="resultCompare.right.fai_label"></span>
+                      <span class="ear-chip text-rose-700 bg-rose-50 border border-rose-200" x-text="resultCompare.right.fai_label"></span>
                     </div>
                     <div class="flex items-end gap-4 mb-3">
                       <div>
-                        <div class="text-[10px] text-white/40 uppercase tracking-wider">FAI</div>
-                        <div class="text-3xl font-bold text-rose-300 mono" x-text="resultCompare.right.fai_score"></div>
+                        <div class="text-[11px] text-slate-500 uppercase tracking-wider">FAI</div>
+                        <div class="text-3xl font-bold text-rose-700 mono" x-text="resultCompare.right.fai_score"></div>
                       </div>
                       <div>
-                        <div class="text-[10px] text-white/40 uppercase tracking-wider">PTA-4</div>
-                        <div class="text-2xl font-bold mono" x-text="resultCompare.right.pta != null ? resultCompare.right.pta + ' dB' : '—'"></div>
-                        <div class="text-[10px] text-white/40">crisp: <span x-text="resultCompare.right.crisp_label"></span></div>
+                        <div class="text-[11px] text-slate-500 uppercase tracking-wider">PTA-4</div>
+                        <div class="text-2xl font-bold text-slate-800 mono" x-text="resultCompare.right.pta != null ? resultCompare.right.pta + ' dB' : '—'"></div>
+                        <div class="text-[11px] text-slate-500">crisp: <span x-text="resultCompare.right.crisp_label"></span></div>
                       </div>
                       <div>
-                        <div class="text-[10px] text-white/40 uppercase tracking-wider">Config</div>
-                        <div class="text-sm font-semibold" x-text="resultCompare.right.configuration_label"></div>
+                        <div class="text-[11px] text-slate-500 uppercase tracking-wider">Config</div>
+                        <div class="text-sm font-semibold text-slate-800" x-text="resultCompare.right.configuration_label"></div>
                       </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-2 text-[11px] text-white/50 mb-3">
-                      <div>Slope <span class="mono text-white/80" x-text="resultCompare.right.features.slope"></span></div>
-                      <div>Notch <span class="mono text-white/80" x-text="resultCompare.right.features.notch_depth"></span></div>
-                      <div>Asym <span class="mono text-white/80" x-text="resultCompare.right.features.asymmetry"></span></div>
+                    <div class="grid grid-cols-3 gap-2 text-xs text-slate-500 mb-3">
+                      <div>Slope <span class="mono text-slate-700" x-text="resultCompare.right.features.slope"></span></div>
+                      <div>Notch <span class="mono text-slate-700" x-text="resultCompare.right.features.notch_depth"></span></div>
+                      <div>Asym <span class="mono text-slate-700" x-text="resultCompare.right.features.asymmetry"></span></div>
                     </div>
                     <div class="space-y-1.5">
                       <template x-for="(mu, label) in resultCompare.right.threshold_memberships" :key="'r'+label">
                         <div class="flex items-center gap-2">
-                          <span class="text-[10px] text-white/40 capitalize w-24 truncate" x-text="label.replace('_',' ')"></span>
-                          <div class="flex-1 h-1 rounded-full bg-white/5 overflow-hidden">
-                            <div class="h-full rounded-full bg-rose-500/60 transition-all duration-500" :style="'width:'+(mu*100)+'%'"></div>
+                          <span class="text-[11px] text-slate-500 capitalize w-24 truncate" x-text="label.replace('_',' ')"></span>
+                          <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                            <div class="h-full rounded-full bg-rose-600/70 transition-all duration-500" :style="'width:'+(mu*100)+'%'"></div>
                           </div>
-                          <span class="text-[10px] mono text-white/50 w-9 text-right" x-text="mu.toFixed(2)"></span>
+                          <span class="text-[11px] mono text-slate-600 w-9 text-right" x-text="mu.toFixed(2)"></span>
                         </div>
                       </template>
                     </div>
@@ -268,11 +274,11 @@
                 </div>
 
                 <!-- Delta strip -->
-                <div class="glass-card p-4 text-sm flex flex-wrap items-center gap-x-6 gap-y-1 fade-in">
-                  <span class="text-white/50">Inter-ear comparison</span>
-                  <span class="mono text-white/80">PTA Δ = <span x-text="resultCompare.delta.pta_delta"></span> dB</span>
-                  <span class="mono text-white/80">FAI Δ = <span x-text="resultCompare.delta.fai_delta"></span></span>
-                  <span x-show="resultCompare.better" class="text-emerald-300">
+                <div class="card p-4 text-sm flex flex-wrap items-center gap-x-6 gap-y-1 fade-in">
+                  <span class="text-slate-500">Inter-ear comparison</span>
+                  <span class="mono text-slate-700">PTA Δ = <span x-text="resultCompare.delta.pta_delta"></span> dB</span>
+                  <span class="mono text-slate-700">FAI Δ = <span x-text="resultCompare.delta.fai_delta"></span></span>
+                  <span x-show="resultCompare.better" class="text-emerald-700 font-medium">
                     → <span class="capitalize" x-text="resultCompare.better"></span> ear is better
                   </span>
                 </div>
@@ -283,24 +289,24 @@
             <template x-if="result && !resultCompare">
               <div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div class="glass-card p-5 fade-in">
-                    <div class="text-[10px] text-white/40 uppercase tracking-wider mb-1">FAI Score</div>
-                    <div class="text-3xl font-bold text-violet-300" x-text="result?.fai_score ?? '—'"></div>
-                    <div class="text-xs text-white/40 mt-1" x-text="result?.fai_label"></div>
+                  <div class="card p-5 fade-in">
+                    <div class="text-[11px] text-slate-500 uppercase tracking-wider mb-1">FAI Score</div>
+                    <div class="text-3xl font-bold text-violet-700" x-text="result?.fai_score ?? '—'"></div>
+                    <div class="text-sm text-slate-500 mt-1" x-text="result?.fai_label"></div>
                   </div>
-                  <div class="glass-card p-5 fade-in">
-                    <div class="text-[10px] text-white/40 uppercase tracking-wider mb-1">Configuration</div>
-                    <div class="text-lg font-bold" x-text="result?.configuration_label"></div>
-                    <div class="text-xs text-white/40 mt-1" x-text="'score ' + (result?.configuration_score ?? '—')"></div>
+                  <div class="card p-5 fade-in">
+                    <div class="text-[11px] text-slate-500 uppercase tracking-wider mb-1">Configuration</div>
+                    <div class="text-lg font-bold text-slate-800" x-text="result?.configuration_label"></div>
+                    <div class="text-sm text-slate-500 mt-1" x-text="'score ' + (result?.configuration_score ?? '—')"></div>
                   </div>
-                  <div class="glass-card p-5 fade-in">
-                    <div class="text-[10px] text-white/40 uppercase tracking-wider mb-1">PTA-4</div>
-                    <div class="text-3xl font-bold" x-text="result?.pta != null ? result.pta + ' dB' : '—'"></div>
-                    <div class="text-xs text-white/40 mt-1">Crisp: <span x-text="result?.crisp_label"></span></div>
+                  <div class="card p-5 fade-in">
+                    <div class="text-[11px] text-slate-500 uppercase tracking-wider mb-1">PTA-4</div>
+                    <div class="text-3xl font-bold text-slate-800" x-text="result?.pta != null ? result.pta + ' dB' : '—'"></div>
+                    <div class="text-sm text-slate-500 mt-1">Crisp: <span x-text="result?.crisp_label"></span></div>
                   </div>
-                  <div class="glass-card p-5 fade-in">
-                    <div class="text-[10px] text-white/40 uppercase tracking-wider mb-1">Features</div>
-                    <div class="text-sm space-y-0.5 mono">
+                  <div class="card p-5 fade-in">
+                    <div class="text-[11px] text-slate-500 uppercase tracking-wider mb-1">Features</div>
+                    <div class="text-sm space-y-0.5 mono text-slate-700">
                       <div>Slope: <span x-text="result?.features?.slope"></span></div>
                       <div>Notch: <span x-text="result?.features?.notch_depth"></span></div>
                       <div>Asym: <span x-text="result?.features?.asymmetry"></span></div>
@@ -308,17 +314,17 @@
                   </div>
                 </div>
 
-                <div class="glass-card p-5 mt-4 fade-in" x-show="result?.threshold_memberships">
-                  <h3 class="text-xs text-white/40 uppercase tracking-wider mb-3">Severity Membership Degrees — <span class="capitalize" x-text="result.ear_used"></span> ear</h3>
+                <div class="card p-5 mt-4 fade-in" x-show="result?.threshold_memberships">
+                  <h3 class="text-xs text-slate-500 uppercase tracking-wider mb-3">Severity Membership Degrees — <span class="capitalize text-slate-700" x-text="result.ear_used"></span> ear</h3>
                   <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     <template x-for="(mu, label) in result.threshold_memberships" :key="label">
                       <div>
                         <div class="flex justify-between text-xs mb-1">
-                          <span class="capitalize text-white/60" x-text="label.replace('_',' ')"></span>
-                          <span class="mono text-violet-300" x-text="mu.toFixed(2)"></span>
+                          <span class="capitalize text-slate-600" x-text="label.replace('_',' ')"></span>
+                          <span class="mono text-violet-700" x-text="mu.toFixed(2)"></span>
                         </div>
-                        <div class="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                          <div class="h-full rounded-full bg-violet-500/60 transition-all duration-500" :style="'width:'+(mu*100)+'%'"></div>
+                        <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                          <div class="h-full rounded-full bg-violet-600/70 transition-all duration-500" :style="'width:'+(mu*100)+'%'"></div>
                         </div>
                       </div>
                     </template>
@@ -331,20 +337,20 @@
 
         <!-- ── Right column: live audiogram chart ── -->
         <div class="lg:col-span-5">
-          <div class="lg:sticky lg:top-6 glass-card p-5">
+          <div class="lg:sticky lg:top-6 card p-5">
             <div class="flex items-center justify-between mb-3">
-              <h2 class="font-semibold text-sm">📈 Audiogram</h2>
-              <span class="text-[10px] text-white/35">live — updates as you type</span>
+              <h2 class="font-semibold text-sm text-slate-800">📈 Audiogram</h2>
+              <span class="text-xs text-slate-400">live — updates as you type</span>
             </div>
-            <div class="rounded-xl bg-black/30 border border-white/5 p-2">
+            <div class="rounded-xl bg-white border border-slate-200 p-2">
               <div x-html="chartSvg"></div>
             </div>
-            <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 text-[11px] text-white/50">
-              <span class="flex items-center gap-1.5"><span class="text-blue-400 font-bold">✕</span> Left — measured</span>
-              <span class="flex items-center gap-1.5"><span class="text-rose-400 font-bold">○</span> Right — measured</span>
-              <span class="flex items-center gap-1.5"><span class="text-violet-300" style="font-size:13px">◇</span> inferred (interpolated)</span>
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-3 text-xs text-slate-600">
+              <span class="flex items-center gap-1.5"><span class="text-blue-700 font-bold" aria-hidden="true">✕</span> Left — measured</span>
+              <span class="flex items-center gap-1.5"><span class="text-rose-700 font-bold" aria-hidden="true">○</span> Right — measured</span>
+              <span class="flex items-center gap-1.5"><span class="text-violet-600" style="font-size:13px" aria-hidden="true">◇</span> inferred (interpolated)</span>
             </div>
-            <div x-show="chartNote" class="text-[11px] text-white/35 mt-2" x-text="chartNote"></div>
+            <div x-show="chartNote" class="text-xs text-slate-400 mt-2" x-text="chartNote"></div>
           </div>
         </div>
       </div>
@@ -354,86 +360,86 @@
     <div x-show="tab==='ocr'" class="fade-in">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
-          <div class="glass-card p-6 mb-4"
+          <div class="card p-6 mb-4"
                @dragover.prevent="$el.classList.add('drag')"
                @dragleave="$el.classList.remove('drag')"
                @drop.prevent="handleDrop($event)">
             <div class="drop-zone p-10 text-center" :class="ocrLoading ? 'drag' : ''">
-              <div class="text-4xl mb-3" x-text="ocrImage ? '✅' : '📷'"></div>
-              <p class="text-sm text-white/50 mb-2">Drag & drop an audiogram image, or</p>
+              <div class="text-4xl mb-3" x-text="ocrImage ? '✅' : '📷'" aria-hidden="true"></div>
+              <p class="text-sm text-slate-600 mb-2">Drag & drop an audiogram image, or</p>
               <label class="btn-primary inline-block cursor-pointer">
                 Browse File
                 <input type="file" accept="image/*" class="hidden" @change="handleFile($event)">
               </label>
-              <p class="text-xs text-white/30 mt-3" x-text="ocrImage ? ocrImage.name : 'PNG / JPG / BMP — standard clinical layout'"></p>
+              <p class="text-xs text-slate-400 mt-3" x-text="ocrImage ? ocrImage.name : 'PNG / JPG / BMP — standard clinical layout'"></p>
             </div>
           </div>
 
-          <div class="glass-card p-6" x-show="ocrImage">
-            <img :src="ocrPreview" class="w-full rounded-lg border border-white/10" alt="Audiogram preview">
+          <div class="card p-6" x-show="ocrImage">
+            <img :src="ocrPreview" class="w-full rounded-lg border border-slate-200" alt="Audiogram preview">
           </div>
         </div>
 
-        <div class="glass-card p-6 scanline relative" x-show="ocrResult || ocrLoading">
-          <h2 class="font-semibold mb-4" x-text="ocrLoading ? 'Extracting thresholds…' : 'OCR Result'"></h2>
+        <div class="card p-6 scanline relative" x-show="ocrResult || ocrLoading">
+          <h2 class="font-semibold text-slate-800 mb-4" x-text="ocrLoading ? 'Extracting thresholds…' : 'OCR Result'"></h2>
 
           <div x-show="ocrLoading" class="py-12 text-center">
-            <div class="w-8 h-8 border-2 border-violet-500/30 border-t-violet-400 rounded-full animate-spin mx-auto mb-4"></div>
-            <p class="text-sm text-white/40">Detecting grid, symbols & calibrating axes…</p>
+            <div class="w-8 h-8 border-2 border-violet-300 border-t-violet-600 rounded-full animate-spin mx-auto mb-4" aria-hidden="true"></div>
+            <p class="text-sm text-slate-500">Detecting grid, symbols & calibrating axes…</p>
           </div>
 
           <template x-if="!ocrLoading && ocrResult">
             <div>
-              <div x-show="ocrResult.warnings?.length" class="bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs rounded-lg p-3 mb-4">
+              <div x-show="ocrResult.warnings?.length" role="alert" class="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg p-3 mb-4">
                 <template x-for="w in ocrResult.warnings" :key="w"><div>⚠️ <span x-text="w"></span></div></template>
               </div>
 
               <!-- Chart of extracted values -->
-              <div class="rounded-xl bg-black/30 border border-white/5 p-2 mb-4">
+              <div class="rounded-xl bg-white border border-slate-200 p-2 mb-4">
                 <div x-html="ocrChartSvg"></div>
               </div>
 
               <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <h4 class="text-xs text-white/40 mb-2">👈 Left Ear (X)</h4>
+                  <h4 class="text-xs text-slate-500 mb-2">👈 Left Ear (X)</h4>
                   <div class="space-y-1">
                     <template x-for="(db, f) in sortedDict(ocrResult.thresholds_left)" :key="'ol'+f">
-                      <div class="flex justify-between text-sm bg-white/[0.03] rounded px-2 py-1">
-                        <span class="text-white/60 mono" x-text="f + ' Hz'"></span>
-                        <span class="font-medium text-blue-300 mono" x-text="db + ' dB'"></span>
+                      <div class="flex justify-between text-sm bg-slate-50 rounded px-2 py-1">
+                        <span class="text-slate-500 mono" x-text="f + ' Hz'"></span>
+                        <span class="font-medium text-blue-700 mono" x-text="db + ' dB'"></span>
                       </div>
                     </template>
-                    <div x-show="!Object.keys(ocrResult.thresholds_left||{}).length" class="text-xs text-white/30 text-center py-2">No symbols detected</div>
+                    <div x-show="!Object.keys(ocrResult.thresholds_left||{}).length" class="text-xs text-slate-400 text-center py-2">No symbols detected</div>
                   </div>
                 </div>
                 <div>
-                  <h4 class="text-xs text-white/40 mb-2">👉 Right Ear (O)</h4>
+                  <h4 class="text-xs text-slate-500 mb-2">👉 Right Ear (O)</h4>
                   <div class="space-y-1">
                     <template x-for="(db, f) in sortedDict(ocrResult.thresholds_right)" :key="'or'+f">
-                      <div class="flex justify-between text-sm bg-white/[0.03] rounded px-2 py-1">
-                        <span class="text-white/60 mono" x-text="f + ' Hz'"></span>
-                        <span class="font-medium text-rose-300 mono" x-text="db + ' dB'"></span>
+                      <div class="flex justify-between text-sm bg-slate-50 rounded px-2 py-1">
+                        <span class="text-slate-500 mono" x-text="f + ' Hz'"></span>
+                        <span class="font-medium text-rose-700 mono" x-text="db + ' dB'"></span>
                       </div>
                     </template>
-                    <div x-show="!Object.keys(ocrResult.thresholds_right||{}).length" class="text-xs text-white/30 text-center py-2">No symbols detected</div>
+                    <div x-show="!Object.keys(ocrResult.thresholds_right||{}).length" class="text-xs text-slate-400 text-center py-2">No symbols detected</div>
                   </div>
                 </div>
               </div>
 
               <div x-show="Object.keys(ocrResult.masked_left||{}).length || Object.keys(ocrResult.masked_right||{}).length" class="mb-4">
-                <h4 class="text-xs text-white/40 mb-2">Masked (Δ/□)</h4>
-                <div class="flex gap-4 text-xs">
-                  <div><span class="text-white/40">L:</span> <span class="mono" x-text="JSON.stringify(ocrResult.masked_left)"></span></div>
-                  <div><span class="text-white/40">R:</span> <span class="mono" x-text="JSON.stringify(ocrResult.masked_right)"></span></div>
+                <h4 class="text-xs text-slate-500 mb-2">Masked (Δ/□)</h4>
+                <div class="flex gap-4 text-xs text-slate-700">
+                  <div><span class="text-slate-500">L:</span> <span class="mono" x-text="JSON.stringify(ocrResult.masked_left)"></span></div>
+                  <div><span class="text-slate-500">R:</span> <span class="mono" x-text="JSON.stringify(ocrResult.masked_right)"></span></div>
                 </div>
               </div>
 
-              <div class="text-xs text-white/30 bg-white/[0.02] rounded-lg p-3 mb-4">
+              <div class="text-xs text-slate-500 bg-slate-50 rounded-lg p-3 mb-4">
                 <div class="flex flex-wrap gap-4">
-                  <span>px/dB: <span class="mono" x-text="ocrResult.calibration?.px_per_db"></span></span>
-                  <span>Top dB: <span class="mono" x-text="ocrResult.calibration?.top_db"></span></span>
-                  <span>Freqs: <span class="mono" x-text="(ocrResult.calibration?.frequencies||[]).join(',')"></span></span>
-                  <span>Symbols: <span class="mono" x-text="ocrResult.symbols?.length"></span></span>
+                  <span>px/dB: <span class="mono text-slate-700" x-text="ocrResult.calibration?.px_per_db"></span></span>
+                  <span>Top dB: <span class="mono text-slate-700" x-text="ocrResult.calibration?.top_db"></span></span>
+                  <span>Freqs: <span class="mono text-slate-700" x-text="(ocrResult.calibration?.frequencies||[]).join(',')"></span></span>
+                  <span>Symbols: <span class="mono text-slate-700" x-text="ocrResult.symbols?.length"></span></span>
                 </div>
               </div>
 
@@ -443,19 +449,19 @@
 
           <div x-show="ocrClassification" class="mt-5">
             <div class="grid grid-cols-3 gap-3">
-              <div class="glass rounded-lg p-3 text-center">
-                <div class="text-[10px] text-white/40">FAI</div>
-                <div class="text-xl font-bold text-violet-300" x-text="ocrClassification?.fai_score"></div>
-                <div class="text-[10px] text-white/50" x-text="ocrClassification?.fai_label"></div>
+              <div class="rounded-lg border border-slate-200 bg-white p-3 text-center">
+                <div class="text-[11px] text-slate-500">FAI</div>
+                <div class="text-xl font-bold text-violet-700" x-text="ocrClassification?.fai_score"></div>
+                <div class="text-[11px] text-slate-600" x-text="ocrClassification?.fai_label"></div>
               </div>
-              <div class="glass rounded-lg p-3 text-center">
-                <div class="text-[10px] text-white/40">Config</div>
-                <div class="text-sm font-bold" x-text="ocrClassification?.configuration_label"></div>
+              <div class="rounded-lg border border-slate-200 bg-white p-3 text-center">
+                <div class="text-[11px] text-slate-500">Config</div>
+                <div class="text-sm font-bold text-slate-800" x-text="ocrClassification?.configuration_label"></div>
               </div>
-              <div class="glass rounded-lg p-3 text-center">
-                <div class="text-[10px] text-white/40">PTA-4</div>
-                <div class="text-xl font-bold" x-text="ocrClassification?.pta + ' dB'"></div>
-                <div class="text-[10px] text-white/50" x-text="ocrClassification?.crisp_label"></div>
+              <div class="rounded-lg border border-slate-200 bg-white p-3 text-center">
+                <div class="text-[11px] text-slate-500">PTA-4</div>
+                <div class="text-xl font-bold text-slate-800" x-text="ocrClassification?.pta + ' dB'"></div>
+                <div class="text-[11px] text-slate-600" x-text="ocrClassification?.crisp_label"></div>
               </div>
             </div>
           </div>
@@ -465,46 +471,46 @@
 
     <!-- ═══ API / EHR TAB ═══ -->
     <div x-show="tab==='api'" class="fade-in">
-      <div class="glass-card p-6 mb-4">
-        <h2 class="font-semibold mb-2">🔌 REST API</h2>
-        <p class="text-sm text-white/50 mb-4">Integrate with EHR systems or external tools. Missing frequencies (e.g. no 250 Hz or 3000 Hz) are interpolated automatically.</p>
+      <div class="card p-6 mb-4">
+        <h2 class="font-semibold text-slate-800 mb-2">🔌 REST API</h2>
+        <p class="text-sm text-slate-600 mb-4">Integrate with EHR systems or external tools. Missing frequencies (e.g. no 250 Hz or 3000 Hz) are interpolated automatically.</p>
         <div class="space-y-3 text-sm">
-          <div class="bg-black/30 rounded-lg p-3">
-            <div class="text-emerald-400 mono text-xs mb-1">POST /api/classify — single ear (sparse OK)</div>
-            <pre class="text-xs text-white/40 whitespace-pre-wrap mono">{
+          <div class="code-block rounded-lg p-3">
+            <div class="text-emerald-700 mono text-xs mb-1 font-semibold">POST /api/classify — single ear (sparse OK)</div>
+            <pre class="text-xs text-slate-600 whitespace-pre-wrap mono">{
   "thresholds_left": {"500": 25, "1000": 30, "2000": 35, "4000": 45, "8000": 50},
   "thresholds_right": {"500": 40, "1000": 45, "2000": 50, "4000": 60, "8000": 70}
 }</pre>
           </div>
-          <div class="bg-black/30 rounded-lg p-3">
-            <div class="text-emerald-400 mono text-xs mb-1">POST /api/classify — side-by-side ear comparison</div>
-            <pre class="text-xs text-white/40 whitespace-pre-wrap mono">{
+          <div class="code-block rounded-lg p-3">
+            <div class="text-emerald-700 mono text-xs mb-1 font-semibold">POST /api/classify — side-by-side ear comparison</div>
+            <pre class="text-xs text-slate-600 whitespace-pre-wrap mono">{
   "thresholds_left": {"250": 20, "500": 25, "1000": 30, "2000": 35, "4000": 42},
   "thresholds_right": {"250": 45, "500": 50, "1000": 55, "2000": 60, "4000": 70},
   "compare": true
 }
 → { "left": {...}, "right": {...}, "better": "left", "delta": {...} }</pre>
           </div>
-          <div class="bg-black/30 rounded-lg p-3">
-            <div class="text-emerald-400 mono text-xs mb-1">POST /api/ocr  (multipart: file)</div>
-            <pre class="text-xs text-white/40 whitespace-pre-wrap mono">curl -F "file=@audiogram.png" https://fai.thinkloop.org/api/ocr</pre>
+          <div class="code-block rounded-lg p-3">
+            <div class="text-emerald-700 mono text-xs mb-1 font-semibold">POST /api/ocr  (multipart: file)</div>
+            <pre class="text-xs text-slate-600 whitespace-pre-wrap mono">curl -F "file=@audiogram.png" https://fai.thinkloop.org/api/ocr</pre>
           </div>
-          <div class="bg-black/30 rounded-lg p-3">
-            <div class="text-emerald-400 mono text-xs mb-1">POST /api/ocr-classify  (multipart: file)</div>
-            <pre class="text-xs text-white/40 whitespace-pre-wrap mono">curl -F "file=@audiogram.png" https://fai.thinkloop.org/api/ocr-classify</pre>
+          <div class="code-block rounded-lg p-3">
+            <div class="text-emerald-700 mono text-xs mb-1 font-semibold">POST /api/ocr-classify  (multipart: file)</div>
+            <pre class="text-xs text-slate-600 whitespace-pre-wrap mono">curl -F "file=@audiogram.png" https://fai.thinkloop.org/api/ocr-classify</pre>
           </div>
-          <div class="bg-black/30 rounded-lg p-3">
-            <div class="text-emerald-400 mono text-xs mb-1">GET /api/fhir/observation?patient_id=…</div>
-            <pre class="text-xs text-white/40 whitespace-pre-wrap mono">FHIR Observation bundle (EHR integration stub)</pre>
+          <div class="code-block rounded-lg p-3">
+            <div class="text-emerald-700 mono text-xs mb-1 font-semibold">GET /api/fhir/observation?patient_id=…</div>
+            <pre class="text-xs text-slate-600 whitespace-pre-wrap mono">FHIR Observation bundle (EHR integration stub)</pre>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Error toast -->
-    <div x-show="error" class="fixed bottom-6 right-6 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-sm rounded-xl p-4 max-w-sm z-50 fade-in">
+    <div x-show="error" role="alert" class="fixed bottom-6 right-6 bg-rose-50 border border-rose-200 text-rose-800 text-sm rounded-xl p-4 max-w-sm z-50 fade-in shadow-lg">
       <span x-text="error"></span>
-      <button class="ml-3 text-rose-400 hover:text-white" @click="error=null">✕</button>
+      <button class="ml-3 text-rose-500 hover:text-rose-800" @click="error=null" aria-label="Dismiss">✕</button>
     </div>
   </div>
 
@@ -640,6 +646,10 @@
           const xf = f => ML + (Math.log10(f) - Math.log10(freqs[0])) / (Math.log10(freqs[freqs.length - 1]) - Math.log10(freqs[0])) * pw;
           const yd = db => MT + (db - DB_TOP) / (DB_BOT - DB_TOP) * ph;
 
+          // Light-theme palette (WCAG-friendly on white)
+          const GRID_MAJOR = '#cbd5e1', GRID_MINOR = '#e2e8f0', LABEL = '#475569', MUTED = '#64748b', BORDER = '#94a3b8';
+          const LEFT = '#1d4ed8', RIGHT = '#be123c', INFERRED = '#7c3aed';
+
           let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block">`;
           s += `<rect x="0" y="0" width="${W}" height="${H}" fill="none"/>`;
 
@@ -647,26 +657,26 @@
           for (let db = DB_TOP; db <= DB_BOT; db += 10) {
             const y = yd(db);
             const major = db % 20 === 0;
-            s += `<line x1="${ML}" y1="${y}" x2="${W - MR}" y2="${y}" stroke="${major ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.06)'}" stroke-width="1"/>`;
-            s += `<text x="${ML - 8}" y="${y + 4}" fill="rgba(255,255,255,0.45)" font-size="10" text-anchor="end" font-family="JetBrains Mono, monospace">${db}</text>`;
+            s += `<line x1="${ML}" y1="${y}" x2="${W - MR}" y2="${y}" stroke="${major ? GRID_MAJOR : GRID_MINOR}" stroke-width="1"/>`;
+            s += `<text x="${ML - 8}" y="${y + 4}" fill="${LABEL}" font-size="10" text-anchor="end" font-family="JetBrains Mono, Courier New, monospace">${db}</text>`;
           }
           // vertical gridlines + freq labels
           for (const f of freqs) {
             const x = xf(f);
-            s += `<line x1="${x}" y1="${MT}" x2="${x}" y2="${H - MB}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>`;
+            s += `<line x1="${x}" y1="${MT}" x2="${x}" y2="${H - MB}" stroke="${GRID_MINOR}" stroke-width="1"/>`;
             const label = f >= 1000 ? (f / 1000) + 'k' : f;
-            s += `<text x="${x}" y="${H - MB + 18}" fill="rgba(255,255,255,0.55)" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono, monospace">${label}</text>`;
+            s += `<text x="${x}" y="${H - MB + 18}" fill="${LABEL}" font-size="10.5" text-anchor="middle" font-family="JetBrains Mono, Courier New, monospace">${label}</text>`;
           }
           // axis labels
-          s += `<text x="${ML + pw / 2}" y="${H - 4}" fill="rgba(255,255,255,0.35)" font-size="10" text-anchor="middle">Frequency (Hz)</text>`;
-          s += `<text x="10" y="${MT + ph / 2}" fill="rgba(255,255,255,0.35)" font-size="10" text-anchor="middle" transform="rotate(-90 10 ${MT + ph / 2})">dB HL</text>`;
+          s += `<text x="${ML + pw / 2}" y="${H - 4}" fill="${MUTED}" font-size="10" text-anchor="middle">Frequency (Hz)</text>`;
+          s += `<text x="10" y="${MT + ph / 2}" fill="${MUTED}" font-size="10" text-anchor="middle" transform="rotate(-90 10 ${MT + ph / 2})">dB HL</text>`;
           // border
-          s += `<rect x="${ML}" y="${MT}" width="${pw}" height="${ph}" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>`;
+          s += `<rect x="${ML}" y="${MT}" width="${pw}" height="${ph}" fill="none" stroke="${BORDER}" stroke-width="1.2"/>`;
 
           // per-ear series
           const series = [
-            { vals: data.left, color: '#60a5fa', marker: 'X' },
-            { vals: data.right, color: '#fb7185', marker: 'O' }
+            { vals: data.left, color: LEFT, marker: 'X' },
+            { vals: data.right, color: RIGHT, marker: 'O' }
           ];
 
           for (const ser of series) {
@@ -706,14 +716,14 @@
               const inf = (res.data_quality && res.data_quality[side] && res.data_quality[side].inferred) || [];
               const arr = (res.arrays && res.arrays[side]) || [];
               if (!inf.length) continue;
-              const color = side === 'left' ? '#a78bfa' : '#a78bfa';
+              const color = INFERRED;
               for (const f of inf) {
                 const idx = freqs.indexOf(f);
                 if (idx < 0) continue;
                 const v = arr[idx];
                 if (v == null) continue;
                 const x = xf(f), y = yd(v);
-                s += `<circle cx="${x}" cy="${y}" r="3.4" fill="rgba(167,139,250,0.18)" stroke="${color}" stroke-width="1.4" stroke-dasharray="2 2"/>`;
+                s += `<circle cx="${x}" cy="${y}" r="3.4" fill="rgba(124,58,237,0.15)" stroke="${color}" stroke-width="1.4" stroke-dasharray="2 2"/>`;
               }
             }
           }
