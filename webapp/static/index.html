@@ -207,17 +207,21 @@
                       <div>Notch <span class="mono text-slate-700" x-text="resultCompare.left.features.notch_depth"></span></div>
                       <div>Asym <span class="mono text-slate-700" x-text="resultCompare.left.features.asymmetry"></span></div>
                     </div>
-                    <div class="space-y-1.5">
-                      <template x-for="(mu, label) in resultCompare.left.threshold_memberships" :key="'l'+label">
-                        <div class="flex items-center gap-2">
-                          <span class="text-[11px] text-slate-500 capitalize w-24 truncate" x-text="label.replace('_',' ')"></span>
-                          <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                            <div class="h-full rounded-full bg-blue-600/70 transition-all duration-500" :style="'width:'+(mu*100)+'%'"></div>
+                    <details class="mt-3 text-xs text-slate-500">
+                      <summary class="cursor-pointer select-none hover:text-slate-700 transition-colors">Fuzzy support values (membership degrees)</summary>
+                      <p class="mt-2 mb-2 text-[11px] text-slate-400">Internal fuzzy-logic inputs — the FAI score and label above are the clinical result.</p>
+                      <div class="space-y-1.5">
+                        <template x-for="(mu, label) in resultCompare.left.threshold_memberships" :key="'l'+label">
+                          <div class="flex items-center gap-2">
+                            <span class="text-[11px] text-slate-500 capitalize w-24 truncate" x-text="label.replace('_',' ')"></span>
+                            <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                              <div class="h-full rounded-full bg-blue-600/70 transition-all duration-500" :style="'width:'+(mu*100)+'%'"></div>
+                            </div>
+                            <span class="text-[11px] mono text-slate-600 w-9 text-right" x-text="mu.toFixed(2)"></span>
                           </div>
-                          <span class="text-[11px] mono text-slate-600 w-9 text-right" x-text="mu.toFixed(2)"></span>
-                        </div>
-                      </template>
-                    </div>
+                        </template>
+                      </div>
+                    </details>
                     </div>
                     </template>
                   </div>
@@ -257,17 +261,21 @@
                       <div>Notch <span class="mono text-slate-700" x-text="resultCompare.right.features.notch_depth"></span></div>
                       <div>Asym <span class="mono text-slate-700" x-text="resultCompare.right.features.asymmetry"></span></div>
                     </div>
-                    <div class="space-y-1.5">
-                      <template x-for="(mu, label) in resultCompare.right.threshold_memberships" :key="'r'+label">
-                        <div class="flex items-center gap-2">
-                          <span class="text-[11px] text-slate-500 capitalize w-24 truncate" x-text="label.replace('_',' ')"></span>
-                          <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                            <div class="h-full rounded-full bg-rose-600/70 transition-all duration-500" :style="'width:'+(mu*100)+'%'"></div>
+                    <details class="mt-3 text-xs text-slate-500">
+                      <summary class="cursor-pointer select-none hover:text-slate-700 transition-colors">Fuzzy support values (membership degrees)</summary>
+                      <p class="mt-2 mb-2 text-[11px] text-slate-400">Internal fuzzy-logic inputs — the FAI score and label above are the clinical result.</p>
+                      <div class="space-y-1.5">
+                        <template x-for="(mu, label) in resultCompare.right.threshold_memberships" :key="'r'+label">
+                          <div class="flex items-center gap-2">
+                            <span class="text-[11px] text-slate-500 capitalize w-24 truncate" x-text="label.replace('_',' ')"></span>
+                            <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                              <div class="h-full rounded-full bg-rose-600/70 transition-all duration-500" :style="'width:'+(mu*100)+'%'"></div>
+                            </div>
+                            <span class="text-[11px] mono text-slate-600 w-9 text-right" x-text="mu.toFixed(2)"></span>
                           </div>
-                          <span class="text-[11px] mono text-slate-600 w-9 text-right" x-text="mu.toFixed(2)"></span>
-                        </div>
-                      </template>
-                    </div>
+                        </template>
+                      </div>
+                    </details>
                     </div>
                     </template>
                   </div>
@@ -314,8 +322,9 @@
                   </div>
                 </div>
 
-                <div class="card p-5 mt-4 fade-in" x-show="result?.threshold_memberships">
-                  <h3 class="text-xs text-slate-500 uppercase tracking-wider mb-3">Severity Membership Degrees — <span class="capitalize text-slate-700" x-text="result.ear_used"></span> ear</h3>
+                <details class="card p-5 mt-4 fade-in" x-show="result?.threshold_memberships">
+                  <summary class="cursor-pointer select-none text-xs text-slate-500 uppercase tracking-wider hover:text-slate-700 transition-colors">Fuzzy support values (membership degrees) — <span class="capitalize text-slate-700" x-text="result.ear_used"></span> ear</summary>
+                  <p class="mt-2 mb-3 text-[11px] text-slate-400">Internal fuzzy-logic inputs — the FAI score and label above are the clinical result.</p>
                   <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     <template x-for="(mu, label) in result.threshold_memberships" :key="label">
                       <div>
@@ -329,7 +338,7 @@
                       </div>
                     </template>
                   </div>
-                </div>
+                </details>
               </div>
             </template>
           </div>
