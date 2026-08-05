@@ -1,0 +1,18 @@
+# FAI Calculator — Coolify deployment (Docker Compose method)
+# Build from this repo's GitHub URL; exposes the web app on :8000
+services:
+  fai-calculator:
+    build: https://github.com/ameye/fuzzy-audiogram.git
+    container_name: fai-calculator
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - FAI_CALCULATOR_HOST=0.0.0.0
+      - FAI_CALCULATOR_PORT=8000
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
