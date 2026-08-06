@@ -31,3 +31,4 @@ notebooks/.ipynb_checkpoints/
 # Environment
 .env
 *.env.local
+arabcic2026/qa/
