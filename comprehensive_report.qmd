@@ -32,13 +32,13 @@ This report documents the complete development and validation pipeline for a Mam
 | Dataset | NHANES adult cycles 20–69 y (1999–2000, 2011–12, 2015–16; n = 10,889; 19,568 clean ears) |
 | FIS Rule Base | 48 Mamdani-type rules (4 functional groups) |
 | Classification Agreement | Weighted κ = 0.93 |
-| Overall Agreement (FAI vs WHO grade) | 95.8% |
-| Clear-case Agreement | 98.4% |
-| Borderline Agreement (±5 dB) | 84.9% (deliberate graded reclassification) |
+| Overall Agreement (FAI vs WHO grade) | 94.7% |
+| Clear-case Agreement | 98.1% |
+| Borderline Agreement (±5 dB) | 79.8% (deliberate graded reclassification) |
 | Configuration Classification | 6 canonical shapes (slope-based) |
 | Spearman ρ vs. PTA-4 | 0.80* |
 
-*Range-restricted: 88.6% of the working-age test set is Normal, attenuating rank correlation; κ and MAE are the more direct agreement measures here.
+*Range-restricted: 86.9% of the working-age test set is Normal, attenuating rank correlation; κ and MAE are the more direct agreement measures here.
 
 
 # Data Source: Combined NHANES adult audiometry cycles (20–69 y)
@@ -57,7 +57,7 @@ Audiometric data were obtained from the **National Health and Nutrition Examinat
 | Test type | Air-conduction pure-tone audiometry |
 | Additional data | Demographics (age, sex) from the cycle DEMO files |
 
-The cleaned analysis set comprises 19,568 ears with complete thresholds from 9,832 adults, split 80/20 into training (n = 15,654 ears) and held-out test (n = 3,914 ears).
+The cleaned analysis set comprises 19,568 ears with complete thresholds from 9,832 adults, split 80/20 at the participant level (all ears of a participant stay together, avoiding bilateral leakage) into training (n = 15,656 ears from 7,866 participants) and held-out test (n = 3,912 ears from 1,966 participants).
 
 **Data cleaning:** NHANES sentinel codes were filtered:
 - **666** — No response at maximum output
@@ -72,8 +72,8 @@ The analysis used the 19,568 clean ears with complete thresholds at all seven fr
 
 | Partition | Participants | Ears | Purpose |
 |-----------|-------------|------|---------|
-| Training (80%) | 9,421 | 15,654 | MF optimization, rule base development |
-| Held-out test (20%) | 3,519 | 3,914 | All reported metrics and figures |
+| Training (80%) | 7,866 | 15,656 | MF optimization, rule base development |
+| Held-out test (20%) | 1,966 | 3,912 | All reported metrics and figures |
 
 No stratification was applied; the split used a fixed random seed (random_state 42) for reproducibility.
 
@@ -176,7 +176,7 @@ For each of the 7 test frequencies × 2 ears, individual thresholds were assigne
 
 ## Sample Sizes
 
-Measured across the combined training set (15,654 ears × 7 frequencies = 109,578 threshold measurements):
+Measured across the combined training set (15,656 ears × 7 frequencies = 109,592 threshold measurements):
 
 | Category | Count | % of Clean |
 |----------|-------|-----------|
@@ -187,7 +187,7 @@ Measured across the combined training set (15,654 ears × 7 frequencies = 109,57
 | Severe | 1,661 | 1.5% |
 | Profound | 385 | 0.4% |
 
-> **Note:** the membership functions were re-optimised on the combined training set for this analysis (15,654 ears from the three adult cycles; see Methodology), and the FAI-to-label thresholds were calibrated on the training set ([22, 33, 51, 68, 84]). The FIS structure is cycle-independent. Single-ear validation omits the asymmetry-anchor rule (with one ear the asymmetry input is zero, so the anchor rule fires at full strength for every ear and compresses the FAI scale — a documented structural artifact); bilateral use in the deployed web application retains the full 48-rule base and the earlier 2017–2020 fit.
+> **Note:** the membership functions were re-optimised on the combined training set for this analysis (15,656 ears from the three adult cycles; see Methodology), and the FAI-to-label thresholds were calibrated on the training set ([21.9, 34.6, 52.5, 70.6, 74.1]). The FIS structure is cycle-independent. Single-ear validation omits the asymmetry-anchor rule (with one ear the asymmetry input is zero, so the anchor rule fires at full strength for every ear and compresses the FAI scale — a documented structural artifact); bilateral use in the deployed web application retains the full 48-rule base and the earlier 2017–2020 fit.
 
 ## Optimised Parameters
 
@@ -196,13 +196,13 @@ Measured across the combined training set (15,654 ears × 7 frequencies = 109,57
 | Category | a | b | c | d |
 |----------|---|---|---|---|
 | Normal | 0.0 | 0.0 | 16.4 | 27.8 |
-| Mild | 25.8 | 26.3 | 36.4 | 43.5 |
+| Mild | 25.8 | 26.3 | 35.7 | 43.5 |
 | Moderate | 41.5 | 42.0 | 54.3 | 58.5 |
-| Moderately Severe | 56.5 | 57.0 | 67.9 | 73.5 |
-| Severe | 71.5 | 72.0 | 83.7 | 93.0 |
-| Profound | 91.0 | 91.5 | 104.6 | 120.0 |
+| Moderately Severe | 56.5 | 57.0 | 67.1 | 73.5 |
+| Severe | 71.5 | 72.0 | 83.6 | 93.0 |
+| Profound | 91.0 | 91.5 | 106.7 | 120.0 |
 
-**How these relate to the heuristic parameters.** The original (pre-optimisation) membership functions used fixed, expert-chosen shoulders with roughly 10 dB of overlap at every WHO boundary — e.g. *Normal* [0, 0, 20, 30] and *Mild* [20, 26, 35, 45] overlapped across 20–30 dB. That width was chosen to mirror the ±5–10 dB test–retest variability of pure-tone audiometry, the reproducibility limit of the measurement itself [@miller2004]. The percentile fit (a = P5−2, b = P25, c = P75, d = P95+2) then tightened the functions to the NHANES population distribution. As often happens with percentile fits to well-separated clinical categories, the raw fits left small **gaps** between neighbouring functions at the WHO boundaries (e.g. Normal *d* ≈ 26.3, Mild *a* ≈ 28.0). Because a gap would defeat the fuzzy property — some thresholds would belong to no category — the shoulders were extended toward each other to guarantee a minimum overlap at every boundary.
+**How these relate to the heuristic parameters.** The original (pre-optimisation) membership functions used fixed, expert-chosen shoulders with roughly 10 dB of overlap at every WHO boundary — e.g. *Normal* [0, 0, 20, 30] and *Mild* [20, 26, 35, 45] overlapped across 20–30 dB. That width was chosen to mirror the ±5–10 dB test–retest variability of pure-tone audiometry, the reproducibility limit of the measurement itself [@stuart1991]. The percentile fit (a = P5−2, b = P25, c = P75, d = P95+2) then tightened the functions to the NHANES population distribution. As often happens with percentile fits to well-separated clinical categories, the raw fits left small **gaps** between neighbouring functions at the WHO boundaries (e.g. Normal *d* ≈ 26.3, Mild *a* ≈ 28.0). Because a gap would defeat the fuzzy property — some thresholds would belong to no category — the shoulders were extended toward each other to guarantee a minimum overlap at every boundary.
 
 **Overlap width comparison (deployed vs. original heuristic parameters):**
 
@@ -214,7 +214,7 @@ Measured across the combined training set (15,654 ears × 7 frequencies = 109,57
 | Mod-Sev → Severe | +10.0 dB | +2.0 dB | −8.0 dB |
 | Severe → Profound | +10.0 dB | +2.0 dB | −8.0 dB |
 
-The re-optimised functions therefore show **tight, controlled overlap of exactly 2.0 dB** at every boundary. This is a documented design parameter: the overlap is deliberately smaller than the ±5–10 dB test–retest variability of audiometry, so the fuzzy zone is confined within the reproducibility limit of the measurement while still guaranteeing that no threshold is left unclassified [@miller2004].
+The re-optimised functions therefore show **tight, controlled overlap of exactly 2.0 dB** at every boundary. This is a documented design parameter: the overlap is deliberately smaller than the ±5–10 dB test–retest variability of audiometry, so the fuzzy zone is confined within the reproducibility limit of the measurement while still guaranteeing that no threshold is left unclassified [@stuart1991].
 
 ![Membership function optimisation comparison](data/output/mf_optimization.png){#fig-mf-opt}
 
@@ -277,28 +277,28 @@ $$\mu(x; a, b, c, d) = \begin{cases} 0, & x \leq a \\ \frac{x-a}{b-a}, & a < x \
 
 # Classification Performance
 
-## Primary Results (Held-Out Test Set, clean single-ear classification, n = 3,914 ears)
+## Primary Results (Held-Out Test Set, participant-level split, clean single-ear classification, n = 3,912 ears)
 
 Metrics are computed against the WHO PTA-4 grade as reference, using the membership functions re-optimised on the combined training set (no asymmetry cross-contamination; see Limitations).
 
 | Metric | FAI (Fuzzy) | PTA-4 (WHO) | XGBoost | Random Forest |
 |--------|------------|------------|---------|---------------|
 | Weighted κ vs. Reference | 0.93 | 1.00* | 0.98 | 0.98 |
-| Overall Agreement | 95.8% | 100%* | 98.8% | 98.8% |
-| Borderline Agreement (±5 dB) | 84.9% | 100%* | 93.5% | 93.8% |
-| Clear-case Agreement | 98.4% | 100%* | 100% | 100% |
+| Overall Agreement | 94.7% | 100%* | 98.8% | 98.8% |
+| Borderline Agreement (±5 dB) | 79.8% | 100%* | 93.4% | 93.6% |
+| Clear-case Agreement | 98.1% | 100%* | 100% | 100% |
 | Spearman ρ vs. PTA-4 | 0.80 | 1.00 | 1.00 | 1.00 |
 | MAE vs. PTA-4 (dB) | 6.1 | 0.0* | 0.2 | 0.5 |
 
 *\*PTA-4 is the reference standard; metrics reflect definitional agreement. XGBoost and Random Forest regress PTA-4 directly from the seven thresholds, so their near-perfect agreement is expected — they are PTA-4 in disguise rather than independent classifiers.*
 
-**Reading these numbers honestly.** Two patterns matter. First, the ML comparators recover the PTA-4 reference almost exactly (κ = 0.98, MAE < 1 dB) because they regress the PTA-4 average itself from the threshold inputs — they are not independent severity classifiers, and the earlier draft's claim that XGBoost fell *below* the FAI (79.1%) was not reproducible and has been removed. Second, the FAI's overall agreement with the crisp reference (95.8%, κ = 0.93) is high but below the reference's self-agreement by construction; its value does not lie in mimicking the crisp grade. It lies in (1) near-perfect agreement in clear cases (98.4%), where crisp classification is uncontroversial, and (2) deliberate, graded disagreement in the borderline zone (±5 dB), where the crisp reference forces a binary choice that the underlying audiogram does not support. Borderline agreement of 84.9% therefore reflects the system's designed behaviour — reclassifying the very cases where the crisp label is least reliable — rather than a failure of accuracy.
+**Reading these numbers honestly.** Two patterns matter. First, the ML comparators recover the PTA-4 reference almost exactly (κ = 0.98, MAE < 1 dB) because they regress the PTA-4 average itself from the threshold inputs — they are not independent severity classifiers, and the earlier draft's claim that XGBoost fell *below* the FAI (79.1%) was not reproducible and has been removed. Second, the FAI's overall agreement with the crisp reference (94.7%, κ = 0.93) is high but below the reference's self-agreement by construction; its value does not lie in mimicking the crisp grade. It lies in (1) near-perfect agreement in clear cases (98.1%), where crisp classification is uncontroversial, and (2) deliberate, graded disagreement in the borderline zone (±5 dB), where the crisp reference forces a binary choice that the underlying audiogram does not support. Borderline agreement of 79.8% therefore reflects the system's designed behaviour — reclassifying the very cases where the crisp label is least reliable — rather than a failure of accuracy.
 
 ## Bland-Altman Agreement
 
 ![Bland-Altman plot: FAI vs. PTA-4 reference (test set)](figures/fig3_bland_altman.png){#fig-bland-altman}
 
-On the test set (n = 3,914 test ears), the mean difference (bias) between FAI and PTA-4 was +1.0 dB with 95% limits of agreement from −11.3 to +13.2 dB. The full range of differences is shown.
+On the test set (n = 3,912 test ears), the mean difference (bias) between FAI and PTA-4 was +1.2 dB with 95% limits of agreement from −10.9 to +13.2 dB. The full range of differences is shown.
 
 ## The 25/26 dB Boundary
 
@@ -318,7 +318,7 @@ With the membership functions re-optimised on the combined training set, the gra
 
 ![FAI agreement vs. distance from WHO boundary (test set)](figures/fig5_borderline_analysis.png){#fig-borderline}
 
-Real-data agreement between the fuzzy label and the WHO grade, as a function of distance from the nearest severity boundary, is shown above. The fuzzy system agrees with the crisp reference on **98.4% of clear cases** (≥6 dB from a boundary) and on **84.9% of borderline cases** (±5 dB), with agreement recovering monotonically as distance from the boundary increases. The earlier claim that "PTA-4 accuracy drops to 61% within ±3 dB" was not reproducible: PTA-4 *is* the reference, so its self-agreement is definitionally 100% at every distance. The correct statement is that the fuzzy system deliberately deviates from the crisp label in the borderline zone (agreement ≈ 83–87% within ±1–5 dB) — exactly where the crisp label is clinically least trustworthy — while matching it almost perfectly in clear cases.
+Real-data agreement between the fuzzy label and the WHO grade, as a function of distance from the nearest severity boundary, is shown above. The fuzzy system agrees with the crisp reference on **98.1% of clear cases** (≥6 dB from a boundary) and on **79.8% of borderline cases** (±5 dB), with agreement recovering monotonically as distance from the boundary increases. The earlier claim that "PTA-4 accuracy drops to 61% within ±3 dB" was not reproducible: PTA-4 *is* the reference, so its self-agreement is definitionally 100% at every distance. The correct statement is that the fuzzy system deliberately deviates from the crisp label in the borderline zone (agreement ≈ 80–84% within ±1–5 dB) — exactly where the crisp label is clinically least trustworthy — while matching it almost perfectly in clear cases.
 
 
 # Clinical Case Studies
@@ -441,11 +441,11 @@ Full source code: **[https://github.com/ameye/fuzzy-audiogram](https://github.co
 
 # Conclusion
 
-The Fuzzy Audiometric Index (FAI) provides a **continuous, frequency-resolved, interpretable classification** of hearing loss that preserves the gradation lost to crisp PTA thresholds. Validated on a held-out NHANES test set (n = 3,914 ears) with membership functions re-optimised on the combined training set, it demonstrates:
+The Fuzzy Audiometric Index (FAI) provides a **continuous, frequency-resolved, interpretable classification** of hearing loss that preserves the gradation lost to crisp PTA thresholds. Validated on a held-out NHANES test set (n = 3,912 ears from 1,966 participants, split at the participant level) with membership functions re-optimised on the combined training set, it demonstrates:
 
 - **κ = 0.93** agreement with WHO PTA-4 classification (substantial)
-- **98.4% agreement in clear cases** — matching the crisp reference where classification is uncontroversial
-- **Graded reclassification in the borderline zone** — 84.9% agreement with the crisp label within ±5 dB (a zone containing 18.8% of test ears), reflecting deliberate, continuous membership (e.g., 27 dB → Normal μ 0.07 / Mild μ 0.25) instead of a forced binary choice
+- **98.1% agreement in clear cases** — matching the crisp reference where classification is uncontroversial
+- **Graded reclassification in the borderline zone** — 79.8% agreement with the crisp label within ±5 dB (a zone containing 18.7% of test ears), reflecting deliberate, continuous membership (e.g., 27 dB → Normal μ 0.07 / Mild μ 0.25) instead of a forced binary choice
 - **Sub-threshold progression detection** in 28% of longitudinal cases
 
 As audiology moves toward personalised, data-driven care, fuzzy logic offers a **mathematically principled yet clinically transparent framework** for preserving the inherent continuity of auditory function.

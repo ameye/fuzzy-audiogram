@@ -295,7 +295,7 @@ txt(s, 0.80, 1.50, 5.1, 0.4,
 txt(s, 0.80, 1.95, 5.1, 4.7,
     [{"text": "•  Adults 20–69 y: 3 NHANES cycles (1999-2000, 2011-12, 2015-16), n = 10,889", "size": 12.5,
       "color": INK, "space_after": 8, "line_spacing": 1.12},
-     {"text": "•  80/20 ear-level split: 15,654 training / 3,914 held-out test ears",
+     {"text": "•  80/20 participant-level split: 15,656 training / 3,912 held-out test ears (no bilateral leakage)",
       "size": 12.5, "color": INK, "space_after": 8, "line_spacing": 1.12},
      {"text": "•  Membership functions and rule base developed on the training set only",
       "size": 12.5, "color": INK, "space_after": 8, "line_spacing": 1.12},
@@ -392,10 +392,10 @@ notes(s, "Forty-eight expert-derived rules in four groups: severity, configurati
 s = add_slide(LIGHT)
 title_bar(s, "Results: FAI vs WHO PTA-4 and ML comparators", 7)
 data = [["Method", "Weighted κ", "Borderline (±5 dB)", "Clear-case"],
-        ["FAI (fuzzy)", "0.93", "84.9%", "98.4%"],
+        ["FAI (fuzzy)", "0.93", "79.8%", "98.1%"],
         ["PTA-4 (WHO)", "1.00*", "100%*", "100%*"],
-        ["XGBoost", "0.98", "93.5%", "100%"],
-        ["Random Forest", "0.98", "93.8%", "100%"]]
+        ["XGBoost", "0.98", "93.4%", "100%"],
+        ["Random Forest", "0.98", "93.6%", "100%"]]
 make_table(s, 0.55, 1.35, 7.6, data, [2.5, 1.7, 1.7, 1.7], row_h=0.5,
            body_size=12, header_size=12, highlight_rows={2})
 txt(s, 0.55, 3.85, 7.6, 0.35,
@@ -404,7 +404,7 @@ txt(s, 0.55, 3.85, 7.6, 0.35,
 rect(s, 0.55, 4.30, 7.6, 1.35, SOFT_T, line=BORDER, rounded=True, radius=0.07)
 txt(s, 0.75, 4.45, 7.2, 1.1,
     [{"text": "In borderline cases (±5 dB), the fuzzy system deliberately reclassifies "
-               "(84.9% agree with the crisp grade) while matching it in clear cases (98.4%).",
+               "(79.8% agree with the crisp grade) while matching it in clear cases (98.1%).",
       "size": 12.5, "color": INK, "line_spacing": 1.2}])
 img, iw, ih = pic(s, f"{FIG}/fig3_bland_altman.png", 8.45, 1.35, w=4.35)
 txt(s, 8.45, 1.35 + ih + 0.08, 4.35, 0.35,
@@ -412,12 +412,12 @@ txt(s, 8.45, 1.35 + ih + 0.08, 4.35, 0.35,
       "color": MUTED, "align": PP_ALIGN.CENTER}])
 chip(s, 8.45, 5.05, 4.35, 0.95, "κ = 0.93", "vs WHO PTA-4 reference, 20–69 y test", big_size=20,
      small_size=10, fill=NAVY, big_color=GOLD)
-chip(s, 8.45, 6.10, 4.35, 0.85, "ρ = 0.80 · MAE 5.1 dB", "FAI vs PTA-4, n = 3,914 test ears",
+chip(s, 8.45, 6.10, 4.35, 0.85, "ρ = 0.81 · MAE 5.0 dB", "FAI vs PTA-4, n = 3,912 test ears",
      big_size=15, small_size=10, fill=NAVY2, big_color=WHITE)
 notes(s, "On the combined 20-69 y test set the FAI shows substantial agreement with the "
           "WHO PTA-4 reference (kappa 0.93, Spearman 0.80) and matches the crisp grade "
-          "on 98.4% of clear cases. 18.8% of test ears sit within 5 dB of a severity "
-          "boundary; there the system returns graded membership (84.9% agreement with "
+          "on 98.1% of clear cases. 18.7% of test ears sit within 5 dB of a severity "
+          "boundary; there the system returns graded membership (79.8% agreement with "
           "the crisp label) rather than forcing a binary choice. Spearman is attenuated "
           "by range restriction (88.6% normal). The ML comparators regress PTA-4 itself "
           "and are reference-in-disguise, not independent benchmarks.")
@@ -442,11 +442,11 @@ txt(s, 0.75, 4.75, 6.0, 1.8,
 img, iw, ih = pic(s, f"{FIG}/fig5_borderline_analysis.png", 7.25, 1.35, w=5.55)
 txt(s, 7.25, 1.35 + ih + 0.08, 5.55, 0.6,
     [{"text": "The fuzzy system deviates from crisp labels in the borderline zone "
-               "(agreement 83–87% within ±1–5 dB) while matching crisp in clear cases (98.4%)", "size": 10.5, "italic": True,
+               "(agreement 80–84% within ±1–5 dB) while matching crisp in clear cases (98.1%)", "size": 10.5, "italic": True,
       "color": MUTED, "align": PP_ALIGN.CENTER, "line_spacing": 1.1}])
 notes(s, "This is the clinical core. At the normal-mild boundary the fuzzy system reports "
           "graded membership instead of a forced binary label; it matches the crisp label "
-          "in clear cases (98.4%) while deliberately deviating from it in the borderline "
+          "in clear cases (98.1%) while deliberately deviating from it in the borderline "
           "zone (agreement 83–86% within ±1–3 dB).")
 
 # ================================================================ SLIDE 9 — CASES (light)
@@ -593,8 +593,8 @@ txt(s, 0.8, 0.85, 11.73, 0.4,
 concl = [
     "A continuous, frequency-resolved Fuzzy Audiometric Index preserves the gradation "
     "that crisp PTA thresholds discard.",
-    "κ = 0.93 against WHO PTA-4; 98.4% agreement in clear cases, with deliberate "
-    "graded reclassification in the borderline zone (84.9%).",
+    "κ = 0.93 against WHO PTA-4; 98.1% agreement in clear cases, with deliberate "
+    "graded reclassification in the borderline zone (79.8%).",
     "Interpretable by design — a rule base clinicians can inspect, question and modify.",
 ]
 y = 1.75

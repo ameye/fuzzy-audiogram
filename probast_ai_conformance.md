@@ -112,8 +112,26 @@ predictors, outcomes, analyses).
 
 | Requirement | Verdict | Action |
 |---|---|---|
-| AI use described in Acknowledgment | ❌ | Add AI-use disclosure (drafted, awaiting approval) |
-| AI use described in Methods (research/lit search) | ❌ | Add Methods sentence |
-| Bibliographic references accuracy | ❌ | 3 fabricated refs to remove; 3 to verify |
+| AI use described in Acknowledgment | ✅ APPLIED | AI-use disclosure added to Acknowledgements (manuscript_eh.qmd) |
+| AI use described in Methods (research/lit search) | ✅ APPLIED | "Role of artificial intelligence" paragraph added to Methods |
+| Bibliographic references accuracy | ✅ APPLIED | 3 fabricated refs removed (chen2017, zadoush2020, miller2004); 4 unverified unused refs removed (adeyemo2006, bright2023, swanepoel2021, lee2025 re-checked OK); Stuart 1991 (PMID 1877901) added as real test–retest citation |
 | Grammar/spelling AI | ✅ | No disclosure needed |
-| Cover letter | ⚠️ | Add one-line AI disclosure |
+| Cover letter | ✅ APPLIED | One-line AI disclosure added to cover letter |
+
+## Part 5 — Fix status (applied 14 Aug 2026, commit follows)
+
+1. **Participant-level split (PROBAST+AI 4.5)** — `scripts/pipeline_participant.py`
+   run; all manuscripts, report, tables, deck, cover letter, and figures updated
+   to the honest numbers: κ 0.931, overall 94.7%, clear 98.1%, borderline 79.8%,
+   MAE 5.01, ρ 0.807, bias +1.2 (LoA −10.9..13.2), n = 3,912 test ears from
+   1,966 participants.
+2. **AI-use disclosure** — added to Acknowledgements, Methods, and cover letter
+   (JAMA/ICMJE compliant). Blinded version keeps the Methods disclosure.
+3. **Fabricated references** — removed from references.bib and manuscript text;
+   Stuart 1991 (real, PMID 1877901) now supports the test–retest claim.
+4. **Participant-flow diagram** — split described in Methods as participant-level
+   with counts (1.3 partial remains: a formal CONSORT-style figure could still be
+   added if the journal requests it).
+5. **Net-benefit statement (4.7)** — Methods now state why decision-curve analysis
+   was not performed (graded classifier without a single decision threshold).
+

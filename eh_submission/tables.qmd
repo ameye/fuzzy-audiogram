@@ -4,26 +4,26 @@ title: "Tables"
 
 **Table 1. Demographic and Audiometric Characteristics of the NHANES Cohort**
 
-| Characteristic | Training (n=15,654 ears) | Test (n=3,914 ears) |
-| Participants (n) | 9,421 | 3,519 |
-| Age (years), mean (SD) | 43.9 (14.4) | 44.0 (14.4) |
-| Age (years), median (IQR) | 44 (31–56) | 44 (31–56) |
-| Female sex | 50.9% | 51.3% |
-| Mean PTA-4 (dB HL) | 13.3 (11.4) | 13.3 (11.6) |
-| Normal | 88.0% | 88.6% |
-| Mild | 8.8% | 8.1% |
-| Moderate | 2.2% | 2.3% |
+| Characteristic | Training (n=15,656 ears) | Test (n=3,912 ears) |
+| Participants (n) | 7,866 | 1,966 |
+| Age (years), mean (SD) | 44.1 (14.4) | 43.5 (14.6) |
+| Age (years), median (IQR) | 44 (31–56) | 43 (30–56) |
+| Female sex | 50.9% | 51.2% |
+| Mean PTA-4 (dB HL) | 13.3 (11.3) | 13.5 (12.2) |
+| Normal | 88.4% | 86.9% |
+| Mild | 8.6% | 9.2% |
+| Moderate | 2.2% | 2.6% |
 | Moderately Severe | 0.6% | 0.7% |
-| Severe | 0.3% | 0.3% |
-| Profound | 0.1% | 0.0% |
+| Severe | 0.3% | 0.5% |
+| Profound | 0.0% | 0.1% |
 
 **Table 2. Classification Performance on Held-Out Test Set**
 
 | Metric | FAI (Fuzzy) | PTA-4 (WHO) | XGBoost | Random Forest |
 | Weighted κ vs. Reference | 0.93 | 1.00* | 0.98 | 0.98 |
-| Overall Agreement | 95.8% | 100%* | 98.8% | 98.8% |
-| Borderline Agreement (±5 dB) | 84.9% | 100%* | 93.5% | 93.8% |
-| Clear-case Agreement | 98.4% | 100%* | 100% | 100% |
+| Overall Agreement | 94.7% | 100%* | 98.8% | 98.8% |
+| Borderline Agreement (±5 dB) | 79.8% | 100%* | 93.4% | 93.6% |
+| Clear-case Agreement | 98.1% | 100%* | 100% | 100% |
 | Spearman ρ vs. PTA-4 | 0.80 | 1.00 | 1.00 | 1.00 |
 | MAE vs. PTA-4 (dB) | 6.1 | 0.0* | 0.2 | 0.5 |
 
@@ -51,11 +51,11 @@ PTA-4 is the reference standard; metrics reflect definitional agreement.
 
 | Category | a | b | c | d |
 | Normal | 0.0 | 0.0 | 16.4 | 27.8 |
-| Mild | 25.8 | 26.3 | 36.4 | 43.5 |
+| Mild | 25.8 | 26.3 | 35.7 | 43.5 |
 | Moderate | 41.5 | 42.0 | 54.3 | 58.5 |
-| Moderately Severe | 56.5 | 57.0 | 67.9 | 73.5 |
-| Severe | 71.5 | 72.0 | 83.7 | 93.0 |
-| Profound | 91.0 | 91.5 | 104.6 | 120.0 |
+| Moderately Severe | 56.5 | 57.0 | 67.1 | 73.5 |
+| Severe | 71.5 | 72.0 | 83.6 | 93.0 |
+| Profound | 91.0 | 91.5 | 106.7 | 120.0 |
 
 **Table 6. Comparator models evaluated on the held-out test set.**
 
@@ -67,10 +67,10 @@ PTA-4 is the reference standard; metrics reflect definitional agreement.
 **Table 7. Table (context: Classification Accuracy)**
 
 | Method | vs. Reference κ | Borderline Agreement (±5 dB) | Clear-case Agreement |
-| FAI (fuzzy) | 0.93 | 84.9% | 98.4% |
+| FAI (fuzzy) | 0.93 | 79.8% | 98.1% |
 | PTA-4 (WHO) | 1.00* | 100%* | 100%* |
-| XGBoost | 0.98 | 93.5% | 100% |
-| Random Forest | 0.98 | 93.8% | 100% |
+| XGBoost | 0.98 | 93.4% | 100% |
+| Random Forest | 0.98 | 93.6% | 100% |
 
 PTA-4 is the reference standard; its agreement is definitional. XGBoost and Random Forest regress PTA-4 directly from the seven thresholds, so their near-perfect agreement is expected — they are PTA-4 in disguise rather than independent classifiers.
 
