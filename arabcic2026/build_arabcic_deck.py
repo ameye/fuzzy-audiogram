@@ -293,9 +293,9 @@ rect(s, 0.55, 1.30, 5.6, 5.5, CARD, line=BORDER, rounded=True, radius=0.05)
 txt(s, 0.80, 1.50, 5.1, 0.4,
     [{"text": "Data: NHANES 2017–2020", "size": 16, "bold": True, "color": NAVY, "font": HDR}])
 txt(s, 0.80, 1.95, 5.1, 4.7,
-    [{"text": "•  Adults-only cohort: 1,493 participants aged 70–80 y (NHANES protocol)", "size": 12.5,
+    [{"text": "•  Adults 20–69 y: 3 NHANES cycles (1999-2000, 2011-12, 2015-16), n = 10,889", "size": 12.5,
       "color": INK, "space_after": 8, "line_spacing": 1.12},
-     {"text": "•  80/20 ear-level split: 1,584 training / 396 held-out test ears",
+     {"text": "•  80/20 ear-level split: 15,654 training / 3,914 held-out test ears",
       "size": 12.5, "color": INK, "space_after": 8, "line_spacing": 1.12},
      {"text": "•  Membership functions and rule base developed on the training set only",
       "size": 12.5, "color": INK, "space_after": 8, "line_spacing": 1.12},
@@ -392,7 +392,7 @@ notes(s, "Forty-eight expert-derived rules in four groups: severity, configurati
 s = add_slide(LIGHT)
 title_bar(s, "Results: FAI vs WHO PTA-4 and ML comparators", 7)
 data = [["Method", "Weighted κ", "Borderline (±5 dB)", "Clear-case"],
-        ["FAI (fuzzy)", "0.68", "58.7%", "88.2%"],
+        ["FAI (fuzzy)", "0.73", "70.6%", "96.9%"],
         ["PTA-4 (WHO)", "1.00*", "100%*", "100%*"],
         ["XGBoost", "0.85", "79.1%", "92.2%"],
         ["Random Forest", "0.83", "76.3%", "90.4%"]]
@@ -410,17 +410,17 @@ img, iw, ih = pic(s, f"{FIG}/fig3_bland_altman.png", 8.45, 1.35, w=4.35)
 txt(s, 8.45, 1.35 + ih + 0.08, 4.35, 0.35,
     [{"text": "Bland–Altman: FAI vs PTA-4 reference", "size": 10, "italic": True,
       "color": MUTED, "align": PP_ALIGN.CENTER}])
-chip(s, 8.45, 5.05, 4.35, 0.95, "κ = 0.68", "vs WHO PTA-4 reference, adult test", big_size=20,
+chip(s, 8.45, 5.05, 4.35, 0.95, "κ = 0.73", "vs WHO PTA-4 reference, 20–69 y test", big_size=20,
      small_size=10, fill=NAVY, big_color=GOLD)
-chip(s, 8.45, 6.10, 4.35, 0.85, "ρ = 0.83 · MAE 10.5 dB", "FAI vs PTA-4, adult test (n = 396)",
+chip(s, 8.45, 6.10, 4.35, 0.85, "ρ = 0.58 · MAE 6.1 dB", "FAI vs PTA-4, n = 3,914 test ears",
      big_size=15, small_size=10, fill=NAVY2, big_color=WHITE)
-notes(s, "On the adult test set (70-80 y) the FAI shows substantial agreement with the "
-          "WHO PTA-4 reference (kappa 0.68, Spearman 0.83) and matches the crisp grade "
-          "on 88.2% of clear cases. 61.4% of adult ears sit within 5 dB of a severity "
-          "boundary; there the system deliberately returns graded membership (58.7% "
-          "agreement with the crisp label) rather than forcing a binary choice. The ML "
-          "comparators regress PTA-4 itself and are reference-in-disguise, not independent "
-          "benchmarks.")
+notes(s, "On the combined 20-69 y test set the FAI shows substantial agreement with the "
+          "WHO PTA-4 reference (kappa 0.73, Spearman 0.58) and matches the crisp grade "
+          "on 96.9% of clear cases. 18.8% of test ears sit within 5 dB of a severity "
+          "boundary; there the system returns graded membership (70.6% agreement with "
+          "the crisp label) rather than forcing a binary choice. Spearman is attenuated "
+          "by range restriction (88.6% normal). The ML comparators regress PTA-4 itself "
+          "and are reference-in-disguise, not independent benchmarks.")
 
 # ================================================================ SLIDE 8 — 25/26 dB (light)
 s = add_slide(LIGHT)
@@ -442,7 +442,7 @@ txt(s, 0.75, 4.75, 6.0, 1.8,
 img, iw, ih = pic(s, f"{FIG}/fig5_borderline_analysis.png", 7.25, 1.35, w=5.55)
 txt(s, 7.25, 1.35 + ih + 0.08, 5.55, 0.6,
     [{"text": "The fuzzy system deviates from crisp labels in the borderline zone "
-               "(agreement 47–59% within ±1–5 dB) while matching crisp in clear cases (88.2%)", "size": 10.5, "italic": True,
+               "(agreement 63–72% within ±1–5 dB) while matching crisp in clear cases (96.9%)", "size": 10.5, "italic": True,
       "color": MUTED, "align": PP_ALIGN.CENTER, "line_spacing": 1.1}])
 notes(s, "This is the clinical core. At the normal-mild boundary the fuzzy system reports "
           "graded membership instead of a forced binary label; it matches the crisp label "
@@ -480,13 +480,13 @@ s = add_slide(LIGHT)
 title_bar(s, "Configuration typing and asymmetry", 10)
 img, iw, ih = pic(s, f"{FIG}/fig_eda_config_dist.png", 0.55, 1.35, w=4.9)
 txt(s, 0.55, 1.35 + ih + 0.08, 4.9, 0.6,
-    [{"text": "Configuration distribution, adult cohort (slope = 4 kHz − 500 Hz)", "size": 10.5, "italic": True, "color": MUTED,
+    [{"text": "Configuration distribution, combined adult cohort (slope = 4 kHz − 500 Hz)", "size": 10.5, "italic": True, "color": MUTED,
       "align": PP_ALIGN.CENTER, "line_spacing": 1.1}])
 rows = [
-    ("Steeply 31.8% · Gently sloping 29.7%", "dominant adult configurations (4 kHz − 500 Hz)", NAVY, GOLD),
-    ("Flat 22.0% · Precipitous 13.4% · Rising 3.1%", "exploratory output; accuracy table not reproducible", TEAL, WHITE),
+    ("Flat 56.7% · Gently sloping 18.0%", "dominant configurations (4 kHz − 500 Hz)", NAVY, GOLD),
+    ("Steeply 8.8% · Precipitous 3.5% · Rising 13.0%", "exploratory output; accuracy table not reproducible", TEAL, WHITE),
     ("6-shape membership vector", "graded configuration typing per ear", NAVY2, WHITE),
-    ("6.7% of participants", "exceed 15 dB inter-aural difference; continuous index feeds severity "
+    ("5.1% of participants", "exceed 15 dB inter-aural difference; continuous index feeds severity "
      "adjustment (Case D)", TEAL, WHITE),
 ]
 y = 1.35
@@ -494,10 +494,10 @@ for big, small, fill, bcol in rows:
     chip(s, 5.75, y, 7.05, 1.15, big, small, fill=fill, big_color=bcol, small_color=WHITE,
          big_size=19, small_size=10.5)
     y += 1.32
-notes(s, "Configuration typing is an exploratory output: the adult cohort is "
-          "predominantly steeply and gently sloping, and the fuzzy shape rules emit a "
-          "six-category membership vector. Asymmetry affects 6.7% of the adult cohort at "
-          "the 15 dB threshold, and the fuzzy index quantifies it continuously.")
+notes(s, "Configuration typing is an exploratory output: the combined adult cohort is "
+          "predominantly flat and gently sloping, and the fuzzy shape rules emit a "
+          "six-category membership vector. Asymmetry affects 5.1% of the cohort at the "
+          "15 dB threshold, and the fuzzy index quantifies it continuously.")
 
 # ================================================================ SLIDE 11 — LONGITUDINAL (light)
 s = add_slide(LIGHT)

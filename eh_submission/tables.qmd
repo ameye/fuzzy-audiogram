@@ -4,41 +4,39 @@ title: "Tables"
 
 **Table 1. Demographic and Audiometric Characteristics of the NHANES Cohort**
 
-| Characteristic | Training (n=1,584 ears) | Test (n=396 ears) |
-| Participants (n) | 1,044 | 362 |
-| Age (years), mean (SD) | 75.7 (3.7) | 75.8 (3.8) |
-| Age (years), median (IQR) | 76 (72–80) | 76 (72–80) |
-| Aged 70–79 years | 68.2% | 66.7% |
-| Aged ≥80 years | 31.8% | 33.3% |
-| Female sex | 53.2% | 53.5% |
-| Mean PTA-4 (dB HL) | 31.5 (13.2) | 32.1 (13.3) |
-| Normal | 37.9% | 35.6% |
-| Mild | 38.3% | 38.1% |
-| Moderate | 19.0% | 21.5% |
-| Moderately Severe | 4.2% | 4.0% |
-| Severe | 0.4% | 0.8% |
+| Characteristic | Training (n=15,654 ears) | Test (n=3,914 ears) |
+| Participants (n) | 9,421 | 3,519 |
+| Age (years), mean (SD) | 43.9 (14.4) | 44.0 (14.4) |
+| Age (years), median (IQR) | 44 (31–56) | 44 (31–56) |
+| Female sex | 50.9% | 51.3% |
+| Mean PTA-4 (dB HL) | 13.3 (11.4) | 13.3 (11.6) |
+| Normal | 88.0% | 88.6% |
+| Mild | 8.8% | 8.1% |
+| Moderate | 2.2% | 2.3% |
+| Moderately Severe | 0.6% | 0.7% |
+| Severe | 0.3% | 0.3% |
 | Profound | 0.1% | 0.0% |
 
 **Table 2. Classification Performance on Held-Out Test Set**
 
 | Metric | FAI (Fuzzy) | PTA-4 (WHO) | XGBoost | Random Forest |
-| Weighted κ vs. Reference | 0.68 | 1.00* | 0.98 | 0.98 |
-| Overall Agreement | 70.4% | 100%* | 96.7% | 96.0% |
-| Borderline Agreement (±5 dB) | 58.7% | 100%* | 94.7% | 93.4% |
-| Clear-case Agreement | 88.2% | 100%* | 100% | 100% |
-| Spearman ρ vs. PTA-4 | 0.83 | 1.00 | 1.00 | 1.00 |
-| MAE vs. PTA-4 (dB) | 10.5 | 0.0* | 0.5 | 0.8 |
+| Weighted κ vs. Reference | 0.73 | 1.00* | 0.98 | 0.98 |
+| Overall Agreement | 92.3% | 100%* | 98.8% | 98.8% |
+| Borderline Agreement (±5 dB) | 70.6% | 100%* | 93.5% | 93.8% |
+| Clear-case Agreement | 96.9% | 100%* | 100% | 100% |
+| Spearman ρ vs. PTA-4 | 0.58 | 1.00 | 1.00 | 1.00 |
+| MAE vs. PTA-4 (dB) | 6.1 | 0.0* | 0.2 | 0.5 |
 
 PTA-4 is the reference standard; metrics reflect definitional agreement.
 
 **Table 3. Configuration Distribution in the NHANES Cohort (Exploratory)**
 
 | Configuration | Prevalence (%) | Slope Range |
-| Flat | 22.0% | −5 to 12 dB |
-| Gently Sloping | 29.7% | 12–28 dB |
-| Steeply Sloping | 31.8% | 28–45 dB |
-| Precipitous | 13.4% | >45 dB |
-| Rising | 3.1% | <−5 dB |
+| Flat | 56.7% | −5 to 12 dB |
+| Gently Sloping | 18.0% | 12–28 dB |
+| Steeply Sloping | 8.8% | 28–45 dB |
+| Precipitous | 3.5% | >45 dB |
+| Rising | 13.0% | <−5 dB |
 
 **Table 4. Fuzzy vs. Crisp Classification at the Normal–Mild Boundary**
 
@@ -69,10 +67,10 @@ PTA-4 is the reference standard; metrics reflect definitional agreement.
 **Table 7. Table (context: Classification Accuracy)**
 
 | Method | vs. Reference κ | Borderline Agreement (±5 dB) | Clear-case Agreement |
-| FAI (fuzzy) | 0.68 | 58.7% | 88.2% |
+| FAI (fuzzy) | 0.73 | 70.6% | 96.9% |
 | PTA-4 (WHO) | 1.00* | 100%* | 100%* |
-| XGBoost | 0.98 | 94.7% | 100% |
-| Random Forest | 0.98 | 93.4% | 100% |
+| XGBoost | 0.98 | 93.5% | 100% |
+| Random Forest | 0.98 | 93.8% | 100% |
 
 PTA-4 is the reference standard; its agreement is definitional. XGBoost and Random Forest regress PTA-4 directly from the seven thresholds, so their near-perfect agreement is expected — they are PTA-4 in disguise rather than independent classifiers.
 

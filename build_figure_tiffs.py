@@ -30,13 +30,13 @@ CAPTIONS = {
     3: "(a) Bland-Altman plot showing agreement between FAI and PTA-4 reference on "
        "the held-out test set. (b) Classification agreement as a function of "
        "distance from the nearest WHO severity boundary: the FAI matches the crisp "
-       "grade on 94.2% of clear cases (\u22656 dB from a boundary) and returns graded "
-       "membership on 56.3% of borderline cases (\u00b15 dB).",
+       "grade on 96.9% of clear cases (\u22656 dB from a boundary) and returns graded "
+       "membership on 70.6% of borderline cases (\u00b15 dB).",
     4: "Clinical case panels: four representative audiograms (A borderline, "
        "B noise notch, C presbycusis, D asymmetric) showing PTA vs FAI labels, "
        "membership bar plots, and configuration vectors. Coloured background "
        "bands indicate WHO severity categories.",
-    5: "Configuration distribution in the NHANES cohort (slope = 4 kHz \u2212 500 Hz): "
+    5: "Configuration distribution in the combined adult cohort (slope = 4 kHz \u2212 500 Hz): "
        "predominantly flat and gently sloping patterns; the fuzzy shape rules "
        "emit a six-category membership vector.",
     6: "Longitudinal FAI trajectories for three clinical scenarios over 4\u20138 "
