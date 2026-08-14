@@ -328,21 +328,17 @@ def fig4_clinical_cases():
     freqs = [250, 500, 1000, 2000, 3000, 4000, 6000, 8000]
     freq_labels = ['250', '500', '1k', '2k', '3k', '4k', '6k', '8k']
 
-    # Compute membership degrees for each case
+    # Compute membership degrees for each case using the DEPLOYED system so the
+    # bars agree with the manuscript text (threshold memberships at PTA-4).
     case_memberships = []
     for case in cases:
         thresholds = case['thresholds']
-        # Average across frequencies (simple approach)
-        pta = np.mean(thresholds)
-        universe = np.arange(0, 121, 1)
-        mf_vals = []
-        for cat in cat_keys:
-            params = SEVERITY_MF_PARAMS[cat]
-            mf = fuzz.trapmf(universe, params)
-            # Membership degree at PTA
-            idx = int(round(pta))
-            idx = min(idx, len(mf) - 1)
-            mf_vals.append(mf[idx])
+        if 'thresh_right' in case:
+            res = classify_audiogram(thresholds, case['thresh_right'])
+        else:
+            res = classify_audiogram(thresholds)
+        tm = res['threshold_memberships']
+        mf_vals = [float(tm.get(k, 0.0)) for k in cat_keys]
         case_memberships.append(mf_vals)
 
     # Create figure with 4 audiogram panels + 4 inset membership bar panels
