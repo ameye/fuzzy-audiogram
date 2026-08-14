@@ -168,7 +168,7 @@ def get_configuration_rules(slope, notch, audiogram_shape, severity=None):
     return rules
 
 
-def get_asymmetry_rules(asymmetry, severity):
+def get_asymmetry_rules(asymmetry, severity, single_ear=False):
     """
     Build rules that upgrade severity based on inter-aural asymmetry.
 
@@ -179,6 +179,12 @@ def get_asymmetry_rules(asymmetry, severity):
         moderately_asymmetric, severely_asymmetric.
     severity : ctrl.Consequent
         Consequent severity output.
+    single_ear : bool
+        If True, omit the ``asymmetry['symmetric'] -> severity['normal']``
+        anchor rule. In single-ear classification the asymmetry input is
+        always 0.0, so that rule fires at full strength for EVERY ear and
+        drags the defuzzified FAI down (a documented structural artifact).
+        Bilateral mode (webapp, both ears entered) should keep it.
 
     Returns
     -------
@@ -189,10 +195,16 @@ def get_asymmetry_rules(asymmetry, severity):
     rules = []
 
     # --- Symmetric: no effect on severity ---
-    rules.append(ctrl.Rule(
-        asymmetry['symmetric'],
-        severity['normal'],
-    ))
+    # Single-ear pitfall: with asymmetry input = 0.0 this rule fires at
+    # weight 1.0 for every ear, anchoring the centroid low and compressing
+    # the upper FAI range (PTA 90 -> FAI ~31, PTA 120 -> FAI ~9). Omit it
+    # in single-ear mode; the normal threshold MF (core starting at 0 dB)
+    # provides the floor instead.
+    if not single_ear:
+        rules.append(ctrl.Rule(
+            asymmetry['symmetric'],
+            severity['normal'],
+        ))
 
     # --- Mild asymmetry: mild effect ---
     rules.append(ctrl.Rule(
@@ -321,7 +333,8 @@ def get_mixed_loss_rules(threshold, slope, asymmetry, severity):
     return rules
 
 
-def get_all_rules(threshold, slope, notch, asymmetry, severity, audiogram_shape):
+def get_all_rules(threshold, slope, notch, asymmetry, severity, audiogram_shape,
+                  single_ear=False):
     """
     Combine all rule groups into a single flat rule list.
 
@@ -333,6 +346,10 @@ def get_all_rules(threshold, slope, notch, asymmetry, severity, audiogram_shape)
     asymmetry : ctrl.Antecedent
     severity : ctrl.Consequent
     audiogram_shape : ctrl.Consequent
+    single_ear : bool
+        Passed to :func:`get_asymmetry_rules`; omits the symmetric-anchor
+        rule so single-ear validation is not biased by a full-strength
+        ``symmetric -> normal`` firing on every ear.
 
     Returns
     -------
@@ -342,6 +359,6 @@ def get_all_rules(threshold, slope, notch, asymmetry, severity, audiogram_shape)
     rules = []
     rules.extend(get_severity_rules(threshold, severity))
     rules.extend(get_configuration_rules(slope, notch, audiogram_shape, severity))
-    rules.extend(get_asymmetry_rules(asymmetry, severity))
+    rules.extend(get_asymmetry_rules(asymmetry, severity, single_ear=single_ear))
     rules.extend(get_mixed_loss_rules(threshold, slope, asymmetry, severity))
     return rules

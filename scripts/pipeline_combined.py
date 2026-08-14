@@ -73,7 +73,14 @@ def who_category(v):
 
 def optimize_mfs(ear_rows):
     """Fit trapezoidal severity MFs from the training ears (per-frequency
-    percentiles -> aggregate -> overlap enforcement)."""
+    percentiles -> aggregate -> overlap enforcement).
+
+    Structural fix (S4): the Normal MF core is set to start at 0 dB
+    (a = b = 0). With the percentile fit the Normal shoulder begins at
+    P25 (> 0), leaving a 0-membership gap at the lowest thresholds that the
+    single-ear symmetric rule previously masked; anchoring the core at 0
+    restores the floor without a constant upward pull on every ear.
+    """
     rows = []
     for seqn, cycle, side, th in ear_rows:
         for freq, idx in zip(FREQUENCIES, [1, 2, 3, 4, 5, 6, 7]):
@@ -96,6 +103,9 @@ def optimize_mfs(ear_rows):
             b = p25
             c = p75
             d = 120.0 if cat == 'profound' else min(p95 + 2, 120.0)
+            if cat == 'normal':
+                # structural fix: anchor Normal core at 0 dB
+                a, b = 0.0, 0.0
             a, b, c, d = min(a, b), max(b, a), max(c, b), max(d, c)
             trap[freq][cat] = [round(a, 1), round(b, 1), round(c, 1), round(d, 1)]
             stats.append({'freq': freq, 'cat': cat, 'n': len(vals),
@@ -125,11 +135,16 @@ def optimize_mfs(ear_rows):
 
 def build_fis_with_params(severity_params):
     """Build the Mamdani FIS using the given severity MF params by
-    monkeypatching the module constant (deployed core untouched afterwards)."""
+    monkeypatching the module constant (deployed core untouched afterwards).
+
+    Built in single-ear mode: the symmetric-anchor asymmetry rule is omitted
+    so the asymmetry input (0.0 for a single ear) does not fire at full
+    strength for every ear and compress the FAI scale (structural fix S4).
+    """
     orig = dict(core.SEVERITY_MF_PARAMS)
     core.SEVERITY_MF_PARAMS = {k: list(v) for k, v in severity_params.items()}
     try:
-        return core.build_audiogram_fis()
+        return core.build_audiogram_fis(single_ear=True)
     finally:
         core.SEVERITY_MF_PARAMS = orig
 
@@ -212,9 +227,49 @@ def main():
     stats_df.to_csv(OUT / 'mf_stats_combined.csv', index=False)
 
     # 4. build FIS with new params
-    print('\n[3] Building Mamdani FIS with optimised parameters...')
+    print('\n[3] Building Mamdani FIS with optimised parameters (single-ear mode)...')
     system, sim, threshold_ant, slope_ant, _n, _a, _sc, _sh = build_fis_with_params(params)
-    print('  FIS built (48-rule base, new severity MFs)')
+    print('  FIS built (47-rule single-ear base, new severity MFs; symmetric-anchor rule omitted)')
+
+    # 4b. calibrate FAI -> label thresholds on the TRAINING set (structural fix:
+    #     the fixed FIS scores span the full range, so the deployed fixed
+    #     label cut-offs [20,35,50,65,85] are no longer optimal)
+    print('\n[3b] Calibrating label thresholds on the TRAINING set...')
+    from scipy.optimize import minimize as _minimize
+    # stratified calibration sample (all WHO grades represented, like stage-2)
+    _g = np.array([who_grade(np.mean([r[3][i] for i in PTA_IDX])) for r in train_rows])
+    _idx, _rng2 = [], np.random.RandomState(7)
+    for _c in range(6):
+        _cand = np.where(_g == _c)[0]
+        _take = min(int(4000 * max(len(_cand) / len(train_rows), 0.01)), len(_cand))
+        _idx.extend(_rng2.choice(_cand, _take, replace=False).tolist())
+    calib_rows = [train_rows[i] for i in _idx]
+    calib_res = classify_ears_batched(system, calib_rows)
+    calib_fai = np.array([r['fai_score'] for r in calib_res])
+    calib_pta = np.array([r['pta'] for r in calib_res])
+    calib_yt = np.array([who_grade(p) for p in calib_pta])
+    DEFAULT_TH = [20.0, 35.0, 50.0, 65.0, 85.0]
+
+    def _label_from_th(scores, th):
+        th = np.sort(np.asarray(th, dtype=float))
+        return np.array([0 if s < th[0] else 1 if s < th[1] else 2 if s < th[2]
+                         else 3 if s < th[3] else 4 if s < th[4] else 5 for s in scores])
+
+    def _obj_kappa(th):
+        return -cohen_kappa_score(calib_yt, _label_from_th(calib_fai, th), weights='quadratic')
+
+    opt = _minimize(_obj_kappa, np.array(DEFAULT_TH), method='Nelder-Mead',
+                    options={'xatol': 0.5, 'fatol': 1e-6, 'maxiter': 600})
+    label_th = np.sort(np.clip(opt.x, 5.0, 95.0)).tolist()
+    # guard against degenerate threshold squeezing (adjacent gaps < 2 FAI pts):
+    gaps = np.diff(label_th)
+    if gaps.min() < 2.0:
+        print('  WARNING: calibrated thresholds degenerate (adjacent gap < 2 pts); '
+              'keeping defaults')
+        label_th = list(DEFAULT_TH)
+    print(f'  calibrated label thresholds: {[round(x, 1) for x in label_th]} '
+          f'(train kappa { -opt.fun:.3f})')
+    core.SEVERITY_LABEL_THRESHOLDS = label_th  # used by _interpret_severity_score
 
     # 5. batch classify
     n_classify = None if not quick else 200
@@ -297,7 +352,8 @@ def main():
                'borderline_share': round(bl.mean(), 4),
                'bias': round(bias, 1), 'loa_lo': round(bias - 1.96*sd, 1),
                'loa_hi': round(bias + 1.96*sd, 1), 'n_valid': int(len(fai)),
-               'mf_params': params}
+               'label_thresholds': [round(x, 1) for x in label_th],
+               'single_ear': True, 'mf_params': params}
     (OUT / 'metrics_combined.json').write_text(json.dumps(metrics, indent=2), encoding='utf-8')
     pickle.dump({'params': params, 'y_te': y_te, 'y_true': yt, 'yf': yf,
                  'fai': fai, 'pta': pta, 'bl': bl, 'dist': dist},

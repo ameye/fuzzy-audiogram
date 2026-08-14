@@ -392,7 +392,7 @@ notes(s, "Forty-eight expert-derived rules in four groups: severity, configurati
 s = add_slide(LIGHT)
 title_bar(s, "Results: FAI vs WHO PTA-4 and ML comparators", 7)
 data = [["Method", "Weighted κ", "Borderline (±5 dB)", "Clear-case"],
-        ["FAI (fuzzy)", "0.76", "74.9%", "95.2%"],
+        ["FAI (fuzzy)", "0.93", "84.9%", "98.4%"],
         ["PTA-4 (WHO)", "1.00*", "100%*", "100%*"],
         ["XGBoost", "0.98", "93.5%", "100%"],
         ["Random Forest", "0.98", "93.8%", "100%"]]
@@ -404,20 +404,20 @@ txt(s, 0.55, 3.85, 7.6, 0.35,
 rect(s, 0.55, 4.30, 7.6, 1.35, SOFT_T, line=BORDER, rounded=True, radius=0.07)
 txt(s, 0.75, 4.45, 7.2, 1.1,
     [{"text": "In borderline cases (±5 dB), the fuzzy system deliberately reclassifies "
-               "(74.9% agree with the crisp grade) while matching it in clear cases (95.2%).",
+               "(84.9% agree with the crisp grade) while matching it in clear cases (98.4%).",
       "size": 12.5, "color": INK, "line_spacing": 1.2}])
 img, iw, ih = pic(s, f"{FIG}/fig3_bland_altman.png", 8.45, 1.35, w=4.35)
 txt(s, 8.45, 1.35 + ih + 0.08, 4.35, 0.35,
     [{"text": "Bland–Altman: FAI vs PTA-4 reference", "size": 10, "italic": True,
       "color": MUTED, "align": PP_ALIGN.CENTER}])
-chip(s, 8.45, 5.05, 4.35, 0.95, "κ = 0.76", "vs WHO PTA-4 reference, 20–69 y test", big_size=20,
+chip(s, 8.45, 5.05, 4.35, 0.95, "κ = 0.93", "vs WHO PTA-4 reference, 20–69 y test", big_size=20,
      small_size=10, fill=NAVY, big_color=GOLD)
-chip(s, 8.45, 6.10, 4.35, 0.85, "ρ = 0.61 · MAE 6.0 dB", "FAI vs PTA-4, n = 3,914 test ears",
+chip(s, 8.45, 6.10, 4.35, 0.85, "ρ = 0.80 · MAE 5.1 dB", "FAI vs PTA-4, n = 3,914 test ears",
      big_size=15, small_size=10, fill=NAVY2, big_color=WHITE)
 notes(s, "On the combined 20-69 y test set the FAI shows substantial agreement with the "
-          "WHO PTA-4 reference (kappa 0.76, Spearman 0.61) and matches the crisp grade "
-          "on 95.2% of clear cases. 18.8% of test ears sit within 5 dB of a severity "
-          "boundary; there the system returns graded membership (74.9% agreement with "
+          "WHO PTA-4 reference (kappa 0.93, Spearman 0.80) and matches the crisp grade "
+          "on 98.4% of clear cases. 18.8% of test ears sit within 5 dB of a severity "
+          "boundary; there the system returns graded membership (84.9% agreement with "
           "the crisp label) rather than forcing a binary choice. Spearman is attenuated "
           "by range restriction (88.6% normal). The ML comparators regress PTA-4 itself "
           "and are reference-in-disguise, not independent benchmarks.")
@@ -426,10 +426,10 @@ notes(s, "On the combined 20-69 y test set the FAI shows substantial agreement w
 s = add_slide(LIGHT)
 title_bar(s, "The 25/26 dB boundary: graded, not binary", 8)
 data = [["PTA-4", "Crisp label", "Fuzzy label", "FAI", "Normal μ", "Mild μ"],
-        ["24 dB", "Normal", "Normal", "9.3", "0.33", "0.00"],
-        ["25 dB", "Normal", "Normal", "9.3", "0.25", "0.00"],
-        ["26 dB", "Mild", "Normal", "16.8", "0.16", "0.40"],
-        ["30 dB", "Mild", "Mild", "20.4", "0.00", "1.00"]]
+        ["24 dB", "Normal", "Normal", "11.3", "0.33", "0.00"],
+        ["25 dB", "Normal", "Normal", "11.6", "0.25", "0.00"],
+        ["26 dB", "Mild", "Mild", "25.7", "0.16", "0.40"],
+        ["30 dB", "Mild", "Mild", "30.0", "0.00", "1.00"]]
 make_table(s, 0.55, 1.35, 6.4, data, [1.05, 1.05, 1.05, 0.85, 1.2, 1.2], row_h=0.46,
            body_size=11, header_size=11, highlight_rows={3})
 rect(s, 0.55, 4.60, 6.4, 2.05, CARD, line=BORDER, rounded=True, radius=0.06)
@@ -437,17 +437,17 @@ txt(s, 0.75, 4.75, 6.0, 1.8,
     [{"text": "A patient with PTA 26 dB is simultaneously 16% normal and 40% mild — "
                "the crisp label hides this ambiguity.", "size": 12.5, "color": INK,
       "space_after": 8, "line_spacing": 1.2},
-     {"text": "FAI rises smoothly from 9.3 at 24 dB to 20.4 at 30 dB; crisp rules impose a step at 26 dB.",
+     {"text": "FAI rises smoothly from 11.3 at 24 dB to 30.0 at 30 dB; crisp rules impose a step at 26 dB.",
       "size": 12.5, "color": INK, "line_spacing": 1.2}])
 img, iw, ih = pic(s, f"{FIG}/fig5_borderline_analysis.png", 7.25, 1.35, w=5.55)
 txt(s, 7.25, 1.35 + ih + 0.08, 5.55, 0.6,
     [{"text": "The fuzzy system deviates from crisp labels in the borderline zone "
-               "(agreement 59–75% within ±1–5 dB) while matching crisp in clear cases (95.2%)", "size": 10.5, "italic": True,
+               "(agreement 83–87% within ±1–5 dB) while matching crisp in clear cases (98.4%)", "size": 10.5, "italic": True,
       "color": MUTED, "align": PP_ALIGN.CENTER, "line_spacing": 1.1}])
 notes(s, "This is the clinical core. At the normal-mild boundary the fuzzy system reports "
           "graded membership instead of a forced binary label; it matches the crisp label "
-          "in clear cases (95.2%) while deliberately deviating from it in the borderline "
-          "zone (agreement 59–70% within ±1–3 dB).")
+          "in clear cases (98.4%) while deliberately deviating from it in the borderline "
+          "zone (agreement 83–86% within ±1–3 dB).")
 
 # ================================================================ SLIDE 9 — CASES (light)
 s = add_slide(LIGHT)
@@ -457,9 +457,9 @@ txt(s, 0.55, 1.30 + ih + 0.06, 6.05, 0.3,
     [{"text": "Four representative audiograms with membership bar charts", "size": 9.5,
       "italic": True, "color": MUTED, "align": PP_ALIGN.CENTER}])
 cases = [
-    ("A · BORDERLINE", "PTA 27.5 dB “Mild” · FAI 20.4", "Normal μ 0.04, Mild μ 1.00 — graded, not forced"),
+    ("A · BORDERLINE", "PTA 27.5 dB “Mild” · FAI 29.4", "Normal μ 0.04, Mild μ 1.00 — graded, not forced"),
     ("B · MASKED NOTCH", "PTA 23 dB “Normal”", "25 dB notch at 4 kHz · Notched μ 0.78 — PTA missed it"),
-    ("C · PRESBYCUSIS", "PTA 33.8 dB “Mild” · FAI 20.4", "Sloping 35 dB — frequency gradient preserved"),
+    ("C · PRESBYCUSIS", "PTA 33.8 dB “Mild” · FAI 30.0", "Sloping 35 dB — frequency gradient preserved"),
     ("D · ASYMMETRY", "R 53.8 dB Mod / L 28.8 Mild", "Composite FAI 54.5 (Mod-Sev) — impact quantified"),
 ]
 cpos = [(6.95, 1.30), (6.95, 3.10), (6.95, 4.90), (6.95, 6.05)]
@@ -593,8 +593,8 @@ txt(s, 0.8, 0.85, 11.73, 0.4,
 concl = [
     "A continuous, frequency-resolved Fuzzy Audiometric Index preserves the gradation "
     "that crisp PTA thresholds discard.",
-    "κ = 0.76 against WHO PTA-4; 95.2% agreement in clear cases, with deliberate "
-    "graded reclassification in the borderline zone (74.9%).",
+    "κ = 0.93 against WHO PTA-4; 98.4% agreement in clear cases, with deliberate "
+    "graded reclassification in the borderline zone (84.9%).",
     "Interpretable by design — a rule base clinicians can inspect, question and modify.",
 ]
 y = 1.75

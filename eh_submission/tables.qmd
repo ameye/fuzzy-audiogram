@@ -20,11 +20,11 @@ title: "Tables"
 **Table 2. Classification Performance on Held-Out Test Set**
 
 | Metric | FAI (Fuzzy) | PTA-4 (WHO) | XGBoost | Random Forest |
-| Weighted κ vs. Reference | 0.76 | 1.00* | 0.98 | 0.98 |
-| Overall Agreement | 91.4% | 100%* | 98.8% | 98.8% |
-| Borderline Agreement (±5 dB) | 74.9% | 100%* | 93.5% | 93.8% |
-| Clear-case Agreement | 95.2% | 100%* | 100% | 100% |
-| Spearman ρ vs. PTA-4 | 0.61 | 1.00 | 1.00 | 1.00 |
+| Weighted κ vs. Reference | 0.93 | 1.00* | 0.98 | 0.98 |
+| Overall Agreement | 95.8% | 100%* | 98.8% | 98.8% |
+| Borderline Agreement (±5 dB) | 84.9% | 100%* | 93.5% | 93.8% |
+| Clear-case Agreement | 98.4% | 100%* | 100% | 100% |
+| Spearman ρ vs. PTA-4 | 0.80 | 1.00 | 1.00 | 1.00 |
 | MAE vs. PTA-4 (dB) | 6.1 | 0.0* | 0.2 | 0.5 |
 
 PTA-4 is the reference standard; metrics reflect definitional agreement.
@@ -41,16 +41,16 @@ PTA-4 is the reference standard; metrics reflect definitional agreement.
 **Table 4. Fuzzy vs. Crisp Classification at the Normal–Mild Boundary**
 
 | PTA-4 (dB) | WHO Grade | FAI Score | FAI Grade | Key Memberships |
-| 24 | Normal | 9.3 | Normal | Normal μ=0.33, Mild μ=0.00 |
-| 26 | Mild | 16.8 | Normal | Normal μ=0.16, Mild μ=0.40 |
-| 27 | Mild | 20.4 | Mild | Normal μ=0.07, Mild μ=1.00 |
-| 28 | Mild | 20.4 | Mild | Normal μ=0.00, Mild μ=1.00 |
-| 30 | Mild | 20.4 | Mild | Normal μ=0.00, Mild μ=1.00 |
+| 24 | Normal | 11.3 | Normal | Normal μ=0.33, Mild μ=0.00 |
+| 26 | Mild | 25.7 | Mild | Normal μ=0.16, Mild μ=0.40 |
+| 27 | Mild | 28.9 | Mild | Normal μ=0.07, Mild μ=1.00 |
+| 28 | Mild | 30.0 | Mild | Normal μ=0.00, Mild μ=1.00 |
+| 30 | Mild | 30.0 | Mild | Normal μ=0.00, Mild μ=1.00 |
 
 **Table 5. Optimised trapezoidal membership function parameters (a, b, c, d) for the six hearing loss severity categories.**
 
 | Category | a | b | c | d |
-| Normal | 0.0 | 6.4 | 16.4 | 27.8 |
+| Normal | 0.0 | 0.0 | 16.4 | 27.8 |
 | Mild | 25.8 | 26.3 | 36.4 | 43.5 |
 | Moderate | 41.5 | 42.0 | 54.3 | 58.5 |
 | Moderately Severe | 56.5 | 57.0 | 67.9 | 73.5 |
@@ -67,7 +67,7 @@ PTA-4 is the reference standard; metrics reflect definitional agreement.
 **Table 7. Table (context: Classification Accuracy)**
 
 | Method | vs. Reference κ | Borderline Agreement (±5 dB) | Clear-case Agreement |
-| FAI (fuzzy) | 0.76 | 74.9% | 95.2% |
+| FAI (fuzzy) | 0.93 | 84.9% | 98.4% |
 | PTA-4 (WHO) | 1.00* | 100%* | 100%* |
 | XGBoost | 0.98 | 93.5% | 100% |
 | Random Forest | 0.98 | 93.8% | 100% |
@@ -77,17 +77,17 @@ PTA-4 is the reference standard; its agreement is definitional. XGBoost and Rand
 **Table 8. Classification at the normal/mild boundary: crisp labels versus graded fuzzy output across the 24–30 dB HL range.**
 
 | PTA-4 | Crisp Label | Fuzzy Label | FAI Score | Normal μ | Mild μ |
-| 24 dB | Normal | Normal | 9.3 | 0.33 | 0.00 |
-| 26 dB | Mild | Normal | 16.8 | 0.16 | 0.40 |
-| 27 dB | Mild | Mild | 20.4 | 0.07 | 1.00 |
-| 28 dB | Mild | Mild | 20.4 | 0.00 | 1.00 |
-| 30 dB | Mild | Mild | 20.4 | 0.00 | 1.00 |
+| 24 dB | Normal | Normal | 11.3 | 0.33 | 0.00 |
+| 26 dB | Mild | Mild | 25.7 | 0.16 | 0.40 |
+| 27 dB | Mild | Mild | 28.9 | 0.07 | 1.00 |
+| 28 dB | Mild | Mild | 30.0 | 0.00 | 1.00 |
+| 30 dB | Mild | Mild | 30.0 | 0.00 | 1.00 |
 
 **Table 9. Summary of the four clinical case studies (A–D).**
 
 | Case | PTA-4 | WHO Grade | FAI | Configuration | Key Finding |
-| A | 27.5 dB | Mild | 20.4 | Precipitous (shape rules) | Borderline membership (Normal 0.04, Mild 1.00) |
-| B | 23.0 dB | Normal | 17.0 | Precipitous (shape rules) | 25 dB notch at 4 kHz masked by PTA |
-| C | 33.8 dB | Mild | 20.4 | Sloping | Frequency-resolved severity preserved |
+| A | 27.5 dB | Mild | 29.4 | Precipitous (shape rules) | Borderline membership (Normal 0.04, Mild 1.00) |
+| B | 23.0 dB | Normal | 21.5 | Precipitous (shape rules) | 25 dB notch at 4 kHz masked by PTA |
+| C | 33.8 dB | Mild | 30.0 | Sloping | Frequency-resolved severity preserved |
 | D | 53.8/28.8 dB | Mod/Mild | 54.5 composite | Precipitous | Asymmetry upgrade; inter-aural modulation |
 

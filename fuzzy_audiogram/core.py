@@ -37,13 +37,19 @@ CONFIG_LABELS_HUMAN = ['Normal', 'Flat', 'Sloping', 'Notched',
 
 # Membership function parameters (trapezoidal [a, b, c, d])
 SEVERITY_MF_PARAMS = {
-    'normal':           [0, 0, 14.3, 28.0],
-    'mild':             [26.0, 30.0, 39.3, 44.0],
-    'moderate':         [41.0, 45.0, 53.6, 59.0],
+    'normal':            [0.0, 0.0, 14.3, 28.0],
+    'mild':              [26.0, 30.0, 39.3, 44.0],
+    'moderate':          [41.0, 45.0, 53.6, 59.0],
     'moderately_severe': [56.0, 60.0, 67.9, 74.0],
-    'severe':           [71.0, 75.0, 85.4, 94.0],
-    'profound':         [91.9, 94.4, 103.5, 120.0],
+    'severe':            [71.0, 75.0, 85.4, 94.0],
+    'profound':          [91.9, 94.4, 103.5, 120.0],
 }
+
+# Label thresholds applied to the defuzzified FAI (0-100) to produce the
+# severity label. Deployed default is [20, 35, 50, 65, 85]; the combined
+# pipeline calibrates these on the training set and monkeypatches this
+# constant (same pattern as SEVERITY_MF_PARAMS).
+SEVERITY_LABEL_THRESHOLDS = [20.0, 35.0, 50.0, 65.0, 85.0]
 
 SLOPE_MF_PARAMS = {
     'rising':           [-40, -40, -15, -3],
@@ -123,13 +129,21 @@ def create_asymmetry_universe():
 # =========================================================================
 
 
-def build_audiogram_fis():
+def build_audiogram_fis(single_ear=False):
     """Build the full Mamdani fuzzy inference system for audiogram
     interpretation.
 
     Constructs input/output universes, attaches membership functions
     using the parameters defined in module constants, and assembles
     the rule base from :mod:`fuzzy_audiogram.rules`.
+
+    Parameters
+    ----------
+    single_ear : bool, optional
+        If True, omit the ``asymmetry[symmetric] -> severity[normal]``
+        anchor rule. In single-ear validation the asymmetry input is always
+        0.0, so that rule would fire at full strength for every ear and
+        compress the FAI scale (see :func:`rules.get_asymmetry_rules`).
 
     Returns
     -------
@@ -183,6 +197,7 @@ def build_audiogram_fis():
     rules = get_all_rules(
         threshold_ant, slope_ant, notch_ant, asym_ant,
         severity_con, shape_con,
+        single_ear=single_ear,
     )
 
     # --- Control system ---
@@ -275,15 +290,16 @@ def compute_audiogram_features(thresholds_left, thresholds_right=None):
 
 def _interpret_severity_score(score):
     """Map a continuous severity score (0-100) to a human label."""
-    if score < 20:
+    th = SEVERITY_LABEL_THRESHOLDS
+    if score < th[0]:
         return 'Normal'
-    elif score < 35:
+    elif score < th[1]:
         return 'Mild'
-    elif score < 50:
+    elif score < th[2]:
         return 'Moderate'
-    elif score < 65:
+    elif score < th[3]:
         return 'Moderately Severe'
-    elif score < 85:
+    elif score < th[4]:
         return 'Severe'
     else:
         return 'Profound'
@@ -324,8 +340,13 @@ def classify_audiogram(thresholds_left, thresholds_right=None):
     """
     import skfuzzy as fuzz
 
+    # Single-ear mode: when only one ear is provided, the asymmetry input is
+    # 0.0 and the symmetric-anchor rule would fire at full strength for every
+    # ear, compressing the FAI scale (structural fix S4). Bilateral input
+    # keeps the full 48-rule base.
+    single_ear = thresholds_right is None
     (_, sim, threshold_ant, slope_ant, _notch_ant, _asym_ant,
-     _severity_con, _shape_con) = build_audiogram_fis()
+     _severity_con, _shape_con) = build_audiogram_fis(single_ear=single_ear)
 
     features = compute_audiogram_features(thresholds_left, thresholds_right)
 
