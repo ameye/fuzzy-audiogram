@@ -1,0 +1,45 @@
+---
+title: "Summary of Research Protocol Submitted for Ethical Clearance"
+---
+
+**Cover Letter to the Ethics and Research Committee**
+
+**OAUTHC, Ile-Ife | 16 August 2026**
+
+---
+
+## Submission Summary
+
+**Full title:** External Validation of the Fuzzy Audiometric Index (FAI), a Fuzzy Inference System for Automated Audiogram Classification, Using Clinical Audiometry Data from the Department of Otorhinolaryngology, Obafemi Awolowo University Teaching Hospitals Complex (OAUTHC), Ile-Ife
+
+**Investigators:** Dr Sanyaolu Alani Ameye, MBBS, FWACS, FMCORL (Principal Investigator, former Reader, Department of Otorhinolaryngology, OAU) and Dr Samuel Ayodele, Consultant ENT Surgeon (Co-Investigator and Site Lead, OAUTHC)
+
+## What the Study Does
+
+The study externally validates the Fuzzy Audiometric Index, an interpretable fuzzy inference system that classifies audiograms into WHO hearing-loss severity grades. The FAI was developed on United States survey data (NHANES, 19,568 ears) where it achieved a weighted kappa of 0.931 against the WHO PTA-4 reference, with 94.7% overall agreement and 79.8% agreement in borderline cases. It has never been tested on West African clinical audiometry, and this study provides that evidence.
+
+## Study Design
+
+- **Design:** Retrospective chart review of archived audiometry records, 1 January 2020 to 30 June 2026. No patient contact, no intervention, no prospective data collection.
+- **Sample:** Minimum 400 ears from approximately 200 to 250 patients (minimum 250 ears for the study to proceed), drawn consecutively from the ENT audiology records.
+- **Reference standards:** WHO PTA-4 severity grade (primary) and documented consultant ENT clinical grading where available (secondary).
+- **Analysis:** Weighted Cohen's kappa, overall accuracy, borderline-zone performance (within 5 dB of a severity boundary), configuration classification, age/sex/aetiology subgroup comparisons, and continuous score agreement (correlation, mean absolute error, Bland-Altman). Reported per the TRIPOD statement for external validation.
+- **Key methodological feature:** The FAI is frozen; no re-fitting on OAUTHC data. This is a genuine external validation, not a re-development.
+
+## Ethics and Data Governance
+
+- **Consent:** Waiver of consent is requested. The study is retrospective, uses only existing records, and involves no more than minimal risk.
+- **Anonymity:** All data are de-identified at extraction (k-anonymity, groups of at least 5). No names, hospital numbers, addresses, or other identifiers leave the hospital.
+- **Data security:** Data are stored on encrypted, password-protected media. Aggregated, fully de-identified analysis files only are shared with the principal investigator outside the hospital.
+- **Compliance:** The protocol follows NHREC requirements for retrospective research using archived records.
+
+## What We Request
+
+Approval of the protocol, including the waiver of informed consent, to enable the Department of Otorhinolaryngology to extract and analyse de-identified archived audiometry data within the study window.
+
+**Attachments:** Full research protocol, data dictionary, extraction template, investigator CVs.
+
+---
+
+**Principal Investigator** | Dr Sanyaolu Alani Ameye, MBBS, FWACS, FMCORL
+**Site Lead** | Dr Samuel Ayodele, Consultant ENT Surgeon, OAUTHC
