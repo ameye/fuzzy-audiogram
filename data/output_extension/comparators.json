@@ -1,0 +1,44 @@
+{
+  "Multinomial LR": {
+    "kappa": 0.971,
+    "overall": 0.9916,
+    "borderline": 0.9658,
+    "clear": 0.9975,
+    "train_kappa": 0.987
+  },
+  "kNN-15": {
+    "kappa": 0.97,
+    "overall": 0.9819,
+    "borderline": 0.9042,
+    "clear": 0.9997,
+    "train_kappa": 1.0
+  },
+  "MLP": {
+    "kappa": 0.909,
+    "overall": 0.9624,
+    "borderline": 0.8331,
+    "clear": 0.9921,
+    "train_kappa": 0.929
+  },
+  "XGBoost (classifier)": {
+    "kappa": 0.988,
+    "overall": 0.9928,
+    "borderline": 0.9644,
+    "clear": 0.9994,
+    "train_kappa": 1.0
+  },
+  "Random Forest (classifier)": {
+    "kappa": 0.979,
+    "overall": 0.987,
+    "borderline": 0.933,
+    "clear": 0.9994,
+    "train_kappa": 1.0
+  },
+  "FAI (fuzzy, participant pipeline)": {
+    "kappa": 0.931,
+    "overall": 0.9466,
+    "borderline": 0.7975,
+    "clear": 0.9808,
+    "train_kappa": null
+  }
+}
