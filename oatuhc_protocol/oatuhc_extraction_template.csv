@@ -1,0 +1,2 @@
+study_id,patient_id,ear,test_month_year,age_years,sex,th_250,th_500,th_1k,th_2k,th_3k,th_4k,th_6k,th_8k,bc_500,bc_1k,bc_2k,bc_4k,diagnosis_category,consultant_grade,documented_shape,ear_included,exclusion_reason
+,,,,,,,,,,,,,,,,,,

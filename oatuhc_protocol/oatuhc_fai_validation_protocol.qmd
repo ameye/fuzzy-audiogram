@@ -1,0 +1,301 @@
+---
+title: "External Validation of the Fuzzy Audiometric Index for Automated Audiogram Classification at Obafemi Awolowo University Teaching Hospitals Complex"
+---
+
+**Research Protocol for Ethical Clearance**
+
+**Version 1.0 | 16 August 2026**
+
+---
+
+## 1. Study Title
+
+**External Validation of the Fuzzy Audiometric Index (FAI), a Fuzzy Inference System for Automated Audiogram Classification, Using Clinical Audiometry Data from the Department of Otorhinolaryngology, Obafemi Awolowo University Teaching Hospitals Complex (OAUTHC), Ile-Ife**
+
+---
+
+## 2. Investigators
+
+**Principal Investigator**
+Dr Sanyaolu Alani Ameye, MBBS, FWACS, FMCORL
+Former Reader (Associate Professor), Department of Otorhinolaryngology, Obafemi Awolowo University, Ile-Ife
+Pg. Cert Artificial Intelligence/ML (University of Texas at Austin), MSc Data Science (Deakin University)
+Email: sanyaameye@hotmail.com
+
+**Co-Investigator / Site Lead**
+Dr Samuel Ayodele
+Consultant ENT Surgeon, Department of Otorhinolaryngology
+Obafemi Awolowo University Teaching Hospitals Complex, Ile-Ife, Osun State, Nigeria
+Email: [to be confirmed]
+
+**Institution**
+Department of Otorhinolaryngology, Obafemi Awolowo University Teaching Hospitals Complex, Ile-Ife, Nigeria
+
+---
+
+## 3. Background
+
+Pure-tone audiometry remains the cornerstone of hearing assessment. The result is a set of air-conduction and bone-conduction thresholds at standard frequencies, and clinical practice summarises these thresholds into a severity grade using the World Health Organization (WHO) classification, which assigns hearing loss to one of six categories based on the four-frequency pure-tone average (PTA-4). This crisp classification is simple and widely used, but it discards information at category boundaries. A one-decibel change at 25 to 26 dB moves a patient from normal hearing to mild loss, although thresholds within a few decibels of a boundary are clinically similar and measurement itself carries test-retest variability of roughly 5 to 10 dB.
+
+The Fuzzy Audiometric Index (FAI) was developed to address this problem. It is a Mamdani-type fuzzy inference system that maps frequency thresholds to a continuous severity score between 0 and 100, together with a configuration classification (audiogram shape) and an asymmetry index. Instead of forcing a binary label at each boundary, the FAI returns graded membership degrees, so a threshold at 26 dB is reported as partially normal and partially mild rather than arbitrarily assigned to one category. Every rule in the system is interpretable, which matters in clinical settings where opaque outputs are not acceptable.
+
+The FAI was developed and validated on United States population data from the National Health and Nutrition Examination Survey (NHANES). Three cycles containing working-age adults (1999-2000, 2011-2012, 2015-2016) were combined, giving 10,889 participants and 19,568 clean ears. On a participant-level held-out test set, the FAI achieved a weighted Cohen's kappa of 0.931 against the WHO PTA-4 reference, with 94.7% overall agreement, 98.1% agreement in clear cases, and 79.8% agreement in borderline cases within 5 dB of a severity boundary. A further external check on the completely unseen NHANES 2017-2020 cycle (children and adults aged 70 and above, 7,944 ears) gave kappa 0.941, indicating the system generalises beyond its development cohort.
+
+What has not been done is validation on clinical audiometry from a West African population. Nigerian ENT practice sees a different mix of pathology compared with the United States population, including higher burdens of chronic suppurative otitis media, noise exposure, and ototoxicity, and there may be differences in audiometer calibration, testing protocols, and case mix. Whether the FAI performs as well on clinical audiograms from a Nigerian teaching hospital as it does on survey data is an empirical question that only a clinical validation study can answer. The OAUTHC ENT department maintains archived audiometry records that are suitable for this purpose, and the principal investigator has a long-standing academic association with the institution, which facilitates this collaboration.
+
+---
+
+## 4. Justification
+
+Automated, interpretable audiogram classification has practical value in settings with limited audiology manpower. If the FAI agrees closely with conventional WHO grading on local clinical data, it can support triage, monitoring, and hearing-loss surveillance, particularly in primary care and outreach programmes where audiometry is performed by non-specialists. It can also provide a continuous score for research, where graded severity measures carry more statistical power than discrete categories.
+
+Validation on local data is a prerequisite for any such use. A model validated only on North American survey data cannot simply be assumed to work on Nigerian clinical records. This study provides that evidence, and it positions OAUTHC as the clinical validation site for a tool that the investigators intend to make freely available to the audiology community.
+
+---
+
+## 5. Research Question
+
+Does the Fuzzy Audiometric Index classify clinical audiograms from the OAUTHC ENT department with acceptable agreement against the WHO PTA-4 reference standard and against consultant ENT clinical grading, and does its borderline-zone behaviour remain clinically sensible on this population?
+
+---
+
+## 6. Objectives
+
+### 6.1 General Objective
+
+To externally validate the FAI fuzzy inference system on retrospective clinical audiometry data from OAUTHC.
+
+### 6.2 Specific Objectives
+
+1. To estimate the agreement (weighted Cohen's kappa, overall accuracy) between FAI severity classification and WHO PTA-4 severity grades on OAUTHC audiograms.
+2. To estimate agreement between the FAI and documented consultant ENT clinical grading where available in the records.
+3. To describe FAI performance in borderline cases (thresholds within 5 dB of a severity boundary) versus clear cases.
+4. To evaluate the FAI configuration classification against audiogram shapes read from the records.
+5. To compare FAI performance across age groups, sex, and documented aetiology.
+6. To report the continuous FAI score distribution and its relationship to PTA-4 (correlation, mean absolute error, Bland-Altman agreement).
+
+---
+
+## 7. Study Design
+
+This is a retrospective, cross-sectional diagnostic accuracy study (external validation of a classification system) using existing archived audiometry records. There is no patient contact, no intervention, and no prospective data collection. The design follows the Transparent Reporting of a multivariable prediction model for Individual Prognosis Or Diagnosis (TRIPOD) statement for external validation, and the PROBAST+AI risk-of-bias framework is used to structure the validation analysis.
+
+---
+
+## 8. Study Setting
+
+The study will be conducted in the Department of Otorhinolaryngology, Obafemi Awolowo University Teaching Hospitals Complex, Ile-Ife, Osun State, Nigeria. Audiometry in the department is performed by trained audiometry technicians and/or ENT residents under consultant supervision, using the department's calibrated audiometers. Archived audiometry records, including audiogram charts and audiology logbooks, will be the source of data.
+
+---
+
+## 9. Study Population
+
+### 9.1 Source Population
+
+All patients who underwent pure-tone audiometry in the OAUTHC ENT department during the study window (1 January 2020 to 30 June 2026, subject to record availability).
+
+### 9.2 Inclusion Criteria
+
+- Pure-tone audiometry performed at OAUTHC within the study window.
+- Thresholds recorded at a minimum of the standard frequencies 500 Hz, 1 kHz, 2 kHz, and 4 kHz in at least one ear (the frequencies required to compute PTA-4). Records with thresholds at 250 Hz, 3 kHz, 6 kHz, and 8 kHz are preferred and will be used when present.
+- Age and sex recorded or derivable from the record.
+- Legible audiogram chart or structured threshold record.
+
+### 9.3 Exclusion Criteria
+
+- Audiometry with fewer than the four PTA-4 frequencies in both ears.
+- Records with obvious data-entry or transcription errors (for example, thresholds outside the physiologically plausible range of -10 to 120 dB HL) that cannot be resolved from the chart.
+- Duplicate records of the same testing episode.
+
+---
+
+## 10. Sample Size
+
+The sample size is driven by the precision of the weighted kappa estimate, which is the primary metric. For a six-category ordinal classification with quadratic weighting, and assuming the case mix seen in an ENT referral clinic (where pathological categories are better represented than in population survey data), we conservatively assume the distribution seen in the development cohort, where approximately 88% of ears are normal and the remaining 12% span the five hearing-loss categories.
+
+To estimate kappa with a standard error of approximately 0.03, a sample of roughly 400 ears is sufficient. This is consistent with published guidance that external validation of a classification system should include at least 100 events and preferably several hundred subjects to obtain stable estimates.
+
+We therefore target a minimum of 400 ears from approximately 200 to 250 patients (many patients contribute two ears), drawn consecutively from the study window. If the available records contain fewer eligible audiograms, all eligible records will be included and the achieved precision reported; a minimum of 250 ears is set for the study to proceed to analysis. This is achievable given the audiology workload of a tertiary ENT department over a six-year window.
+
+---
+
+## 11. Data Collection
+
+### 11.1 Data Extraction
+
+A structured extraction sheet will be used (Appendix A). For each eligible audiometry record, the following will be extracted:
+
+- Study identification number (assigned sequentially; no names or hospital numbers in the analysis dataset)
+- Date of audiometry (recorded as month and year only)
+- Age at testing (years)
+- Sex
+- Pure-tone air-conduction thresholds (dB HL) at each available frequency for each ear (250, 500, 1000, 2000, 3000, 4000, 6000, 8000 Hz)
+- Bone-conduction thresholds where recorded (as supporting information; not used in the primary analysis)
+- Documented clinical diagnosis or reason for audiometry (categorised as: chronic suppurative otitis media, otosclerosis, noise-induced hearing loss, presbyacusis, sudden sensorineural hearing loss, ototoxicity, Meniere's disease, other, or not documented)
+- Consultant ENT grading of hearing loss severity where explicitly documented in the record (normal, mild, moderate, moderately severe, severe, profound)
+- Audiogram shape where explicitly documented (for example, flat, sloping, notched, rising)
+
+### 11.2 Derived Variables
+
+The FAI score and its components will be computed from the extracted thresholds using the deployed, frozen version of the FAI system (see Section 12). No thresholds will be altered during this computation, and the system's parameters will not be re-fitted on OAUTHC data, which is the defining feature of a genuine external validation.
+
+---
+
+## 12. The Index System Under Validation
+
+### 12.1 Description of the FAI
+
+The FAI is a Mamdani-type fuzzy inference system implemented in Python (scikit-fuzzy). Its inputs are the pure-tone thresholds (summarised as PTA, slope, notch depth, and asymmetry), and its outputs are:
+
+- A continuous severity score (0 to 100), the Fuzzy Audiometric Index
+- A severity label derived from calibrated score thresholds (Normal, Mild, Moderate, Moderately Severe, Severe, Profound)
+- An audiogram configuration label (Normal, Flat, Gently Sloping, Steeply Sloping, Precipitous, Rising)
+- An asymmetry index
+
+The rule base contains 47 rules in the single-ear validation configuration. Membership functions were optimised on the NHANES development cohort training set, with an enforced minimum overlap of 2 dB between adjacent severity categories to preserve the graded property. The system and its full documentation are open source at https://github.com/ameye/fuzzy-audiogram.
+
+### 12.2 Frozen Parameters
+
+The exact version of the system deployed for this validation is pinned. The membership function parameters, the 47-rule base, and the severity label thresholds are fixed to the values used in the development study. The computation is performed by a batch classification script that reads the extracted thresholds and writes the FAI score, label, configuration, and membership degrees for each ear. The script and the pinned parameter file will be archived with the study data to guarantee reproducibility.
+
+### 12.3 Reference Standards
+
+Two reference standards are used:
+
+1. **WHO PTA-4 grade**, computed directly from the extracted thresholds using the standard formula (average of 500 Hz, 1 kHz, 2 kHz, and 4 kHz) and the WHO classification (normal 25 dB or less, mild 26-40, moderate 41-55, moderately severe 56-70, severe 71-90, profound 91 or above). This is objective and reproducible.
+2. **Consultant ENT grading**, taken from the clinical record where explicitly documented. This is the human clinical reference and is the standard the FAI is ultimately intended to support.
+
+The FAI output is computed blinded to the reference grades, and the reference grades are extracted blinded to the FAI output.
+
+---
+
+## 13. Statistical Analysis
+
+### 13.1 Primary Analysis
+
+Agreement between FAI severity labels and WHO PTA-4 grades is quantified with:
+
+- Weighted Cohen's kappa with quadratic weights, computed on ordinal integer labels (0 to 5). Integer labels are used because string labels are sorted alphabetically by some software, which corrupts the ordinal weighting.
+- Overall percentage agreement.
+- Agreement stratified into borderline cases (PTA within 5 dB of a severity boundary) versus clear cases, the key claim of the fuzzy approach.
+
+### 13.2 Secondary Analyses
+
+- Agreement between FAI labels and consultant ENT grading, where documented.
+- Continuous agreement: Spearman rank correlation between FAI score and PTA-4, mean absolute error, and Bland-Altman analysis with 95% limits of agreement.
+- FAI score distribution, compared descriptively with the development cohort.
+- Configuration classification agreement against documented audiogram shapes.
+- Subgroup analyses by age group (18-39, 40-59, 60 and above), sex, and documented aetiology.
+- Distance-from-boundary curve: FAI agreement plotted against distance from the nearest WHO boundary, mirroring the development-study analysis.
+
+### 13.3 Software
+
+All analyses are performed in Python (pandas, scikit-learn, scipy, scikit-fuzzy). The analysis scripts are version-controlled and archived. Statistical disclosure control is applied to all reported tables (see Section 14).
+
+---
+
+## 14. Ethical Considerations
+
+### 14.1 Ethics Approval
+
+This protocol will be submitted to the Ethics and Research Committee of the Obafemi Awolowo University Teaching Hospitals Complex, Ile-Ife, for approval before any data are extracted. The study will not commence until written approval is obtained.
+
+### 14.2 Retrospective Design and Waiver of Informed Consent
+
+This is a retrospective chart review using data that already exist. Patients are not contacted, no new clinical procedures are performed, and no biological samples are collected. The risk to patients is minimal. A waiver of informed consent is therefore requested, consistent with the National Health Research Ethics Committee (NHREC) guidelines for retrospective research on de-identified records where consent is impracticable and the research carries no more than minimal risk.
+
+### 14.3 De-identification
+
+The analysis dataset contains no direct identifiers. Names, hospital numbers, addresses, and contact details are not extracted. Each record receives a sequential study identification number. Dates are generalised to month and year. Age is analysed as a continuous integer but reported in five-year bands in publications to prevent exact-age re-identification. Quasi-identifiers (age band, sex, month-year of testing, diagnosis category) are reviewed for k-anonymity with k set to 5, and any equivalence class with fewer than five records is generalised further or suppressed. Cells with counts below five are suppressed in all reported tables.
+
+### 14.4 Data Storage and Governance
+
+Data are stored on an encrypted, access-controlled institutional drive. Only the named investigators have access. The mapping between study identifiers and the source records is not created; the extraction is anonymous from the point of entry, and no key is retained that could link the analysis dataset back to individual patients. No data are transferred outside OAUTHC without the approval of the Ethics and Research Committee, and any transfer is of de-identified data under a data-sharing agreement that prohibits re-identification attempts. All analysis is performed on the de-identified dataset.
+
+### 14.5 Risks and Benefits
+
+There are no physical, psychological, or social risks to patients, because the study uses existing records and no contact occurs. The benefit is the validation of a freely available, interpretable tool that may improve hearing-health triage and research capacity in Nigeria. The results will be shared with the OAUTHC ENT department and the wider audiology community.
+
+### 14.6 Dissemination
+
+Results will be reported to the OAUTHC Ethics and Research Committee and the Department of Otorhinolaryngology, presented at scientific meetings, and prepared for publication in a peer-reviewed journal. Authorship will follow ICMJE criteria and will reflect the contributions of the named investigators.
+
+---
+
+## 15. Expected Outcomes
+
+1. A definitive external validation of the FAI on West African clinical audiometry, with reported kappa, agreement, calibration, and borderline-zone behaviour.
+2. A local evidence base for whether the FAI can support automated audiogram classification in Nigerian ENT practice.
+3. A de-identified, documented OAUTHC audiometry validation dataset (with appropriate governance) that can support further audiology research at the institution.
+4. A joint publication and the foundation for a sustained clinical-AI collaboration between the investigators.
+
+---
+
+## 16. Timeline
+
+| Phase | Activity | Duration |
+|---|---|---|
+| 1 | Ethics approval | 6 to 12 weeks |
+| 2 | Record identification and extraction | 4 to 6 weeks |
+| 3 | FAI computation and data checks | 1 to 2 weeks |
+| 4 | Statistical analysis | 2 to 3 weeks |
+| 5 | Report to ERC and manuscript preparation | 4 to 6 weeks |
+| Total | | ~5 to 7 months after approval |
+
+---
+
+## 17. Budget
+
+The study is designed to run at minimal cost. Data extraction is performed by the investigators and departmental staff as part of the collaboration. Analysis uses open-source software. No equipment purchases are required. A modest budget for extraction support, data processing, and open-access publication is itemised in Appendix B, to be confirmed with the department.
+
+---
+
+## 18. References
+
+1. World Health Organization. World report on hearing. Geneva: WHO; 2021.
+2. World Health Organization. Hearing loss grades and definitions. In: Prevention of blindness and deafness. Geneva: WHO; 2021.
+3. Mamdani EH, Assilian S. An experiment in linguistic synthesis with a fuzzy logic controller. Int J Man-Mach Stud. 1975;7(1):1-13.
+4. Zadeh LA. Fuzzy sets. Inf Control. 1965;8(3):338-353.
+5. Stuart A, Stenstrom R, Tompkins C, Viano S. Test-retest variability in audiometric threshold with a school age population. Ear Hear. 1991;12(5):364-369.
+6. Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD). Ann Intern Med. 2015;162(1):55-63.
+7. Collins GS, Dhiman P, Navarro CLA, et al. PROBAST: AI-assisted prediction model risk of bias tool. BMJ. 2024;385:e078378.
+8. Ameye SA. A fuzzy logic framework for sensorineural hearing loss classification (development manuscript, under review).
+9. National Health Research Ethics Committee of Nigeria. National code of health research ethics. Abuja: NHREC; 2007.
+
+---
+
+## Appendix A — Data Extraction Sheet (variable list)
+
+| Variable | Type | Values / Notes |
+|---|---|---|
+| study_id | Integer | Sequential, no link to hospital record |
+| test_month_year | Date (month-year) | e.g. "Mar 2023" |
+| age_years | Integer | 18 to 110 |
+| sex | Integer | 1 = male, 2 = female, blank = not documented |
+| th_250_left / th_250_right | Decimal | dB HL, -10 to 120 |
+| th_500_left / th_500_right | Decimal | dB HL |
+| th_1k_left / th_1k_right | Decimal | dB HL |
+| th_2k_left / th_2k_right | Decimal | dB HL |
+| th_3k_left / th_3k_right | Decimal | dB HL |
+| th_4k_left / th_4k_right | Decimal | dB HL |
+| th_6k_left / th_6k_right | Decimal | dB HL |
+| th_8k_left / th_8k_right | Decimal | dB HL |
+| bc_500_left / ... | Decimal | Bone conduction where recorded |
+| diagnosis_category | Text | CSOM / otosclerosis / NIHL / presbyacusis / SSNHL / ototoxicity / Meniere / other / not documented |
+| consultant_grade_left / right | Text | WHO grades where explicitly documented |
+| documented_shape_left / right | Text | flat / sloping / notched / rising where documented |
+| ear_included_left / right | Integer | 1 = eligible, 0 = excluded (with reason) |
+
+Missing values are left blank. No identifier columns are included.
+
+## Appendix B — Indicative Budget
+
+| Item | Cost (NGN) | Notes |
+|---|---|---|
+| Data extraction support | 150,000 | Research assistant, 4 to 6 weeks |
+| Data processing and analysis | 100,000 | In-kind (PI), contingency |
+| Open-access publication fee | 250,000 | If required by chosen journal |
+| Contingency (10%) | 50,000 | |
+| **Total** | **550,000** | ~USD 350 at prevailing rates |
+
+*Budget is indicative and to be confirmed with the department before disbursement.*
