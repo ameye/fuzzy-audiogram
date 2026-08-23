@@ -1,0 +1,58 @@
+---
+title: "Short Curriculum Vitae"
+---
+
+**DR SANYAOLU ALANI AMEYE**
+MBBS, FWACS, FMCORL
+Consultant ENT Surgeon | Data Scientist | Clinical AI Researcher
+Department of Otorhinolaryngology (ENT), King Fahad Hospital, Riyadh, Saudi Arabia
+Phone: +966 531 214 781 | Email: sanyaameye@hotmail.com
+
+**Professional Summary**
+
+Consultant Otorhinolaryngologist and data scientist with two decades of surgical practice and academic medicine, now focused on clinical artificial intelligence. Former Reader (Associate Professor) in Otorhinolaryngology at Obafemi Awolowo University, Ile-Ife, Nigeria, with 26 peer-reviewed publications and two theses. Combines deep clinical domain expertise with production-grade machine learning, applying interpretable methods (fuzzy logic, explainable ML, forecasting) to hearing loss burden analysis, audiometric classification and cochlear implant service planning. Current research spans the burden of hearing loss in Saudi Arabia and the Gulf, graded audiogram classification with fuzzy inference systems, and ML-driven clinical decision support.
+
+**Qualifications**
+
+- Master of Data Science — Deakin University, Australia, 2026
+- Postgraduate Certificate, AI & Machine Learning — University of Texas at Austin, USA, 2024
+- FWACS (ORL) — Fellow, West African College of Surgeons, Nigeria, 2012
+- FMCORL — Fellow, National Postgraduate Medical College of Nigeria, 2012
+- MBBS (Medicine and Surgery) — University of Ibadan, Nigeria, 1999
+
+**Professional Experience**
+
+- **Consultant Otorhinolaryngologist**, Department of Otorhinolaryngology (ENT), King Fahad Hospital, Riyadh, Saudi Arabia (2025 – Present). Specialist ENT care including hearing and balance disorders, cochlear implant assessment and audiologic rehabilitation.
+- **Principal Healthcare AI Architect (Remote)**, AutoMedSysAI, USA (2023 – Present). Architected multimodal agentic AI systems for clinical triage; implemented differential privacy for patient data.
+- **Reader (Associate Professor), Otorhinolaryngology**, Obafemi Awolowo University / OAUTHC, Ile-Ife, Nigeria (2012 – 2022). Undergraduate and postgraduate teaching, clinical service and research; lead investigator for clinical studies on hearing loss, otologic disease and surgical outcomes. Lead, Medical Illustration Unit, College of Health Sciences (2012–2019).
+
+**Current Research Activity**
+
+- Development and external validation of the Fuzzy Audiometric Index (FAI), an interpretable fuzzy inference system for graded audiogram classification (development manuscript under review; external validation protocol in preparation for a Saudi teaching hospital and for Obafemi Awolowo University Teaching Hospitals Complex, Nigeria).
+- Burden of hearing loss in Saudi Arabia and LMICs: Global Burden of Disease analyses and forecasting, 1990–2040.
+- Two abstracts accepted in principle for ArabCIC 2026, Jeddah: Saudi hearing-loss burden and fuzzy audiogram classification.
+
+**Research Interests**
+
+Burden of hearing loss and forecasting (GBD analysis, policy counterfactuals); fuzzy logic and interpretable AI in audiology; machine learning for clinical decision support; cochlear implant candidacy and hearing-care planning in ageing populations; data privacy in healthcare AI.
+
+**Selected Publications (10 of 26 Peer-Reviewed Articles, 2008–2022)**
+
+1. Ameye S.A., Ojo T.O., Adetunji T.A., Awoleye M.O. (2022). Is there an association between COVID-19 mortality and Human Development Index? The case study of Nigeria and some selected countries. BMC Research Notes; 15:186.
+2. Olateju S.O., Adetoye A.O., Aaron O.I., Ameye S.A., Oria A.I., Olomu P.N., Adeniyi O.A., Faponle A.F. (2022). A clinical prediction of skin to subarachnoid space depth in parturients undergoing caesarean delivery in a Nigerian population. Journal of Obstetrics and Gynaecology; 42(8):3522-3526.
+3. Ameye S.A., Ikoko M.O., Awoleye M.O., Eziyi J.A. (2021). Evaluation of the performance of machine learning algorithms applied to voice parameters in prioritizing candidates for office laryngoscopy: automated triaging in focus. World Journal of Advanced Research and Reviews; 11(1):169-175.
+4. Ameye S.A., Adeyemo A., Eziyi J.A., Omonisi A., Olaofe O.O., Amusa Y.B. (2020). Challenges in the management of a rare atypical case of malignant glomus tumour of the neck. East and Central African Journal of Surgery; 25(2).
+5. Ameye S.A., Adeyemo A., Eziyi J.A., Amusa Y.B. (2018). Clinical profile of otomycosis in a sub-Saharan African tertiary health center. International Journal of Otorhinolaryngology Clinics; 10(2):52-55.
+6. Adeyemo A., Ameye S.A., Amusa Y.B., Osukoya A.T., Ohuche A.S. (2018). Assessing the correlations between subjective symptoms scores and turbinoseptal relationships in pretreatment adults with chronic rhinosinusitis. The Egyptian Journal of Otolaryngology; 34:248-252.
+7. Adeyemo A., Eziyi J.A.E., Amusa Y.B., Ameye S.A. (2017). Hearing profile in children with allergic rhinitis. Advanced Arab Academy of Audio-Vestibulogy Journal; 4(1):10-13.
+8. Ameye S.A., Eziyi J.A.E., Adeyemo A., Obasi O., Amusa Y.B. (2016). Survey of recreational noise exposure through the use of personal music players in young Nigerian adults. Nigerian Journal of Health Sciences; 16(1):39-42.
+9. Ameye S.A., Owojuyigbe A.M., Adeyemo A., Adenekan A.T., Ohuche S.A. (2015). Paediatric adenotonsillectomy in a low resource setting: lessons and implications. Nigerian Journal of Surgery; 22(2):77-80.
+10. Akinpelu O.V., Amusa Y.B., Komolafe E.O., Adeolu A.A., Oladele A.O., Ameye S.A. (2008). Challenges in management of chronic suppurative otitis media in a developing country. The Journal of Laryngology & Otology; 122(1):16-20.
+
+*Full list of 26 publications and both theses available on request.*
+
+**Honors & Awards**
+
+- Academic Excellence & Best Presentation, Salzburg Oncology Seminar, Austria (2017)
+- Winner, Med-El International Fellowship, Guy's and St Thomas' Hospital, UK (2010)
+- Canadian High Commission Award for the National Best Student in Sciences (1991)

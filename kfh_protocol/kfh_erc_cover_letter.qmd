@@ -1,0 +1,35 @@
+---
+title: "Cover Letter — FAI External Validation Proposal"
+---
+
+**To:** The Director of Research, King Fahad Hospital, Riyadh
+
+**From:** Dr Sanyaolu Alani Ameye, MBBS, FWACS, FMCORL
+Consultant ENT Surgeon, Department of Otorhinolaryngology (ENT)
+King Fahad Hospital, Riyadh
+
+**Date:** 23 August 2026
+
+**Re:** Research proposal — External Validation of the Fuzzy Audiometric Index (FAI) at King Fahad Hospital
+
+Dear Director,
+
+I am pleased to submit the attached research proposal for review and approval by the hospital Research Committee, following our recent discussion.
+
+The study externally validates the Fuzzy Audiometric Index (FAI), an interpretable fuzzy inference system that classifies audiograms into WHO hearing-loss severity grades while preserving the diagnostic gradation that crisp thresholds discard. The FAI was developed and validated on United States NHANES population data (weighted kappa 0.931 against WHO PTA-4 grading), but it has not yet been validated on Saudi clinical audiometry. This study will evaluate the FAI against both the WHO PTA-4 reference standard and consultant ENT grading, using archived audiometry records from our ENT department (January 2021 to June 2026). It is a retrospective, minimal-risk chart review with no patient contact, following the TRIPOD and PROBAST+AI frameworks.
+
+The study aligns with the hospital's research objectives and the Kingdom's Vision 2030 health transformation. Validation on local data is the prerequisite for any future clinical deployment of the tool, which the investigators intend to make freely available to the audiology community.
+
+A parallel submission to the National Committee of BioEthics (NCBE, KACST) for national ethical clearance is in preparation.
+
+I would be grateful for the Committee's review and am happy to attend a meeting to discuss the protocol.
+
+Yours faithfully,
+
+**Dr Sanyaolu Alani Ameye**
+MBBS, FWACS, FMCORL
+Consultant ENT Surgeon, Department of Otorhinolaryngology (ENT)
+King Fahad Hospital, Riyadh
+Email: sanyaameye@hotmail.com
+
+**Enclosures:** Research proposal (Version 1.0, 23 Aug 2026) · Short CV of the Principal Investigator
