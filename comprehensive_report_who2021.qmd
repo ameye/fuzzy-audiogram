@@ -201,6 +201,22 @@ For context, gradient-boosted trees and random forests regressing PTA-4 directly
 
 As documented for the deployed system, these comparators recover the reference label they were trained on and are not independent evidence against the FIS. The FIS's claim is graded, interpretable classification, not reference recovery.
 
+## 3.5 Agreement structure: confusion matrix and Bland-Altman
+
+The confusion matrix of the WHO 2021 variant labels against the crisp reference is strictly adjacent: every off-diagonal count sits one grade from the diagonal, and the largest of them (114 ears, 2.9%) is the Mild–Moderate pair that straddles the 35 dB boundary. The 26 ears the reference calls Normal but the variant calls Mild all lie in the 20–25 dB zone, where the WHO 2021 normal threshold itself moved.
+
+![Confusion matrix of WHO 2021 variant labels against the WHO 2021 crisp reference on the held-out test set (n = 3,912). Rows are the reference grade, columns the variant label. Misclassification is confined to adjacent grades.](data/output_who2021/figures/fig6_confusion.png){#fig-4 width=85%}
+
+The Bland-Altman analysis places the variant's FAI within 0.5 dB of PTA-4 on average, with 95% limits of agreement from −11.0 to +11.9 dB. The scatter is tightest in the normal zone and widens with severity, which is expected for a graded index whose upper tail is sparsely populated in a working-age cohort.
+
+![Bland-Altman plot of FAI against PTA-4 for the WHO 2021 variant on the held-out test set, coloured by WHO 2021 reference grade. Bias +0.5 dB (95% limits −11.0 to +11.9 dB).](data/output_who2021/figures/fig5_bland_altman.png){#fig-5 width=90%}
+
+## 3.6 Head-to-head summary
+
+Figure @fig-6 summarises the head-to-head of Section 3.2 on a single chart: the WHO 2021 variant leads the deployed six-grade system on every agreement metric when both are scored against the WHO 2021 reference, with the largest gap in the borderline zone (87.6% vs 66.0%), and a lower MAE (4.49 vs 5.01 dB).
+
+![Head-to-head comparison of the WHO 2021 variant and the deployed six-grade system on the same 3,912 test ears, both scored against the WHO 2021 reference. Left: agreement metrics (weighted κ × 100, overall, borderline ±5 dB, clear cases). Right: mean absolute error (dB).](data/output_who2021/figures/fig4_head_to_head.png){#fig-6 width=100%}
+
 # 4. Discussion
 
 ## 4.1 The variant works

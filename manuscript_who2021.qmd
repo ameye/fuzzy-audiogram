@@ -1,0 +1,401 @@
+---
+title: "A Fuzzy Logic Framework for Hearing Loss Classification Under the WHO 2021 Seven-Grade Schema: Development and Validation on NHANES Audiometric Data"
+author:
+  - name: Dr Sanyaolu Ameye^1*
+    corresponding: true
+    email: sanyaameye@hotmail.com
+affiliations:
+  - ^1 King Fahad Specialist Hospital, Tabuk, Saudi Arabia
+runninghead: "Fuzzy Logic for WHO 2021 Hearing Loss Grades"
+date: August 2026
+format:
+  pdf:
+    documentclass: article
+    papersize: a4
+    fontsize: 11pt
+    linestretch: 1.5
+    toc: false
+    number-sections: true
+    colorlinks: true
+  docx:
+    toc: false
+    number-sections: true
+bibliography: references.bib
+abstract: |
+  **Objectives:** The WHO 2021 World Report on Hearing replaced the long-standing six-grade hearing loss classification with a seven-grade schema (boundaries 20, 35, 50, 65, 80 and 95 dB HL, with a new Complete grade at or above 95 dB). We developed and validated a seven-grade variant of the Fuzzy Audiometric Index (FAI), a Mamdani-type fuzzy inference system for audiogram classification, and compared it head-to-head with the deployed six-grade system.
+
+  **Design:** Development and validation of a seven-category fuzzy classification variant. Seven trapezoidal membership functions were optimised on training data, the severity rule base was extended from six to seven categories, and FAI-to-label thresholds were calibrated to the WHO 2021 reference.
+
+  **Study Sample:** Cross-sectional audiometric data from three NHANES cycles that tested adults aged 20–69 y (1999–2000, 2011–2012, 2015–2016; n = 10,889 participants), split by participant into training (80%, n = 15,656 ears from 7,866 participants) and held-out test (20%, n = 3,912 ears from 1,966 participants).
+
+  **Results:** The variant achieved weighted κ = 0.953 against the WHO 2021 reference, with overall agreement 95.2% and clear-case agreement 98.4%. In the borderline zone (±5 dB of a WHO 2021 boundary; 29.5% of test ears), agreement was 87.6%, versus 66.0% for the deployed six-grade system scored against the same reference. Mean absolute error was 4.49 dB. Calibrated label thresholds (20.4, 34.0, 52.2, 64.6, 80.3 and 94.2) landed within a decibel of the WHO 2021 dB boundaries. The schema change itself reclassified 230 ears (5.9%) from Normal to Mild.
+
+  **Conclusions:** The fuzzy framework accommodates the WHO 2021 seven-grade schema without loss of performance and with improved agreement in the borderline zone, supporting a straightforward transition path for classification systems adopting the new reference.
+keywords:
+  - hearing loss
+  - WHO 2021 classification
+  - fuzzy logic
+  - Mamdani inference
+  - audiogram
+  - NHANES
+  - borderline cases
+wordcount: 3850
+---
+
+# Introduction
+
+The way we classify hearing loss from pure-tone audiometry has barely changed in over fifty years. Goodman [@goodman1965] proposed the mild–moderate–severe framework in 1965, Clark [@clark1981] refined it, and the WHO formalised a six-grade version with boundaries at 25, 40, 55, 70 and 90 dB HL. The 2021 World Report on Hearing [@who2021] revised this scheme. The normal threshold moved from 25 to 20 dB HL, every severity boundary shifted down by 5 dB, and a seventh grade, Complete hearing loss at or above 95 dB, was added. The new boundaries sit at 20, 35, 50, 65, 80 and 95 dB HL, and grades are defined on the better ear.
+
+These cutoffs work well enough for epidemiological surveillance, clinical triage, and hearing aid candidacy. But they force discrete categories onto a continuous biological variable, and the WHO 2021 revision makes the tension more visible rather than less. Consider two patients under the new schema. Patient A has a PTA-4 of 20 dB HL in the better ear. That is normal. Patient B has a PTA-4 of 21 dB HL. That is mild hearing loss. One decibel separates them, well within the test–retest variability of pure-tone audiometry (±5–10 dB) [@stuart1991], and they receive categorically different labels with different implications for follow-up, hearing aid candidacy, and occupational hearing conservation.
+
+The problem runs deeper than individual borderline cases. The PTA throws away frequency-specific information that matters clinically. A high-frequency notch with a PTA of 30 dB HL and a flat 30 dB HL loss receive the same severity label, but the functional profiles, rehabilitation needs, and aetiological implications differ. In our NHANES cohort, 29.5% of adult audiograms fall within ±5 dB of a WHO 2021 severity boundary, precisely the population where crisp classification is most uncertain. The new 20 dB normal threshold adds to this: it pulls a large group of people with near-normal hearing into the mild category, so the boundary zone is now bigger than under the old schema.
+
+Fuzzy set theory, which Zadeh introduced [@zadeh1965], offers a way out. Unlike Boolean sets where something either belongs or it does not, fuzzy sets assign membership between 0 and 1. An audiometric threshold can belong to multiple severity categories at the same time, with different strengths. Mamdani-type fuzzy inference systems [@mamdani1975] build on this by adding rule-based reasoning, producing interpretable systems with a rule base that can be inspected and modified. Fuzzy inference has a long history in medical diagnosis [@adlassnig1986] and continues to find new applications. Amezquita-Sanchez et al. [@amezquita2021], for example, used dispersion entropy features and a fuzzy logic system to automate the classification of dementia stages from electroencephalograms.
+
+Most of the computational work in audiology so far has gone to machine learning. Ceriani et al. [@ceriani2025] used ML to predict early hallmarks of progressive hearing loss, Wasmann et al. [@wasmann2022] built a deep learning system for automated audiogram interpretation, and Tseng et al. [@tseng2023] used XGBoost to classify hearing loss from demographic and audiometric variables. Data-driven profiling approaches [@sanchez2021; @vanbeek2024; @rosenbek2024] cluster audiograms into auditory profiles. These approaches get good accuracy, but they are black boxes. Clinicians cannot inspect or modify the decision rules. Fuzzy logic, by contrast, is interpretable by design.
+
+In a companion manuscript we described a six-grade Fuzzy Audiometric Index (FAI) validated against the WHO 1991-style reference. The WHO 2021 schema change raises a practical question: does the same fuzzy architecture, re-fitted to the new boundaries, preserve or improve classification? This paper answers that question. We developed a seven-grade WHO 2021 variant of the FAI system, validated it on the same held-out test set, and compared it head-to-head with the deployed six-grade system scored against the same reference. We also quantified the reclassification that the schema change itself produces, because the 20 dB normal threshold moves a meaningful share of the working-age population.
+
+# Methods
+
+## Dataset and Train–Test Split
+
+We used the identical cohort and split as the deployed validation. Three NHANES cycles administered audiometry to adults aged 20–69 years: 1999–2000 (AUX1), 2011–2012 (AUX_G) and 2015–2016 (AUX_I), totalling 10,889 participants. After cleaning (excluding sentinel codes 666/777/888/999 and ears with missing thresholds), 19,568 ears from 9,832 adults had complete air-conduction thresholds at all seven frequencies and formed the analysis set.
+
+We randomly split the clean-ear dataset at the participant level (both ears of a participant stay together) into a training set (80%; n = 15,656 ears from 7,866 participants) and a held-out test set (20%; n = 3,912 ears from 1,966 participants). This avoids data leakage from bilateral correlation. All membership function optimisation, rule development, and threshold calibration were done on the training set alone, and all reported metrics come from the held-out test set unless stated otherwise.
+
+NHANES data are publicly available from the U.S. Centers for Disease Control and Prevention. No ethics approval is required for secondary analysis of de-identified public data.
+
+**Role of artificial intelligence.** No AI or machine-learning tool generated the underlying data, selected the cohort, or computed any reported statistic. AI assistance was used for the literature search (queries reviewed and re-run by the author), for drafting and editing the manuscript text, and for writing portions of the analysis code (reviewed and validated by the author). The fuzzy inference system is a transparent, rule-based model with no learned parameters. Its membership functions were fitted by the author's percentile-based optimisation script. All reported metrics were computed by the author's analysis code on the publicly available NHANES data.
+
+## The WHO 2021 Seven-Grade Schema
+
+The WHO 2021 classification defines seven categories based on better-ear PTA-4 (0.5, 1, 2 and 4 kHz):
+
+| Grade | Category | WHO 2021 range (dB HL) | Deployed 6-grade range |
+|-------|----------|------------------------|------------------------|
+| 0 | Normal | ≤ 20 | ≤ 25 |
+| 1 | Mild | 20 to < 35 | 26–40 |
+| 2 | Moderate | 35 to < 50 | 41–55 |
+| 3 | Moderately severe | 50 to < 65 | 56–70 |
+| 4 | Severe | 65 to < 80 | 71–90 |
+| 5 | Profound | 80 to < 95 | ≥ 91 |
+| 6 | Complete | ≥ 95 | — (not defined) |
+
+Three substantive changes versus the deployed schema: the normal threshold drops from 25 to 20 dB, every boundary shifts down by 5 dB, and a seventh Complete grade (≥ 95 dB) is added. The WHO 2021 grades are defined on the better ear, whereas the deployed FAI classifies each ear independently, and both are evaluated per-ear here for consistency with the deployed validation design.
+
+## Fuzzification: Seven-Category Membership Functions
+
+For each test frequency (500, 1000, 2000, 3000, 4000, 6000 and 8000 Hz), we fuzzified the hearing threshold using overlapping trapezoidal membership functions for the seven WHO 2021 categories: Normal, Mild, Moderate, Moderately Severe, Severe, Profound and Complete. Each function is defined by a quadruple [a, b, c, d], where [b, c] is the core (membership μ = 1.0) and [a, b] and [c, d] are the shoulders where membership transitions from 0 to 1 or 1 to 0.
+
+Parameters were optimised from the training set, stratified by WHO 2021 category, using the same percentile method as the deployed system (a = P5−2, b = P25, c = P75, d = P95+2, tails clipped; normal anchored at 0). The Complete category is defined by a threshold rather than a population cluster in this working-age cohort, so its membership function is anchored to the WHO 2021 boundary (≥ 95 dB) rather than percentile-fitted. Overlap between adjacent categories was enforced to at least 2 dB.
+
+**Optimised trapezoidal parameters [a, b, c, d] (mean across the seven test frequencies):**
+
+| Category | a | b | c | d | WHO 2021 band |
+|----------|-----|-----|-----|-----|---------------|
+| Normal | 0.0 | 0.0 | 14.3 | 23.5 | ≤ 20 |
+| Mild | 21.5 | 21.5 | 30.0 | 38.5 | 20–35 |
+| Moderate | 36.5 | 36.5 | 47.9 | 53.5 | 35–50 |
+| Moderately severe | 51.5 | 51.5 | 62.3 | 68.5 | 50–65 |
+| Severe | 66.5 | 66.5 | 77.1 | 83.5 | 65–80 |
+| Profound | 81.5 | 81.5 | 90.4 | 97.5 | 80–95 |
+| Complete | 95.5 | 95.5 | 115.0 | 120.0 | ≥ 95 |
+
+![WHO 2021 severity membership functions (training-optimised). Dashed vertical lines mark the WHO 2021 crisp boundaries at 20, 35, 50, 65, 80 and 95 dB.](data/output_who2021/figures/fig1_who2021_mfs.png){#fig-1 width=90%}
+
+The normal/mild overlap now sits at 20–24 dB (versus 25–28 dB in the deployed system), and the mild/moderate transition at 35–39 dB. Configuration and asymmetry fuzzification are unchanged from the deployed system and are described in the companion manuscript.
+
+## Fuzzy Inference System
+
+We built a Mamdani-type fuzzy inference system on the same architecture as the deployed system, with the severity rule group extended from six to seven categories. The severity group comprises seven primary rules (one per category, including Complete) plus seven blended overlap-zone rules and the existing triple-blend at the normal/mild/moderate junction. Configuration, asymmetry and mixed-loss rule groups are reused unchanged. In single-ear validation the asymmetry-anchor rule is omitted because the asymmetry input is identically zero for a single ear.
+
+Rules use max–min composition with minimum (clipping) implication. We aggregate rule outputs via fuzzy union (max) and defuzzify using the centroid of area method, yielding a continuous FAI on a 0–100 scale. The severity rules operate on the PTA-4 speech-frequency average (0.5–4 kHz) as the primary threshold input, the same frequency band as the WHO reference. Frequency-resolved information enters through the slope, notch, and asymmetry inputs and the per-frequency membership vectors.
+
+## Label-Threshold Calibration
+
+FAI score-to-label thresholds were calibrated on the training set by Nelder-Mead maximisation of quadratic-weighted κ against the WHO 2021 reference, giving six thresholds for the seven labels:
+
+`[20.4, 34.0, 52.2, 64.6, 80.3, 94.2]` (training κ 0.960)
+
+These sit within a decibel of the WHO 2021 dB boundaries themselves, which is the expected result for a continuous index that is well scaled to the reference. For comparison, the deployed six-grade system's calibrated thresholds were [21.9, 34.6, 52.5, 70.6, 74.1], with the severe/profound pair squeezed into a 3.5-point gap by the sparse upper tail.
+
+## Comparison Design
+
+The same 3,912 test ears were classified by (a) the WHO 2021 variant and (b) the deployed six-grade FIS with its participant-optimised parameters. Both were scored against the WHO 2021 crisp reference, so the head-to-head is apples-to-apples. A reclassification matrix and a boundary-distance analysis quantify where the two systems and the two schemas disagree. For context, we also report gradient-boosted trees and random forests regressing PTA-4 directly and graded under WHO 2021. As documented for the deployed system, these recover the reference label they were trained on and are not independent evidence.
+
+## Evaluation Metrics
+
+Primary metrics were weighted Cohen's κ (quadratic weights) for classification agreement, mean absolute error (MAE) for continuous score comparison, and overall agreement stratified by borderline (±5 dB of a WHO 2021 boundary) versus clear-case status. Spearman's rank correlation (ρ) assessed monotonic association between FAI and PTA-4, and Bland-Altman analysis with 95% limits of agreement compared FAI against PTA-4. All analyses were done on the held-out test set in Python using scikit-fuzzy for the FIS, scikit-learn for random forest, and xgboost for gradient boosting. Source code is available at https://github.com/ameye/fuzzy-audiogram.
+
+# Results
+
+## Cohort Characteristics
+
+The combined cohort comprises 10,889 adults aged 20–69 years (mean age 43.9 years, SD 14.4, median 44; 51.8% female). After cleaning, 19,568 ears from 9,832 adults had complete thresholds and were split 80/20 at the participant level. Under the WHO 2021 crisp reference, the test set prevalence was Normal 80.0%, Mild 14.3%, Moderate 3.9%, Moderately severe 1.2%, Severe 0.5%, Profound 0.1% and Complete 0.1%. The upper tail is sparsely populated in a working-age cohort, so Severe, Profound and Complete rows should be read with that in mind.
+
+## Primary Validation of the WHO 2021 Variant
+
+On the held-out test set, the WHO 2021 variant achieved weighted κ = 0.953 against the WHO 2021 reference, overall agreement 95.2%, clear-case agreement 98.4%, and MAE 4.49 dB.
+
+| Metric | Value |
+|--------|-------|
+| Weighted κ (variant label vs WHO 2021 grade) | 0.953 |
+| Overall agreement | 95.2% |
+| Clear-case agreement | 98.4% |
+| Borderline agreement (±5 dB of a WHO 2021 boundary) | 87.6% |
+| Borderline share of test ears | 29.5% |
+| MAE (FAI vs PTA-4) | 4.49 dB |
+| Spearman ρ | 0.842 |
+| Bland-Altman bias (95% LoA) | +0.5 dB (−11.0 to +11.9) |
+
+![Confusion matrix of WHO 2021 variant labels against the WHO 2021 crisp reference on the held-out test set (n = 3,912). Rows are the reference grade, columns the variant label. Misclassification is confined to adjacent grades.](data/output_who2021/figures/fig6_confusion.png){#fig-2 width=85%}
+
+The confusion structure is strictly adjacent: every off-diagonal count sits one grade from the diagonal, and the largest of them (114 ears, 2.9%) is the Mild–Moderate pair straddling the 35 dB boundary. The 26 ears the reference calls Normal but the variant calls Mild all lie in the 20–25 dB zone where the WHO 2021 normal threshold itself moved. The Bland-Altman analysis places the variant's FAI within 0.5 dB of PTA-4 on average, with 95% limits of agreement from −11.0 to +11.9 dB.
+
+![Bland-Altman plot of FAI against PTA-4 for the WHO 2021 variant on the held-out test set, coloured by WHO 2021 reference grade. Bias +0.5 dB (95% limits −11.0 to +11.9 dB).](data/output_who2021/figures/fig5_bland_altman.png){#fig-3 width=90%}
+
+## Head-to-Head: WHO 2021 Variant versus Deployed Six-Grade System
+
+Scored against the same WHO 2021 reference on the same 3,912 ears, the variant outperformed the deployed six-grade system on every agreement metric:
+
+| Metric | WHO 2021 variant | Deployed 6-grade |
+|--------|------------------|------------------|
+| Weighted κ | **0.953** | 0.876 |
+| Overall agreement | **95.2%** | 88.7% |
+| Clear-case agreement | 98.4% | 98.2% |
+| Borderline agreement | **87.6%** | 66.0% |
+| MAE (dB) | **4.49** | 5.01 |
+| Spearman ρ | **0.842** | 0.807 |
+| Bias (LoA) | +0.5 (−11.0 to +11.9) | +1.2 (−10.9 to +13.2) |
+
+![Head-to-head comparison of the WHO 2021 variant and the deployed six-grade system on the same 3,912 test ears, both scored against the WHO 2021 reference. Left: agreement metrics (weighted κ × 100, overall, borderline ±5 dB, clear cases). Right: mean absolute error (dB).](data/output_who2021/figures/fig4_head_to_head.png){#fig-4 width=100%}
+
+The deployed six-grade system was not designed for the WHO 2021 reference, so part of its shortfall is expected. The meaningful finding is the borderline zone: the variant's 87.6% versus the deployed system's 66.0% on exactly the ears within 5 dB of a WHO 2021 boundary. The WHO 2021 boundary positions line up with the FAI's natural transition zones better than the older 25/40/55/70/90 positions do, and the variant's calibrated severe/profound thresholds are well separated (80.3 to 94.2) where the deployed system's are squeezed (70.6 to 74.1).
+
+## Reclassification Under the New Schema
+
+Rows are the deployed six-grade fuzzy label, columns the WHO 2021 variant label, on the same test ears (n = 3,912):
+
+| Deployed 6-grade \ WHO 2021 | Normal | Mild | Moderate | Mod. severe | Severe | Profound | Complete |
+|------------------------------|--------|------|----------|-------------|--------|----------|----------|
+| Normal | 3104 | 230 | 0 | 0 | 0 | 0 | 0 |
+| Mild | 0 | 242 | 90 | 0 | 0 | 0 | 0 |
+| Moderate | 0 | 0 | 137 | 33 | 0 | 0 | 0 |
+| Moderately severe | 0 | 0 | 0 | 50 | 5 | 0 | 0 |
+| Severe | 0 | 0 | 0 | 0 | 1 | 0 | 0 |
+| Profound | 0 | 0 | 0 | 0 | 13 | 5 | 2 |
+
+![Reclassification of the same test ears: deployed six-grade label (rows) versus WHO 2021 variant label (columns).](data/output_who2021/figures/fig2_reclassification.png){#fig-5 width=85%}
+
+The largest single schema-driven reclassification is 230 ears (5.9%) moving from Normal to Mild, all with PTA-4 between 20 and 25 dB. These are people who were normal under the old schema and now count as having hearing loss, which is the most clinically consequential change because it alters who qualifies for surveillance and services. A further 90 ears (2.3%) move Mild to Moderate (PTA-4 36–40 dB), and 33 ears (0.8%) move Moderate to Moderately severe (PTA-4 51–55 dB). Thirteen ears labelled Profound by the deployed system are Severe under WHO 2021, a consequence of the deployed system's squeezed severe/profound thresholds, and the two Complete ears (≥ 95 dB) were Profound under the deployed system, which has no Complete grade. No ear moves downward more than one grade, and the reclassification is monotone, concentrated exactly where the boundary shifts are.
+
+## Borderline and Boundary-Distance Analysis
+
+Agreement of the WHO 2021 variant with the crisp reference rises monotonically with distance from the nearest WHO 2021 boundary:
+
+| Distance to nearest boundary | n | Agreement |
+|------------------------------|-----|-----------|
+| ≤ 1 dB | 104 | 83.7% |
+| ≤ 2 dB | 345 | 87.0% |
+| ≤ 3 dB | 618 | 85.9% |
+| ≤ 4 dB | 868 | 86.5% |
+| ≤ 5 dB | 1,154 | 87.6% |
+| ≤ 10 dB | 2,119 | 91.2% |
+| ≤ 15 dB | 3,166 | 94.1% |
+
+![Boundary-zone agreement of the WHO 2021 variant against the crisp reference, by distance to the nearest WHO 2021 boundary.](data/output_who2021/figures/fig3_distance_accuracy.png){#fig-6 width=80%}
+
+Agreement is lowest exactly at the boundaries (83.7% at ≤ 1 dB) and reaches 94.1% within 15 dB and 98.4% for clear cases. This is the intended behaviour of a graded system: near a boundary, the FAI reports a continuous score that straddles two categories rather than committing to a possibly wrong crisp label.
+
+## Machine-Learning Comparators
+
+| Model | κ | Overall | Borderline | Clear | MAE (dB) |
+|-------|-----|---------|------------|-------|----------|
+| XGBoost | 0.983 | 98.5% | 94.9% | 100.0% | 0.24 |
+| Random Forest | 0.982 | 98.4% | 94.5% | 100.0% | 0.52 |
+
+As documented for the deployed system, these comparators recover the reference label they were trained on and are not independent evidence against the fuzzy system. The FIS's claim is graded, interpretable classification, not reference recovery.
+
+# Discussion
+
+## Principal Findings
+
+This study shows that the Fuzzy Audiometric Index architecture accommodates the WHO 2021 seven-grade schema cleanly. The variant reached weighted κ = 0.953 against the new reference, matched the crisp grade on 98.4% of clear cases, and improved borderline agreement to 87.6% compared with 66.0% for the deployed six-grade system scored against the same reference. The calibrated label thresholds landed within a decibel of the WHO 2021 dB boundaries, confirming that the continuous FAI scale aligns naturally with the new schema.
+
+## The Borderline Advantage Is Schema-Dependent
+
+The variant's clearest edge appears in the borderline zone, and two mechanisms contribute. First, the re-optimised membership functions centre their overlaps on the WHO 2021 boundaries rather than the old ones. Second, the deployed system's calibrated severe/profound thresholds are pathologically squeezed (70.6 to 74.1, a sparse-tail artifact), which the WHO 2021 calibration avoids (80.3 to 94.2). A service that wants the graded advantage at the new boundaries should adopt the variant.
+
+## What the Schema Change Means Clinically
+
+The WHO 2021 normal threshold at 20 dB shifts roughly 6% of working-age test ears from Normal to Mild. This is not a fuzzy-system artefact, it is the classification policy itself. The graded FAI makes the transition visible: a 21 dB ear sits in the normal/mild overlap rather than being silently assigned, which is precisely the information the new schema wants surfaced. The same logic applies at the 35 dB boundary, where the largest adjacent confusion in our data sits. Furthermore, the new Complete grade gives the small profound tail a category of its own, which matters for cochlear implant candidacy and service planning even though such ears are rare in working-age cohorts.
+
+## Comparison with Prior Work
+
+Our results fit with the emerging computational audiology literature while extending it in a specific direction. Most published approaches classify against a fixed reference schema [@ceriani2025; @wasmann2022; @tseng2023]. We show that an interpretable fuzzy system can be re-fitted to a changed classification policy without loss of performance, and that the re-fitting itself quantifies the policy effect. Compared with clustering-based profiling [@sanchez2021; @vanbeek2024; @rosenbek2024], the fuzzy system produces outputs clinicians can inspect: the rule base is visible, the membership degrees explain why a grade was assigned, and the continuous FAI supports longitudinal tracking. That transparency matters for real clinical adoption.
+
+## Limitations
+
+However, a few limitations deserve mention. First, the upper tail is sparse: Severe (19 ears), Profound (5) and Complete (2) are rare in the working-age test set, so tail metrics are indicative only, and the Complete membership function is boundary-anchored rather than population-fitted for the same reason. Second, WHO 2021 grades the better ear, while the FAI classifies each ear independently, and a bilateral analysis that assigns each participant their better-ear grade is a natural next step before clinical deployment of a WHO 2021 variant. Third, we did not re-run the full optimisation sweep: overlap width, defuzzification method and split seed follow the deployed system's settings, and a sensitivity analysis for the variant is future work. Fourth, the reference standard is the WHO PTA-4 classification itself, which carries the same boundary problem the fuzzy system is trying to solve. Finally, the web application and the companion manuscript remain on the six-grade schema. Adopting the variant in the deployed calculator requires a deliberate decision. Despite these limitations, the variant still delivered finer clinical resolution at the new boundaries than the crisp reference it was scored against.
+
+## Generalisability and Future Directions
+
+The fuzzy framework is portable by design, and the WHO 2021 variant demonstrates that portability across classification policies. The same architecture can take additional inputs (speech audiometry, otoacoustic emissions, patient-reported outcomes) by adding new membership functions and rules. Going forward, we plan a better-ear bilateral validation of the WHO 2021 variant, a sensitivity sweep over overlap width and defuzzification settings, and prospective validation against clinical datasets. We also plan to update the deployed web-based FAI calculator to the WHO 2021 schema so that the research variant and the clinical tool do not diverge.
+
+# Conclusion
+
+The Fuzzy Audiometric Index accommodates the WHO 2021 seven-grade classification schema without loss of performance, with weighted κ = 0.953 against the new reference on a held-out NHANES test set (n = 3,912 ears from 1,966 participants), and with a clear gain in the borderline zone compared with the deployed six-grade system scored against the same reference. The reclassification analysis quantifies the policy effect of the new boundaries: roughly 6% of working-age ears shift from Normal to Mild, and the new Complete grade captures the small profound tail. As audiology adopts the WHO 2021 reference, an interpretable graded system that transitions cleanly between schemas has practical value.
+
+# Acknowledgements
+
+NHANES data were provided by the U.S. Centers for Disease Control and Prevention, National Center for Health Statistics. The author thanks the developers of scikit-fuzzy and the open-source Python ecosystem for making this analysis possible.
+
+**Use of artificial intelligence.** During the preparation of this work the author used a large language model-based writing assistant to assist with drafting and editing the manuscript, organising the analysis code, and generating figure code. After using this tool, the author reviewed and edited all content as needed and takes full responsibility for the content of the publication, including all analyses, figures, and references.
+
+# Conflict of Interest Statement
+
+The author declares no conflicts of interest.
+
+# Data Availability
+
+NHANES data are publicly available at https://www.cdc.gov/nchs/nhanes/. Analysis source code is at https://github.com/ameye/fuzzy-audiogram.
+
+# Appendix: Mathematical Foundations of Fuzzy Logic {#sec-app-math}
+
+## Fuzzy Sets and Membership Functions
+
+Let $X$ be a universe of discourse (e.g., the set of all possible hearing thresholds in dB HL). A **fuzzy set** $A$ on $X$ is defined by its **membership function** $\mu_A: X \to [0, 1]$, which assigns to each element $x \in X$ a degree of membership in the interval $[0, 1]$ [@zadeh1965]:
+
+$$A = \{(x, \mu_A(x)) \mid x \in X\}$$
+
+where $\mu_A(x) = 0$ indicates complete non-membership, $\mu_A(x) = 1$ indicates complete membership, and intermediate values represent partial membership. This is the fundamental distinction from crisp sets, where membership is binary $\{0, 1\}$.
+
+For each audiometric severity category, we define a **trapezoidal membership function** parameterised by a quadruple $(a, b, c, d)$, where $[b, c]$ is the core (membership $\mu = 1$) and $[a, b]$ and $[c, d]$ are the left and right shoulders:
+
+$$
+\mu(x; a, b, c, d) =
+\begin{cases}
+0, & x \leq a \\[4pt]
+\displaystyle\frac{x - a}{b - a}, & a < x \leq b \\[10pt]
+1, & b < x \leq c \\[4pt]
+\displaystyle\frac{d - x}{d - c}, & c < x \leq d \\[10pt]
+0, & x \geq d
+\end{cases}
+$$
+
+We chose trapezoidal functions over triangular ($b = c$) or Gaussian because the NHANES training set distributions within each severity category showed asymmetric, plateau-containing shapes that symmetric or unimodal functions capture poorly. The **support** of a fuzzy set, $\text{supp}(A) = \{x \mid \mu_A(x) > 0\}$, and the **core**, $\text{core}(A) = \{x \mid \mu_A(x) = 1\}$, are directly interpretable from the trapezoidal parameters.
+
+## Fuzzy Set Operations
+
+Let $\mu_A$ and $\mu_B$ be membership functions of fuzzy sets $A$ and $B$ on the same universe $X$. The standard **Zadeh operators** define set-theoretic operations pointwise [@zadeh1965]:
+
+**Union (fuzzy OR):**
+$$\mu_{A \cup B}(x) = \max\bigl(\mu_A(x),\; \mu_B(x)\bigr)$$
+
+**Intersection (fuzzy AND):**
+$$\mu_{A \cap B}(x) = \min\bigl(\mu_A(x),\; \mu_B(x)\bigr)$$
+
+**Complement (fuzzy NOT):**
+$$\mu_{\bar{A}}(x) = 1 - \mu_A(x)$$
+
+These operations implement fuzzy conjunction and disjunction in the rule base.
+
+## Mamdani Fuzzy Inference
+
+We employ **Mamdani-type inference** [@mamdani1975], in which both antecedents and consequents are fuzzy sets. A typical rule $R_k$:
+
+$$R_k: \text{IF } x_1 \text{ is } A_{k,1} \text{ AND } \dots \text{ AND } x_7 \text{ is } A_{k,7} \text{ THEN } y \text{ is } B_k$$
+
+**Firing strength** $\alpha_k = \min(\mu_{A_{k,1}}(x_1), \dots, \mu_{A_{k,7}}(x_7))$
+
+**Implication (clipping):** $\mu_{R_k}(y) = \min(\alpha_k, \mu_{B_k}(y))$
+
+**Aggregation:** $\mu_{\text{agg}}(y) = \max_{k=1}^{N} \mu_{R_k}(y)$
+
+## Defuzzification: The Fuzzy Audiometric Index
+
+**Centroid of area:**
+$$y^* = \frac{\int y \cdot \mu_{\text{agg}}(y) \, dy}{\int \mu_{\text{agg}}(y) \, dy}$$
+
+**Discrete FAI:**
+$$\text{FAI} = \frac{\sum_{i=1}^{n} y_i \cdot \mu_{\text{agg}}(y_i)}{\sum_{i=1}^{n} \mu_{\text{agg}}(y_i)}$$
+
+# References
+
+::: {#refs}
+:::
+
+---
+
+# Tables
+
+## Table 1. Demographic and Audiometric Characteristics of the NHANES Cohort (WHO 2021 Grades)
+
+| Characteristic | Training (n=15,656 ears) | Test (n=3,912 ears) |
+|----------------|--------------------------|---------------------|
+| Participants (n) | 7,866 | 1,966 |
+| Age (years), mean (SD) | 44.1 (14.4) | 43.5 (14.6) |
+| Female sex | 50.9% | 51.2% |
+| Mean PTA-4 (dB HL) | 13.3 (11.3) | 13.5 (12.2) |
+| Normal (≤ 20 dB) | — | 80.0% |
+| Mild (20–35 dB) | — | 14.3% |
+| Moderate (35–50 dB) | — | 3.9% |
+| Moderately severe (50–65 dB) | — | 1.2% |
+| Severe (65–80 dB) | — | 0.5% |
+| Profound (80–95 dB) | — | 0.1% |
+| Complete (≥ 95 dB) | — | 0.1% |
+
+*Cohort: NHANES cycles with adult (20–69 y) audiometry (1999–2000, 2011–2012, 2015–2016). Values are per ear. Test-set grade distribution is against the WHO 2021 crisp reference.*
+
+## Table 2. Classification Performance of the WHO 2021 Variant on the Held-Out Test Set
+
+| Metric | Value |
+|--------|-------|
+| Weighted κ vs WHO 2021 reference | 0.953 |
+| Overall agreement | 95.2% |
+| Clear-case agreement | 98.4% |
+| Borderline agreement (±5 dB) | 87.6% |
+| Borderline share of test ears | 29.5% |
+| MAE (FAI vs PTA-4, dB) | 4.49 |
+| Spearman ρ | 0.842 |
+| Bland-Altman bias (95% LoA) | +0.5 dB (−11.0 to +11.9) |
+
+## Table 3. Head-to-Head: WHO 2021 Variant versus Deployed Six-Grade System (Same Ears, WHO 2021 Reference)
+
+| Metric | WHO 2021 variant | Deployed 6-grade |
+|--------|------------------|------------------|
+| Weighted κ | 0.953 | 0.876 |
+| Overall agreement | 95.2% | 88.7% |
+| Clear-case agreement | 98.4% | 98.2% |
+| Borderline agreement (±5 dB) | 87.6% | 66.0% |
+| MAE (dB) | 4.49 | 5.01 |
+| Spearman ρ | 0.842 | 0.807 |
+| Bias (LoA) | +0.5 (−11.0 to +11.9) | +1.2 (−10.9 to +13.2) |
+
+## Table 4. Machine-Learning Comparators (WHO 2021 Grading)
+
+| Model | κ | Overall | Borderline | Clear | MAE (dB) |
+|-------|-----|---------|------------|-------|----------|
+| XGBoost | 0.983 | 98.5% | 94.9% | 100.0% | 0.24 |
+| Random Forest | 0.982 | 98.4% | 94.5% | 100.0% | 0.52 |
+
+---
+
+# Figure Captions
+
+**Figure 1.** WHO 2021 severity membership functions (training-optimised). Dashed vertical lines mark the WHO 2021 crisp boundaries at 20, 35, 50, 65, 80 and 95 dB.
+
+**Figure 2.** Confusion matrix of WHO 2021 variant labels against the WHO 2021 crisp reference on the held-out test set (n = 3,912). Rows are the reference grade, columns the variant label. Misclassification is confined to adjacent grades.
+
+**Figure 3.** Bland-Altman plot of FAI against PTA-4 for the WHO 2021 variant on the held-out test set, coloured by WHO 2021 reference grade. Bias +0.5 dB (95% limits −11.0 to +11.9 dB).
+
+**Figure 4.** Head-to-head comparison of the WHO 2021 variant and the deployed six-grade system on the same 3,912 test ears, both scored against the WHO 2021 reference. Left: agreement metrics (weighted κ × 100, overall, borderline ±5 dB, clear cases). Right: mean absolute error (dB).
+
+**Figure 5.** Reclassification of the same test ears: deployed six-grade label (rows) versus WHO 2021 variant label (columns).
+
+**Figure 6.** Boundary-zone agreement of the WHO 2021 variant against the crisp reference, by distance to the nearest WHO 2021 boundary.
+
+---
+
+*Corresponding author: Dr Sanyaolu Ameye, King Fahad Specialist Hospital, Tabuk, Saudi Arabia. Email: sanyaameye@hotmail.com*
