@@ -1,0 +1,24 @@
+# OAUTHC FAI validation — Coolify deployment
+# Build from this repo's GitHub URL; data persists in a named volume.
+services:
+  oatuhc-fai-entry:
+    build:
+      context: https://github.com/ameye/fuzzy-audiogram.git
+      dockerfile: oatuhc_protocol/webapp/Dockerfile
+    container_name: oatuhc-fai-entry
+    restart: unless-stopped
+    ports:
+      - "8100:8000"
+    volumes:
+      - oatuhc-fai-data:/data
+    environment:
+      - FAI_DB_PATH=/data/oatuhc_fai.db
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  oatuhc-fai-data:

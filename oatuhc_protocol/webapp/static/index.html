@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OAUTHC FAI Validation — Data Entry</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js" defer></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace !important; }
+    body { background: #07070d; min-height: 100vh; margin: 0; color: #fff; }
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 20% 30%, rgba(88,28,135,0.14), transparent 55%),
+        radial-gradient(ellipse at 80% 70%, rgba(14,116,144,0.10), transparent 55%);
+    }
+    .glass-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; }
+    .input-dark { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 7px 9px; color: #fff; outline: none; transition: all 0.2s; width: 100%; }
+    .input-dark:focus { border-color: rgba(139,92,246,0.5); background: rgba(255,255,255,0.07); }
+    .btn-primary { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.35); color: #c4b5fd; border-radius: 10px; padding: 8px 16px; font-weight: 600; transition: all 0.25s; cursor: pointer; }
+    .btn-primary:hover { background: rgba(139,92,246,0.25); }
+    .btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border-radius: 10px; padding: 8px 16px; transition: all 0.25s; cursor: pointer; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+    .fade-in { animation: fadeIn 0.35s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    select.input-dark option { background: #16162a; color: #fff; }
+    [x-cloak] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="relative z-10 max-w-6xl mx-auto px-6 py-8" x-data="entryApp()" x-init="init()">
+
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-lg">🗂️</div>
+        <div>
+          <h1 class="text-xl font-bold">OAUTHC FAI <span class="text-violet-400">Validation</span></h1>
+          <p class="text-xs text-white/40">External validation data entry — one row per ear</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
+        <span class="text-white/40" x-text="statusText"></span>
+      </div>
+    </header>
+
+    <!-- View: patient list -->
+    <div x-show="view==='list'" class="fade-in">
+      <div class="glass-card p-6 mb-4">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-semibold">Patients</h2>
+          <div class="flex gap-2">
+            <button class="btn-ghost" @click="exportCsv()">⬇ Export CSV</button>
+            <button class="btn-primary" @click="newPatient()">+ New Patient</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-white/40 text-xs uppercase">
+                <th class="pb-2">Patient</th><th class="pb-2">Age</th><th class="pb-2">Sex</th>
+                <th class="pb-2">Ears</th><th class="pb-2">Included</th><th class="pb-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="p in patients" :key="p.patient_id">
+                <tr class="border-t border-white/5 hover:bg-white/[0.03] cursor-pointer" @click="openPatient(p.patient_id)">
+                  <td class="py-2.5 mono text-violet-300">#<span x-text="p.patient_id"></span></td>
+                  <td class="py-2.5" x-text="p.age_years ?? '—'"></td>
+                  <td class="py-2.5" x-text="p.sex === 1 ? 'M' : (p.sex === 2 ? 'F' : '—')"></td>
+                  <td class="py-2.5" x-text="p.ear_count + ' ear(s)'"></td>
+                  <td class="py-2.5" x-text="p.included_ears ?? 0"></td>
+                  <td class="py-2.5 text-right text-white/30">→</td>
+                </tr>
+              </template>
+              <tr x-show="!patients.length"><td colspan="6" class="py-8 text-center text-white/30 text-sm">No patients yet — click "New Patient"</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- QA panel -->
+      <div class="glass-card p-5 text-sm">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-semibold">Batch QA</h3>
+          <button class="btn-ghost text-xs" @click="loadQA()">Refresh</button>
+        </div>
+        <div class="text-white/60" x-text="qaText"></div>
+      </div>
+    </div>
+
+    <!-- View: patient detail / ear entry -->
+    <div x-show="view==='detail'" class="fade-in">
+      <button class="btn-ghost mb-4" @click="view='list'; loadPatients()">← Back</button>
+
+      <div class="glass-card p-6 mb-4">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-semibold">Patient <span class="mono text-violet-300">#<span x-text="patient?.patient_id"></span></span></h2>
+          <button class="btn-ghost" @click="openAddEar()" x-show="!addingEar && earCount<2">+ Add Ear</button>
+        </div>
+        <div class="grid grid-cols-3 gap-3 max-w-md">
+          <div>
+            <label class="text-xs text-white/40">Age (18–110)</label>
+            <input type="number" class="input-dark mono" x-model.number="patient.age_years">
+          </div>
+          <div>
+            <label class="text-xs text-white/40">Sex</label>
+            <select class="input-dark" x-model.number="patient.sex">
+              <option :value="null">—</option>
+              <option value="1">Male</option>
+              <option value="2">Female</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-white/40">Operator</label>
+            <input type="text" class="input-dark" x-model="patient.created_by">
+          </div>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button class="btn-primary" @click="savePatient()">Save Patient</button>
+        </div>
+      </div>
+
+      <!-- Ear records -->
+      <template x-for="ear in ears" :key="ear.study_id">
+        <div class="glass-card p-6 mb-4" :class="ear.monotonicity_flag ? 'border-amber-500/40' : ''">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <h3 class="font-semibold" :class="ear.ear==='left' ? 'text-sky-300' : 'text-rose-300'" x-text="ear.ear==='left' ? '👈 Left ear' : '👉 Right ear'"></h3>
+              <span class="mono text-xs text-white/30">study #<span x-text="ear.study_id"></span></span>
+              <span x-show="ear.monotonicity_flag" class="badge-amber text-xs bg-amber-500/10 text-amber-300 px-2 py-0.5 rounded-full">⚠ >40 dB jump</span>
+            </div>
+            <button class="text-white/30 hover:text-rose-400 text-sm" @click="deleteEar(ear.study_id)">✕</button>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div>
+              <label class="text-xs text-white/40">Test (Mon YYYY)</label>
+              <input type="text" class="input-dark mono" x-model="ear.test_month_year" placeholder="Mar 2023">
+            </div>
+            <div>
+              <label class="text-xs text-white/40">Diagnosis</label>
+              <select class="input-dark" x-model="ear.diagnosis_category">
+                <option :value="null">—</option>
+                <template x-for="d in diagOptions" :key="d"><option :value="d" x-text="d"></option></template>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-white/40">Consultant grade</label>
+              <select class="input-dark" x-model="ear.consultant_grade">
+                <option :value="null">— (not documented)</option>
+                <template x-for="g in gradeOptions" :key="g"><option :value="g" x-text="g"></option></template>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-white/40">Shape</label>
+              <select class="input-dark" x-model="ear.documented_shape">
+                <option :value="null">— (not documented)</option>
+                <template x-for="s in shapeOptions" :key="s"><option :value="s" x-text="s"></option></template>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <label class="text-xs text-white/40 block mb-1">Air conduction thresholds (dB HL, −10..120)</label>
+            <div class="grid grid-cols-8 gap-2">
+              <template x-for="f in freqLabels" :key="'t'+ear.study_id+f">
+                <div>
+                  <div class="text-[10px] text-white/40 text-center mb-1 mono" x-text="f"></div>
+                  <input type="number" class="input-dark text-center mono" step="5" min="-10" max="120"
+                         :value="ear[thField(f)] ?? ''" @change="ear[thField(f)] = $event.target.value !== '' ? Number($event.target.value) : null; touch(ear)">
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <label class="text-xs text-white/40 block mb-1">Bone conduction (optional)</label>
+            <div class="grid grid-cols-4 gap-2 max-w-md">
+              <template x-for="f in ['500','1k','2k','4k']" :key="'b'+ear.study_id+f">
+                <div>
+                  <div class="text-[10px] text-white/40 text-center mb-1 mono" x-text="f+' Hz'"></div>
+                  <input type="number" class="input-dark text-center mono" step="5" min="-10" max="120"
+                         :value="ear['bc_'+f] ?? ''" @change="ear['bc_'+f] = $event.target.value !== '' ? Number($event.target.value) : null; touch(ear)">
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+            <div>
+              <label class="text-xs text-white/40">Included?</label>
+              <select class="input-dark" x-model.number="ear.ear_included">
+                <option :value="null">—</option>
+                <option value="1">1 — eligible</option>
+                <option value="0">0 — excluded</option>
+              </select>
+            </div>
+            <div class="col-span-3">
+              <label class="text-xs text-white/40">Exclusion reason (if excluded)</label>
+              <input type="text" class="input-dark" x-model="ear.exclusion_reason" :disabled="ear.ear_included !== 0">
+            </div>
+          </div>
+
+          <!-- Live QA -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-sm">
+            <div class="bg-white/[0.03] rounded-lg p-3">
+              <div class="text-[10px] text-white/40">PTA-4</div>
+              <div class="mono font-semibold text-violet-300" x-text="ear.pta4 != null ? ear.pta4 + ' dB' : '—'"></div>
+            </div>
+            <div class="bg-white/[0.03] rounded-lg p-3">
+              <div class="text-[10px] text-white/40">WHO grade</div>
+              <div class="mono" x-text="ear.who_grade ?? '—'"></div>
+            </div>
+            <div class="bg-white/[0.03] rounded-lg p-3">
+              <div class="text-[10px] text-white/40">Borderline</div>
+              <div class="mono" :class="ear.borderline === 1 ? 'text-amber-300' : ''" x-text="ear.borderline === 1 ? '⚠ yes' : (ear.borderline === 0 ? 'no' : '—')"></div>
+            </div>
+            <div class="bg-white/[0.03] rounded-lg p-3">
+              <div class="text-[10px] text-white/40">Monotonicity</div>
+              <div class="mono" :class="ear.monotonicity_flag ? 'text-rose-300' : 'text-emerald-300'" x-text="ear.monotonicity_flag ? '⚠ FLAG' : 'ok'"></div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <div x-show="!ears.length && !addingEar" class="glass-card p-8 text-center text-white/40">
+        No ear records yet — click "Add Ear" to enter the first ear.
+      </div>
+
+      <!-- Add ear form -->
+      <div x-show="addingEar" class="glass-card p-6 mb-4 fade-in border-violet-500/30">
+        <h3 class="font-semibold mb-3">New ear record</h3>
+        <div class="flex items-end gap-3 max-w-sm">
+          <div class="flex-1">
+            <label class="text-xs text-white/40">Ear</label>
+            <select class="input-dark" x-model="newEar.ear">
+              <option value="left">Left</option>
+              <option value="right">Right</option>
+            </select>
+          </div>
+          <button class="btn-primary" @click="saveNewEar()">Create</button>
+          <button class="btn-ghost" @click="addingEar=false">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div x-show="toast" class="fixed bottom-6 right-6 bg-rose-500/15 border border-rose-500/30 text-rose-300 text-sm rounded-xl p-4 max-w-sm z-50 fade-in">
+      <span x-text="toast"></span><button class="ml-3" @click="toast=null">✕</button>
+    </div>
+  </div>
+
+  <script>
+    function entryApp() {
+      return {
+        view: 'list',
+        statusText: '…',
+        patients: [],
+        patient: null,
+        ears: [],
+        addingEar: false,
+        newEar: { ear: 'left' },
+        toast: null,
+        diagOptions: ['csoM','otosclerosis','nihl','presbyacusis','ssnhl','ototoxicity','meniere','other','not_documented'],
+        gradeOptions: ['normal','mild','moderate','moderately_severe','severe','profound'],
+        shapeOptions: ['flat','sloping','notched','rising'],
+        freqLabels: ['250','500','1k','2k','3k','4k','6k','8k'],
+        qaText: '—',
+
+        async init() {
+          try {
+            const r = await fetch('/api/health');
+            this.statusText = (await r.json()).status === 'ok' ? 'DB ready' : 'offline';
+          } catch (e) { this.statusText = 'offline'; }
+          await this.loadPatients();
+          await this.loadQA();
+        },
+
+        thField(f) { return { '250':'th_250','500':'th_500','1k':'th_1k','2k':'th_2k','3k':'th_3k','4k':'th_4k','6k':'th_6k','8k':'th_8k' }[f]; },
+
+        async loadPatients() {
+          const r = await fetch('/api/patients');
+          this.patients = await r.json();
+        },
+
+        async loadQA() {
+          const r = await fetch('/api/qa');
+          const d = await r.json();
+          this.qaText = d.issues.length
+            ? `${d.total_ear_records} records — ${d.issues.length} flag(s): ` + d.issues.map(i => `#${i.study_id} ${i.issue}`).join('; ')
+            : `${d.total_ear_records} records — no flags ✅`;
+        },
+
+        async newPatient() {
+          const r = await fetch('/api/patients', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+          const d = await r.json();
+          await this.openPatient(d.patient_id);
+        },
+
+        async openPatient(id) {
+          const r = await fetch(`/api/patients/${id}`);
+          const d = await r.json();
+          this.patient = d.patient;
+          this.ears = d.ears;
+          this.addingEar = false;
+          this.view = 'detail';
+        },
+
+        async savePatient() {
+          const r = await fetch(`/api/patients/${this.patient.patient_id}`, {
+            method: 'PATCH', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ age_years: this.patient.age_years, sex: this.patient.sex, created_by: this.patient.created_by })
+          });
+          if (!r.ok) { this.toast = 'Save failed'; return; }
+          this.toast = null;
+          await this.loadPatients();
+        },
+
+        openAddEar() { this.newEar = { ear: this.ears.length ? 'right' : 'left' }; this.addingEar = true; },
+
+        async saveNewEar() {
+          const r = await fetch(`/api/patients/${this.patient.patient_id}/ears`, {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ ear: this.newEar.ear })
+          });
+          if (!r.ok) { const d = await r.json().catch(()=>({})); this.toast = d.detail || 'Failed'; return; }
+          this.addingEar = false;
+          await this.openPatient(this.patient.patient_id);
+        },
+
+        async touch(ear) {
+          // Debounced auto-save after threshold edits
+          clearTimeout(this._t);
+          this._t = setTimeout(async () => {
+            const payload = {
+              ear: ear.ear, test_month_year: ear.test_month_year,
+              diagnosis_category: ear.diagnosis_category,
+              consultant_grade: ear.consultant_grade,
+              documented_shape: ear.documented_shape,
+              ear_included: ear.ear_included, exclusion_reason: ear.exclusion_reason
+            };
+            for (const f of ['250','500','1k','2k','3k','4k','6k','8k']) payload[this.thField(f)] = ear[this.thField(f)];
+            for (const f of ['500','1k','2k','4k']) payload['bc_'+f] = ear['bc_'+f];
+            const r = await fetch(`/api/ears/${ear.study_id}`, {
+              method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+            });
+            if (r.ok) {
+              const updated = await r.json();
+              Object.assign(ear, updated);
+            }
+          }, 400);
+        },
+
+        async deleteEar(id) {
+          if (!confirm('Delete this ear record?')) return;
+          await fetch(`/api/ears/${id}`, { method: 'DELETE' });
+          await this.openPatient(this.patient.patient_id);
+          await this.loadQA();
+        },
+
+        async exportCsv() {
+          window.location.href = '/api/export.csv';
+        }
+      };
+    }
+  </script>
+</body>
+</html>

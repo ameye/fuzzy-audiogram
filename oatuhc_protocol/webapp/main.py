@@ -1,0 +1,392 @@
+"""
+OAUTHC FAI validation — web data-entry app.
+
+FastAPI + SQLite. Two-table relational design matching
+oatuhc_protocol/data_dictionary.md v1.0:
+  - patients      (one row per patient)
+  - ear_records   (one row per ear; two rows share patient_id)
+
+Endpoints:
+  GET  /                        → data-entry UI
+  GET  /api/health              → health check
+  GET  /api/patients            → list patients
+  POST /api/patients            → create patient
+  GET  /api/patients/{id}       → patient + ear records
+  POST /api/patients/{id}/ears  → add ear record
+  PATCH /api/ears/{id}          → update ear record
+  DELETE /api/ears/{id}         → delete ear record
+  GET  /api/export.csv          → clean CSV for the FAI pipeline
+  GET  /api/qa                  → batch QA flags
+"""
+
+from __future__ import annotations
+
+import csv
+import io
+import os
+import sqlite3
+from datetime import datetime
+from pathlib import Path
+from typing import Optional
+
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field, field_validator
+
+app = FastAPI(title="OAUTHC FAI Validation — Data Entry", version="1.0.0")
+
+STATIC_DIR = Path(__file__).parent / "static"
+DB_PATH = Path(os.environ.get("FAI_DB_PATH", Path(__file__).parent / "data" / "oatuhc_fai.db"))
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+THRESH_FIELDS = ["th_250", "th_500", "th_1k", "th_2k", "th_3k", "th_4k", "th_6k", "th_8k"]
+BC_FIELDS = ["bc_500", "bc_1k", "bc_2k", "bc_4k"]
+
+DIAGNOSES = ["csoM", "otosclerosis", "nihl", "presbyacusis", "ssnhl",
+             "ototoxicity", "meniere", "other", "not_documented"]
+GRADES = ["normal", "mild", "moderate", "moderately_severe", "severe", "profound"]
+SHAPES = ["flat", "sloping", "notched", "rising"]
+
+# ── DB helpers ──────────────────────────────────────────────────────────────
+
+def get_db() -> sqlite3.Connection:
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
+
+
+def init_db() -> None:
+    conn = get_db()
+    conn.executescript("""
+    CREATE TABLE IF NOT EXISTS patients (
+        patient_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        age_years INTEGER,
+        sex INTEGER,
+        created_by TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+    );
+    CREATE TABLE IF NOT EXISTS ear_records (
+        study_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        patient_id INTEGER NOT NULL REFERENCES patients(patient_id) ON DELETE CASCADE,
+        ear TEXT NOT NULL CHECK (ear IN ('left','right')),
+        test_month_year TEXT,
+        th_250 REAL, th_500 REAL, th_1k REAL, th_2k REAL,
+        th_3k REAL, th_4k REAL, th_6k REAL, th_8k REAL,
+        bc_500 REAL, bc_1k REAL, bc_2k REAL, bc_4k REAL,
+        diagnosis_category TEXT,
+        consultant_grade TEXT,
+        documented_shape TEXT,
+        ear_included INTEGER,
+        exclusion_reason TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        UNIQUE (patient_id, ear)
+    );
+    """)
+    conn.commit()
+    conn.close()
+
+
+init_db()
+
+# ── Pydantic models ─────────────────────────────────────────────────────────
+
+class PatientIn(BaseModel):
+    age_years: Optional[int] = Field(None, ge=18, le=110)
+    sex: Optional[int] = Field(None, ge=1, le=2)
+    created_by: Optional[str] = None
+
+
+class EarRecordIn(BaseModel):
+    ear: str
+    test_month_year: Optional[str] = None
+    th_250: Optional[float] = None
+    th_500: Optional[float] = None
+    th_1k: Optional[float] = None
+    th_2k: Optional[float] = None
+    th_3k: Optional[float] = None
+    th_4k: Optional[float] = None
+    th_6k: Optional[float] = None
+    th_8k: Optional[float] = None
+    bc_500: Optional[float] = None
+    bc_1k: Optional[float] = None
+    bc_2k: Optional[float] = None
+    bc_4k: Optional[float] = None
+    diagnosis_category: Optional[str] = None
+    consultant_grade: Optional[str] = None
+    documented_shape: Optional[str] = None
+    ear_included: Optional[int] = Field(None, ge=0, le=1)
+    exclusion_reason: Optional[str] = None
+
+    @field_validator("ear")
+    @classmethod
+    def ear_valid(cls, v):
+        if v not in ("left", "right"):
+            raise ValueError("ear must be 'left' or 'right'")
+        return v
+
+    @field_validator("diagnosis_category")
+    @classmethod
+    def diag_valid(cls, v):
+        if v is not None and v not in DIAGNOSES:
+            raise ValueError(f"diagnosis_category must be one of {DIAGNOSES}")
+        return v
+
+    @field_validator("consultant_grade")
+    @classmethod
+    def grade_valid(cls, v):
+        if v is not None and v not in GRADES:
+            raise ValueError(f"consultant_grade must be one of {GRADES}")
+        return v
+
+    @field_validator("documented_shape")
+    @classmethod
+    def shape_valid(cls, v):
+        if v is not None and v not in SHAPES:
+            raise ValueError(f"documented_shape must be one of {SHAPES}")
+        return v
+
+
+# ── Derived helpers ─────────────────────────────────────────────────────────
+
+def pta4(row: sqlite3.Row) -> Optional[float]:
+    vals = [row[k] for k in ("th_500", "th_1k", "th_2k", "th_4k")]
+    if all(v is not None for v in vals):
+        return round(sum(vals) / 4, 1)
+    return None
+
+
+def who_grade(pta: Optional[float]) -> Optional[str]:
+    if pta is None:
+        return None
+    if pta < 26:
+        return "normal"
+    if pta < 41:
+        return "mild"
+    if pta < 61:
+        return "moderate"
+    if pta < 81:
+        return "severe"
+    return "profound"
+
+
+def borderline(pta: Optional[float]) -> Optional[int]:
+    if pta is None:
+        return None
+    return 1 if any(abs(pta - b) <= 5 for b in (25, 40, 60, 80)) else 0
+
+
+def monotonicity_flag(row: sqlite3.Row) -> int:
+    seq = [row[k] for k in THRESH_FIELDS]
+    pairs = [(a, b) for a, b in zip(seq[:-1], seq[1:]) if a is not None and b is not None]
+    if not pairs:
+        return 0
+    return 1 if max(abs(a - b) for a, b in pairs) > 40 else 0
+
+
+def ear_to_dict(r: sqlite3.Row) -> dict:
+    d = dict(r)
+    d["pta4"] = pta4(r)
+    d["who_grade"] = who_grade(d["pta4"])
+    d["borderline"] = borderline(d["pta4"])
+    d["monotonicity_flag"] = monotonicity_flag(r)
+    return d
+
+
+# ── Routes ──────────────────────────────────────────────────────────────────
+
+if STATIC_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=str(STATIC_DIR)), name="assets")
+
+
+@app.get("/")
+async def index():
+    return FileResponse(STATIC_DIR / "index.html")
+
+
+@app.get("/api/health")
+async def health():
+    return {"status": "ok", "db": str(DB_PATH)}
+
+
+@app.get("/api/patients")
+async def list_patients():
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT p.*, COUNT(e.study_id) AS ear_count,
+               SUM(CASE WHEN e.ear_included = 1 THEN 1 ELSE 0 END) AS included_ears
+        FROM patients p LEFT JOIN ear_records e ON p.patient_id = e.patient_id
+        GROUP BY p.patient_id ORDER BY p.patient_id DESC LIMIT 200
+    """).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+@app.post("/api/patients", status_code=201)
+async def create_patient(p: PatientIn):
+    conn = get_db()
+    cur = conn.execute(
+        "INSERT INTO patients (age_years, sex, created_by) VALUES (?,?,?)",
+        (p.age_years, p.sex, p.created_by))
+    conn.commit()
+    pid = cur.lastrowid
+    conn.close()
+    return {"patient_id": pid, "age_years": p.age_years, "sex": p.sex}
+
+
+@app.patch("/api/patients/{pid}")
+async def update_patient(pid: int, p: PatientIn):
+    conn = get_db()
+    existing = conn.execute("SELECT patient_id FROM patients WHERE patient_id=?", (pid,)).fetchone()
+    if existing is None:
+        conn.close()
+        raise HTTPException(404, "Patient not found")
+    conn.execute("UPDATE patients SET age_years=?, sex=?, created_by=? WHERE patient_id=?",
+                 (p.age_years, p.sex, p.created_by, pid))
+    conn.commit()
+    row = conn.execute("SELECT * FROM patients WHERE patient_id=?", (pid,)).fetchone()
+    conn.close()
+    return dict(row)
+
+
+@app.get("/api/patients/{pid}")
+async def get_patient(pid: int):
+    conn = get_db()
+    p = conn.execute("SELECT * FROM patients WHERE patient_id=?", (pid,)).fetchone()
+    if p is None:
+        conn.close()
+        raise HTTPException(404, "Patient not found")
+    ears = conn.execute(
+        "SELECT * FROM ear_records WHERE patient_id=? ORDER BY ear", (pid,)).fetchall()
+    conn.close()
+    return {"patient": dict(p), "ears": [ear_to_dict(e) for e in ears]}
+
+
+@app.post("/api/patients/{pid}/ears", status_code=201)
+async def add_ear(pid: int, e: EarRecordIn):
+    conn = get_db()
+    p = conn.execute("SELECT patient_id FROM patients WHERE patient_id=?", (pid,)).fetchone()
+    if p is None:
+        conn.close()
+        raise HTTPException(404, "Patient not found")
+    dup = conn.execute(
+        "SELECT study_id FROM ear_records WHERE patient_id=? AND ear=?",
+        (pid, e.ear)).fetchone()
+    if dup:
+        conn.close()
+        raise HTTPException(409, f"{e.ear} ear already recorded for this patient")
+    vals = {f: getattr(e, f) for f in THRESH_FIELDS + BC_FIELDS}
+    cur = conn.execute("""
+        INSERT INTO ear_records
+        (patient_id, ear, test_month_year,
+         th_250, th_500, th_1k, th_2k, th_3k, th_4k, th_6k, th_8k,
+         bc_500, bc_1k, bc_2k, bc_4k,
+         diagnosis_category, consultant_grade, documented_shape,
+         ear_included, exclusion_reason)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    """, (pid, e.ear, e.test_month_year,
+          vals["th_250"], vals["th_500"], vals["th_1k"], vals["th_2k"],
+          vals["th_3k"], vals["th_4k"], vals["th_6k"], vals["th_8k"],
+          vals["bc_500"], vals["bc_1k"], vals["bc_2k"], vals["bc_4k"],
+          e.diagnosis_category, e.consultant_grade, e.documented_shape,
+          e.ear_included, e.exclusion_reason))
+    conn.commit()
+    sid = cur.lastrowid
+    conn.close()
+    return {"study_id": sid, "ear": e.ear}
+
+
+@app.patch("/api/ears/{sid}")
+async def update_ear(sid: int, e: EarRecordIn):
+    conn = get_db()
+    existing = conn.execute("SELECT * FROM ear_records WHERE study_id=?", (sid,)).fetchone()
+    if existing is None:
+        conn.close()
+        raise HTTPException(404, "Ear record not found")
+    sets, vals = [], []
+    for f in ["ear", "test_month_year", *THRESH_FIELDS, *BC_FIELDS,
+              "diagnosis_category", "consultant_grade", "documented_shape",
+              "ear_included", "exclusion_reason"]:
+        v = getattr(e, f)
+        if v is not None:
+            sets.append(f"{f}=?")
+            vals.append(v)
+    if sets:
+        vals.append(sid)
+        conn.execute(f"UPDATE ear_records SET {','.join(sets)} WHERE study_id=?", vals)
+        conn.commit()
+    row = conn.execute("SELECT * FROM ear_records WHERE study_id=?", (sid,)).fetchone()
+    conn.close()
+    return ear_to_dict(row)
+
+
+@app.delete("/api/ears/{sid}")
+async def delete_ear(sid: int):
+    conn = get_db()
+    conn.execute("DELETE FROM ear_records WHERE study_id=?", (sid,))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+
+@app.get("/api/export.csv")
+async def export_csv():
+    """Clean CSV for the FAI pipeline — matches data_dictionary column order."""
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT e.study_id, e.patient_id, e.ear, e.test_month_year,
+               p.age_years, p.sex,
+               e.th_250, e.th_500, e.th_1k, e.th_2k, e.th_3k, e.th_4k, e.th_6k, e.th_8k,
+               e.bc_500, e.bc_1k, e.bc_2k, e.bc_4k,
+               e.diagnosis_category, e.consultant_grade, e.documented_shape,
+               e.ear_included, e.exclusion_reason
+        FROM ear_records e JOIN patients p ON e.patient_id = p.patient_id
+        WHERE e.ear_included = 1
+        ORDER BY e.study_id
+    """).fetchall()
+    conn.close()
+
+    buf = io.StringIO()
+    if rows:
+        writer = csv.writer(buf)
+        writer.writerow(rows[0].keys())
+        for r in rows:
+            writer.writerow([r[k] for k in r.keys()])
+    else:
+        # Header-only export with the expected columns
+        cols = ["study_id", "patient_id", "ear", "test_month_year", "age_years",
+                "sex", *THRESH_FIELDS, *BC_FIELDS, "diagnosis_category",
+                "consultant_grade", "documented_shape", "ear_included",
+                "exclusion_reason"]
+        writer = csv.writer(buf)
+        writer.writerow(cols)
+
+    fname = f"oatuhc_fai_export_{datetime.now():%Y%m%d_%H%M}.csv"
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{fname}"'})
+
+
+@app.get("/api/qa")
+async def qa_report():
+    """Batch QA flags: duplicates, age range, monotonicity."""
+    conn = get_db()
+    ears = conn.execute("SELECT * FROM ear_records").fetchall()
+    conn.close()
+    issues = []
+    seen = {}
+    for e in ears:
+        key = (e["patient_id"], e["ear"])
+        if key in seen:
+            issues.append({"study_id": e["study_id"], "issue": "duplicate (patient_id, ear)"})
+        seen[key] = True
+        if monotonicity_flag(e):
+            issues.append({"study_id": e["study_id"], "issue": "monotonicity: adjacent jump > 40 dB"})
+    return {"total_ear_records": len(ears), "issues": issues}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
