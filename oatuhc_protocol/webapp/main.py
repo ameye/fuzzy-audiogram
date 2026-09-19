@@ -250,6 +250,72 @@ async def update_patient(pid: int, p: PatientIn):
     return dict(row)
 
 
+# ── Single-form entry: demographics + both ears in ONE submission ───────────
+
+class PatientFullIn(BaseModel):
+    """One patient with both ears, exactly as the single-page form submits it."""
+    age_years: Optional[int] = Field(None, ge=18, le=110)
+    sex: Optional[int] = Field(None, ge=1, le=2)
+    created_by: Optional[str] = None
+    ears: list[EarRecordIn] = []
+
+
+EAR_PAYLOAD_COLS = [
+    "test_month_year", *THRESH_FIELDS, *BC_FIELDS,
+    "diagnosis_category", "consultant_grade", "documented_shape",
+    "ear_included", "exclusion_reason",
+]
+
+
+def _write_ear(conn: sqlite3.Connection, pid: int, e: EarRecordIn) -> int:
+    """Insert or update the record for this (patient_id, ear). Returns study_id."""
+    row = conn.execute(
+        "SELECT study_id FROM ear_records WHERE patient_id=? AND ear=?",
+        (pid, e.ear)).fetchone()
+    vals = [getattr(e, c) for c in EAR_PAYLOAD_COLS]
+    if row is None:
+        cur = conn.execute(
+            f"INSERT INTO ear_records (patient_id, ear, {','.join(EAR_PAYLOAD_COLS)}) "
+            f"VALUES (?,?,{','.join('?' * len(EAR_PAYLOAD_COLS))})",
+            [pid, e.ear, *vals])
+        return cur.lastrowid
+    conn.execute(
+        f"UPDATE ear_records SET {','.join(c + '=?' for c in EAR_PAYLOAD_COLS)} "
+        f"WHERE study_id=?", [*vals, row["study_id"]])
+    return row["study_id"]
+
+
+@app.post("/api/patients/full", status_code=201)
+async def create_patient_full(p: PatientFullIn):
+    """Create a patient and both ear records from the single-page form."""
+    conn = get_db()
+    cur = conn.execute(
+        "INSERT INTO patients (age_years, sex, created_by) VALUES (?,?,?)",
+        (p.age_years, p.sex, p.created_by))
+    pid = cur.lastrowid
+    ids = [_write_ear(conn, pid, e) for e in p.ears]
+    conn.commit()
+    conn.close()
+    return {"patient_id": pid, "study_ids": ids, "ears": len(ids)}
+
+
+@app.put("/api/patients/{pid}/full")
+async def update_patient_full(pid: int, p: PatientFullIn):
+    """Update demographics and upsert both ear records for an existing patient."""
+    conn = get_db()
+    if conn.execute("SELECT patient_id FROM patients WHERE patient_id=?",
+                    (pid,)).fetchone() is None:
+        conn.close()
+        raise HTTPException(404, "Patient not found")
+    conn.execute(
+        "UPDATE patients SET age_years=?, sex=?, created_by=? WHERE patient_id=?",
+        (p.age_years, p.sex, p.created_by, pid))
+    ids = [_write_ear(conn, pid, e) for e in p.ears]
+    conn.commit()
+    conn.close()
+    return {"patient_id": pid, "study_ids": ids, "ears": len(ids)}
+
+
 @app.get("/api/patients/{pid}")
 async def get_patient(pid: int):
     conn = get_db()
