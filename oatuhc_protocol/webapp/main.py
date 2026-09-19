@@ -27,6 +27,7 @@ import hmac
 import io
 import math
 import os
+import re
 import secrets
 import sqlite3
 import time
@@ -127,19 +128,38 @@ init_db()
 
 # ── Authentication ──────────────────────────────────────────────────────────
 # Credentials come from the environment so no secret lives in the repo:
-#   APP_USERNAME — login name
-#   APP_PASSWORD — login password
-#   APP_SECRET   — HMAC key that signs session cookies (any long random string;
-#                  changing it invalidates all existing sessions)
+#   APP_USERNAME / APP_PASSWORD — the owner account
+#   APP_USERS   — additional accounts, "user:pass,user:pass" (commas, semicolons
+#                 or newlines all work as separators)
+#   APP_SECRET  — HMAC key that signs session cookies (any long random string;
+#                 changing it invalidates all existing sessions)
 #
-# FAILS CLOSED: with no credentials configured the app refuses to serve data
-# rather than exposing clinical records. Sessions use a signed, HttpOnly cookie;
-# no password is ever stored in the database or the repo.
+# FAILS CLOSED: with no accounts configured the app refuses to serve data rather
+# than exposing clinical records. Sessions use a signed, HttpOnly cookie; no
+# password is ever stored in the database or the repo.
 
-AUTH_USER = os.environ.get("APP_USERNAME", "").strip()
-AUTH_PASS = os.environ.get("APP_PASSWORD", "")
+def _load_users() -> dict[str, str]:
+    """Collect the configured accounts from the environment."""
+    users: dict[str, str] = {}
+    single_user = os.environ.get("APP_USERNAME", "").strip()
+    single_pass = os.environ.get("APP_PASSWORD", "")
+    if single_user and single_pass:
+        users[single_user] = single_pass
+
+    for chunk in re.split(r"[,\n;]+", os.environ.get("APP_USERS", "")):
+        chunk = chunk.strip()
+        if not chunk or ":" not in chunk:
+            continue
+        name, _, pw = chunk.partition(":")
+        name, pw = name.strip(), pw.strip()
+        if name and pw:
+            users[name] = pw
+    return users
+
+
+USERS = _load_users()
 AUTH_SECRET = os.environ.get("APP_SECRET", "").strip() or "change-me-fai-secret"
-AUTH_ENABLED = bool(AUTH_USER and AUTH_PASS)
+AUTH_ENABLED = bool(USERS)
 
 COOKIE_NAME = "fai_session"
 SESSION_TTL = int(os.environ.get("APP_SESSION_HOURS", "12")) * 3600
@@ -158,12 +178,12 @@ def _sign(payload: str) -> str:
 # still listed here, so logout genuinely revokes access instead of merely asking
 # the browser to drop the cookie. Sessions are in-memory: a restart forces
 # everyone to sign in again, which is the safe default for clinical data.
-_SESSIONS: dict[str, float] = {}   # token -> expiry epoch
+_SESSIONS: dict[str, dict] = {}   # token -> {"user": str, "exp": float}
 
 
 def _prune_sessions() -> None:
     now = time.time()
-    for tok in [t for t, exp in _SESSIONS.items() if exp <= now]:
+    for tok in [t for t, s in _SESSIONS.items() if s["exp"] <= now]:
         _SESSIONS.pop(tok, None)
 
 
@@ -171,21 +191,41 @@ def make_session(user: str) -> str:
     """Register a session and return a signed '<token>:<hmac>' cookie value."""
     _prune_sessions()
     token = secrets.token_urlsafe(32)
-    _SESSIONS[token] = time.time() + SESSION_TTL
+    _SESSIONS[token] = {"user": user, "exp": time.time() + SESSION_TTL}
     return f"{token}:{_sign(token)}"
 
 
-def verify_session(raw: Optional[str]) -> bool:
+def session_user(raw: Optional[str]) -> Optional[str]:
+    """Return the signed-in username for a valid session, else None."""
     if not raw or ":" not in raw:
-        return False
+        return None
     token, sig = raw.rsplit(":", 1)
     if not hmac.compare_digest(sig, _sign(token)):
-        return False
-    expiry = _SESSIONS.get(token)
-    if expiry is None or expiry <= time.time():
+        return None
+    entry = _SESSIONS.get(token)
+    if not entry or entry["exp"] <= time.time():
         _SESSIONS.pop(token, None)
-        return False
-    return True
+        return None
+    return entry["user"]
+
+
+def verify_session(raw: Optional[str]) -> bool:
+    return session_user(raw) is not None
+
+
+def check_credentials(username: str, password: str) -> Optional[str]:
+    """Return the canonical username on success, else None.
+
+    Every account is compared without an early exit so the response time does
+    not reveal whether the username or the password was the wrong half.
+    """
+    matched: Optional[str] = None
+    for name, pw in USERS.items():
+        name_ok = hmac.compare_digest(username, name)
+        pass_ok = hmac.compare_digest(password, pw)
+        if name_ok and pass_ok:
+            matched = name
+    return matched
 
 
 def invalidate_session(raw: Optional[str]) -> None:
@@ -262,16 +302,14 @@ async def login(request: Request, creds: LoginIn):
         return JSONResponse(
             {"error": "Too many attempts. Try again in a few minutes."}, status_code=429)
 
-    # Constant-time comparison on both fields so neither leaks by timing.
-    user_ok = hmac.compare_digest(creds.username.strip(), AUTH_USER)
-    pass_ok = hmac.compare_digest(creds.password, AUTH_PASS)
-    if not (user_ok and pass_ok):
+    user = check_credentials(creds.username.strip(), creds.password)
+    if user is None:
         _record_attempt(ip)
         return JSONResponse({"error": "Invalid username or password"}, status_code=401)
 
-    resp = JSONResponse({"ok": True, "user": AUTH_USER})
+    resp = JSONResponse({"ok": True, "user": user})
     resp.set_cookie(
-        COOKIE_NAME, make_session(AUTH_USER),
+        COOKIE_NAME, make_session(user),
         httponly=True, samesite="lax", max_age=SESSION_TTL,
         secure=_is_secure_request(request),
     )
@@ -288,9 +326,12 @@ async def logout(request: Request):
 
 @app.get("/api/auth/status")
 async def auth_status(request: Request):
+    raw = request.cookies.get(COOKIE_NAME)
+    user = session_user(raw)
     return {
         "auth_enabled": AUTH_ENABLED,
-        "logged_in": verify_session(request.cookies.get(COOKIE_NAME)),
+        "logged_in": user is not None,
+        "user": user,
     }
 
 

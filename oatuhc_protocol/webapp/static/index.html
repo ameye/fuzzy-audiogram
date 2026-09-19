@@ -45,6 +45,9 @@
       <div class="flex items-center gap-3 text-xs">
         <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
         <span class="text-white/40" x-text="statusText"></span>
+        <span class="text-white/30" x-show="currentUser" x-cloak>
+          · signed in as <span class="text-white/50" x-text="currentUser"></span>
+        </span>
         <button type="button" class="btn-ghost text-xs px-3 py-1" @click="logout()">Sign out</button>
       </div>
     </header>
@@ -89,9 +92,12 @@
         </div>
       </div>
 
-      <!-- Both ears side by side -->
+      <!-- Both ears side by side. Ordered RIGHT then LEFT to follow the
+           audiogram convention: the right ear is plotted on the viewer's left,
+           facing the patient. Colours stay with the ear (red = right,
+           blue = left) regardless of position. -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <template x-for="side in ['left','right']" :key="side">
+        <template x-for="side in ['right','left']" :key="side">
           <div class="rounded-xl p-4" :class="side==='left' ? 'bg-sky-500/[0.04] border border-sky-500/20' : 'bg-rose-500/[0.04] border border-rose-500/20'">
             <div class="flex items-center justify-between mb-3">
               <h3 class="font-semibold text-sm" :class="side==='left' ? 'text-sky-300' : 'text-rose-300'"
@@ -286,6 +292,7 @@
       return {
         FREQS, BCFREQS, DIAGS, GRADES, SHAPES,
         statusText: '…', saving: false, toast: null, toastError: false,
+        currentUser: null,
         patients: [], qaText: '—',
         form: { patient_id: null, age_years: null, sex: null, test_month_year: null, created_by: null },
         ears: { left: blankEar(true), right: blankEar(true) },
@@ -295,6 +302,11 @@
             const r = await fetch('/api/health');
             this.statusText = (await r.json()).status === 'ok' ? 'DB ready' : 'offline';
           } catch (e) { this.statusText = 'offline'; }
+          try {
+            const s = await fetch('/api/auth/status');
+            const d = await s.json();
+            this.currentUser = d.user || null;
+          } catch (e) { /* header simply omits the name */ }
           await this.loadPatients();
           await this.loadQA();
         },
