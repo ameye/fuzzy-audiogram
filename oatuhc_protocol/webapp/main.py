@@ -22,15 +22,27 @@ Endpoints:
 from __future__ import annotations
 
 import csv
+import hashlib
+import hmac
 import io
+import math
 import os
+import secrets
 import sqlite3
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
+from urllib.parse import quote
 
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import (
+    FileResponse,
+    HTMLResponse,
+    JSONResponse,
+    RedirectResponse,
+    StreamingResponse,
+)
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
@@ -42,6 +54,29 @@ DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 THRESH_FIELDS = ["th_250", "th_500", "th_1k", "th_2k", "th_3k", "th_4k", "th_6k", "th_8k"]
 BC_FIELDS = ["bc_500", "bc_1k", "bc_2k", "bc_4k"]
+
+# Physiologically plausible range for dB HL (data_dictionary.md v1.0, rule 5).
+# Out-of-range thresholds are an exclusion criterion in the protocol, so they are
+# rejected at entry rather than being cleaned up later.
+THRESH_MIN = -10.0
+THRESH_MAX = 120.0
+
+# Frequencies required to compute the WHO PTA-4 reference standard.
+PTA4_FIELDS = ("th_500", "th_1k", "th_2k", "th_4k")
+
+
+def _validate_threshold(v):
+    """Reject non-numeric, non-finite and out-of-range dB HL values."""
+    if v is None:
+        return v
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        raise ValueError("threshold must be a number in dB HL")
+    if not math.isfinite(v):
+        raise ValueError("threshold must be a finite number")
+    if not (THRESH_MIN <= v <= THRESH_MAX):
+        raise ValueError(
+            f"threshold must be between {THRESH_MIN:g} and {THRESH_MAX:g} dB HL, got {v:g}")
+    return float(v)
 
 DIAGNOSES = ["csoM", "otosclerosis", "nihl", "presbyacusis", "ssnhl",
              "ototoxicity", "meniere", "other", "not_documented"]
@@ -90,6 +125,231 @@ def init_db() -> None:
 
 init_db()
 
+# ── Authentication ──────────────────────────────────────────────────────────
+# Credentials come from the environment so no secret lives in the repo:
+#   APP_USERNAME — login name
+#   APP_PASSWORD — login password
+#   APP_SECRET   — HMAC key that signs session cookies (any long random string;
+#                  changing it invalidates all existing sessions)
+#
+# FAILS CLOSED: with no credentials configured the app refuses to serve data
+# rather than exposing clinical records. Sessions use a signed, HttpOnly cookie;
+# no password is ever stored in the database or the repo.
+
+AUTH_USER = os.environ.get("APP_USERNAME", "").strip()
+AUTH_PASS = os.environ.get("APP_PASSWORD", "")
+AUTH_SECRET = os.environ.get("APP_SECRET", "").strip() or "change-me-fai-secret"
+AUTH_ENABLED = bool(AUTH_USER and AUTH_PASS)
+
+COOKIE_NAME = "fai_session"
+SESSION_TTL = int(os.environ.get("APP_SESSION_HOURS", "12")) * 3600
+PUBLIC_PATHS = {"/login", "/api/health", "/api/auth/login", "/favicon.ico"}
+
+_LOGIN_ATTEMPTS: dict[str, list[float]] = {}
+_LOGIN_MAX_ATTEMPTS = 10
+_LOGIN_WINDOW = 300  # seconds
+
+
+def _sign(payload: str) -> str:
+    return hmac.new(AUTH_SECRET.encode(), payload.encode(), hashlib.sha256).hexdigest()
+
+
+# Server-side session registry. A cookie is only accepted while its token is
+# still listed here, so logout genuinely revokes access instead of merely asking
+# the browser to drop the cookie. Sessions are in-memory: a restart forces
+# everyone to sign in again, which is the safe default for clinical data.
+_SESSIONS: dict[str, float] = {}   # token -> expiry epoch
+
+
+def _prune_sessions() -> None:
+    now = time.time()
+    for tok in [t for t, exp in _SESSIONS.items() if exp <= now]:
+        _SESSIONS.pop(tok, None)
+
+
+def make_session(user: str) -> str:
+    """Register a session and return a signed '<token>:<hmac>' cookie value."""
+    _prune_sessions()
+    token = secrets.token_urlsafe(32)
+    _SESSIONS[token] = time.time() + SESSION_TTL
+    return f"{token}:{_sign(token)}"
+
+
+def verify_session(raw: Optional[str]) -> bool:
+    if not raw or ":" not in raw:
+        return False
+    token, sig = raw.rsplit(":", 1)
+    if not hmac.compare_digest(sig, _sign(token)):
+        return False
+    expiry = _SESSIONS.get(token)
+    if expiry is None or expiry <= time.time():
+        _SESSIONS.pop(token, None)
+        return False
+    return True
+
+
+def invalidate_session(raw: Optional[str]) -> None:
+    """Revoke a session server-side."""
+    if raw and ":" in raw:
+        _SESSIONS.pop(raw.rsplit(":", 1)[0], None)
+
+
+def _client_ip(request: Request) -> str:
+    fwd = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+    if fwd:
+        return fwd
+    return request.client.host if request.client else "unknown"
+
+
+def _rate_limited(ip: str) -> bool:
+    now = time.time()
+    hits = [t for t in _LOGIN_ATTEMPTS.get(ip, []) if now - t < _LOGIN_WINDOW]
+    _LOGIN_ATTEMPTS[ip] = hits
+    return len(hits) >= _LOGIN_MAX_ATTEMPTS
+
+
+def _record_attempt(ip: str) -> None:
+    _LOGIN_ATTEMPTS.setdefault(ip, []).append(time.time())
+
+
+def _is_secure_request(request: Request) -> bool:
+    fwd = request.headers.get("x-forwarded-proto", "").lower()
+    return fwd == "https" or request.url.scheme == "https"
+
+
+@app.middleware("http")
+async def require_auth(request: Request, call_next):
+    """Gate every route except the login form, health probe and static assets."""
+    path = request.url.path
+    if path in PUBLIC_PATHS or path.startswith("/assets/"):
+        return await call_next(request)
+
+    if not AUTH_ENABLED:
+        return JSONResponse(
+            {"error": "Authentication is not configured. Set the APP_USERNAME and "
+                      "APP_PASSWORD environment variables and redeploy."},
+            status_code=503,
+        )
+
+    if verify_session(request.cookies.get(COOKIE_NAME)):
+        return await call_next(request)
+
+    if path.startswith("/api/"):
+        return JSONResponse({"error": "Authentication required"}, status_code=401)
+
+    nxt = path + (("?" + request.url.query) if request.url.query else "")
+    return RedirectResponse("/login?next=" + quote(nxt, safe="/"), status_code=302)
+
+
+class LoginIn(BaseModel):
+    username: str
+    password: str
+
+
+@app.get("/login")
+async def login_page():
+    return HTMLResponse(LOGIN_PAGE)
+
+
+@app.post("/api/auth/login")
+async def login(request: Request, creds: LoginIn):
+    if not AUTH_ENABLED:
+        return JSONResponse(
+            {"error": "Authentication is not configured on the server."}, status_code=503)
+
+    ip = _client_ip(request)
+    if _rate_limited(ip):
+        return JSONResponse(
+            {"error": "Too many attempts. Try again in a few minutes."}, status_code=429)
+
+    # Constant-time comparison on both fields so neither leaks by timing.
+    user_ok = hmac.compare_digest(creds.username.strip(), AUTH_USER)
+    pass_ok = hmac.compare_digest(creds.password, AUTH_PASS)
+    if not (user_ok and pass_ok):
+        _record_attempt(ip)
+        return JSONResponse({"error": "Invalid username or password"}, status_code=401)
+
+    resp = JSONResponse({"ok": True, "user": AUTH_USER})
+    resp.set_cookie(
+        COOKIE_NAME, make_session(AUTH_USER),
+        httponly=True, samesite="lax", max_age=SESSION_TTL,
+        secure=_is_secure_request(request),
+    )
+    return resp
+
+
+@app.post("/api/auth/logout")
+async def logout(request: Request):
+    invalidate_session(request.cookies.get(COOKIE_NAME))
+    resp = JSONResponse({"ok": True})
+    resp.delete_cookie(COOKIE_NAME, path="/")
+    return resp
+
+
+@app.get("/api/auth/status")
+async def auth_status(request: Request):
+    return {
+        "auth_enabled": AUTH_ENABLED,
+        "logged_in": verify_session(request.cookies.get(COOKIE_NAME)),
+    }
+
+
+LOGIN_PAGE = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — OAUTHC FAI Validation</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<style>body{background:#07070d;color:#fff;font-family:Inter,system-ui,sans-serif;margin:0}</style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+  <form id="f" class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/[0.03] p-7">
+    <h1 class="text-lg font-bold mb-1">OAUTHC FAI <span class="text-violet-400">Validation</span></h1>
+    <p class="text-xs text-white/40 mb-5">Sign in to continue</p>
+    <label class="text-xs text-white/50">Username</label>
+    <input id="u" autocomplete="username"
+           class="w-full mb-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-violet-500/50">
+    <label class="text-xs text-white/50">Password</label>
+    <input id="p" type="password" autocomplete="current-password"
+           class="w-full mb-4 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:border-violet-500/50">
+    <button type="submit"
+            class="w-full rounded-lg border border-violet-500/35 bg-violet-500/15 py-2 text-sm font-semibold text-violet-200">
+      Sign in
+    </button>
+    <p id="e" class="mt-3 text-xs text-rose-300" style="display:none"></p>
+  </form>
+  <script>
+    document.getElementById('f').addEventListener('submit', async function (ev) {
+      ev.preventDefault();
+      var err = document.getElementById('e');
+      err.style.display = 'none';
+      try {
+        var r = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: document.getElementById('u').value,
+            password: document.getElementById('p').value
+          })
+        });
+        if (r.ok) {
+          var q = new URLSearchParams(location.search);
+          location.href = q.get('next') || '/';
+        } else {
+          var d = await r.json().catch(function () { return {}; });
+          err.textContent = d.error || ('Sign-in failed (HTTP ' + r.status + ')');
+          err.style.display = 'block';
+        }
+      } catch (e2) {
+        err.textContent = 'Network error: ' + e2.message;
+        err.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>"""
+
 # ── Pydantic models ─────────────────────────────────────────────────────────
 
 class PatientIn(BaseModel):
@@ -118,6 +378,13 @@ class EarRecordIn(BaseModel):
     documented_shape: Optional[str] = None
     ear_included: Optional[int] = Field(None, ge=0, le=1)
     exclusion_reason: Optional[str] = None
+
+    @field_validator(*THRESH_FIELDS, *BC_FIELDS)
+    @classmethod
+    def threshold_in_range(cls, v):
+        """Every air- and bone-conduction threshold must be a finite value in
+        −10..120 dB HL (data_dictionary.md v1.0, rule 5)."""
+        return _validate_threshold(v)
 
     @field_validator("ear")
     @classmethod
@@ -437,19 +704,55 @@ async def export_csv():
 
 @app.get("/api/qa")
 async def qa_report():
-    """Batch QA flags: duplicates, age range, monotonicity."""
+    """Batch QA flags.
+
+    Protocol rule 7 is explicit: anomalies are flagged for review and never
+    auto-corrected. So these are reports, not edits.
+    """
     conn = get_db()
     ears = conn.execute("SELECT * FROM ear_records").fetchall()
     conn.close()
     issues = []
     seen = {}
     for e in ears:
+        sid = e["study_id"]
         key = (e["patient_id"], e["ear"])
         if key in seen:
-            issues.append({"study_id": e["study_id"], "issue": "duplicate (patient_id, ear)"})
+            issues.append({"study_id": sid, "issue": "duplicate (patient_id, ear)"})
         seen[key] = True
+
         if monotonicity_flag(e):
-            issues.append({"study_id": e["study_id"], "issue": "monotonicity: adjacent jump > 40 dB"})
+            issues.append({"study_id": sid, "issue": "monotonicity: adjacent jump > 40 dB"})
+
+        # Transcription check: audiometry is conventionally recorded in 5 dB steps.
+        off_step = [f for f in THRESH_FIELDS + BC_FIELDS
+                    if e[f] is not None and abs(e[f] / 5 - round(e[f] / 5)) > 1e-9]
+        if off_step:
+            issues.append({"study_id": sid,
+                           "issue": "not a 5 dB step: " + ", ".join(off_step)})
+
+        # Bone conduction can never be worse than air conduction at the same
+        # frequency — that would be a physically impossible air-bone gap.
+        for bc_field in BC_FIELDS:
+            freq = bc_field.split("_")[1]
+            ac_val = e["th_" + freq]
+            bc_val = e[bc_field]
+            if bc_val is not None and ac_val is not None and bc_val > ac_val:
+                issues.append({
+                    "study_id": sid,
+                    "issue": f"{bc_field} ({bc_val:g}) exceeds air conduction "
+                             f"th_{freq} ({ac_val:g}) — impossible air-bone gap"})
+
+        # An ear marked eligible must carry the four PTA-4 frequencies, otherwise
+        # the WHO reference standard cannot be computed for it.
+        if e["ear_included"] == 1:
+            missing = [f for f in PTA4_FIELDS if e[f] is None]
+            if missing:
+                issues.append({
+                    "study_id": sid,
+                    "issue": "marked included but missing PTA-4 frequency: "
+                             + ", ".join(missing)})
+
     return {"total_ear_records": len(ears), "issues": issues}
 
 

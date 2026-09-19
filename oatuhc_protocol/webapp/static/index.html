@@ -42,9 +42,10 @@
           <p class="text-xs text-white/40">Demographics + thresholds, both ears on one form</p>
         </div>
       </div>
-      <div class="flex items-center gap-2 text-xs">
+      <div class="flex items-center gap-3 text-xs">
         <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
         <span class="text-white/40" x-text="statusText"></span>
+        <button type="button" class="btn-ghost text-xs px-3 py-1" @click="logout()">Sign out</button>
       </div>
     </header>
 
@@ -57,7 +58,9 @@
         </h2>
         <div class="flex gap-2">
           <button type="button" class="btn-ghost text-sm" @click="reset()" x-show="form.patient_id !== null" x-cloak>✕ Cancel edit</button>
-          <button type="submit" class="btn-primary text-sm" :disabled="saving"
+          <button type="submit" class="btn-primary text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                  :disabled="saving || !canSave"
+                  :title="!canSave ? 'Fix the highlighted thresholds first' : ''"
                   x-text="saving ? 'Saving…' : (form.patient_id === null ? '💾 Save patient' : '💾 Update patient')"></button>
         </div>
       </div>
@@ -107,6 +110,8 @@
                     <div class="text-[10px] text-white/40 text-center mb-1 mono" x-text="f[0]"></div>
                     <input type="number" step="5" min="-10" max="120"
                            class="input-dark text-center mono text-xs px-1"
+                           :class="thBad(side, f[1]) ? '!border-rose-500/70 !bg-rose-500/10' : ''"
+                           :title="thBad(side, f[1]) ? 'Must be between -10 and 120 dB HL' : ''"
                            :value="ears[side][f[1]] ?? ''"
                            @input="setTh(side, f[1], $event.target.value)">
                   </div>
@@ -121,11 +126,17 @@
                     <div class="text-[10px] text-white/40 text-center mb-1 mono" x-text="f[0]"></div>
                     <input type="number" step="5" min="-10" max="120"
                            class="input-dark text-center mono text-xs px-1"
+                           :class="thBad(side, f[1]) ? '!border-rose-500/70 !bg-rose-500/10' : ''"
+                           :title="thBad(side, f[1]) ? 'Must be between -10 and 120 dB HL' : ''"
                            :value="ears[side][f[1]] ?? ''"
                            @input="setTh(side, f[1], $event.target.value)">
                   </div>
                 </template>
               </div>
+
+              <p x-show="thErrors(side).length" x-cloak
+                 class="text-[11px] text-rose-300 mb-3"
+                 x-text="'⚠ ' + thErrors(side).join(' · ')"></p>
 
               <!-- Clinical fields -->
               <div class="grid grid-cols-3 gap-2 mb-3">
@@ -253,6 +264,10 @@
     const FREQS   = [['250','th_250'],['500','th_500'],['1k','th_1k'],['2k','th_2k'],
                      ['3k','th_3k'],['4k','th_4k'],['6k','th_6k'],['8k','th_8k']];
     const BCFREQS = [['500','bc_500'],['1k','bc_1k'],['2k','bc_2k'],['4k','bc_4k']];
+    // Physiologically plausible dB HL range (data_dictionary.md v1.0, rule 5).
+    const TH_MIN = -10, TH_MAX = 120;
+    const FREQ_LABEL = {'250':'250 Hz','500':'500 Hz','1k':'1 kHz','2k':'2 kHz',
+                        '3k':'3 kHz','4k':'4 kHz','6k':'6 kHz','8k':'8 kHz'};
     const DIAGS   = ['csoM','otosclerosis','nihl','presbyacusis','ssnhl',
                      'ototoxicity','meniere','other','not_documented'];
     const GRADES  = ['normal','mild','moderate','moderately_severe','severe','profound'];
@@ -287,6 +302,48 @@
         // ── helpers ──
         setTh(side, field, raw) {
           this.ears[side][field] = raw === '' ? null : Number(raw);
+        },
+
+        thBad(side, field) {
+          const v = this.ears[side][field];
+          if (v === null || v === undefined) return false;
+          return !Number.isFinite(v) || v < TH_MIN || v > TH_MAX;
+        },
+
+        thErrors(side) {
+          const bad = [];
+          for (const f of FREQS) {
+            if (this.thBad(side, f[1])) bad.push(FREQ_LABEL[f[0]] + ' air conduction outside ' + TH_MIN + ' to ' + TH_MAX + ' dB HL');
+          }
+          for (const f of BCFREQS) {
+            if (this.thBad(side, f[1])) bad.push(FREQ_LABEL[f[0]] + ' bone conduction outside ' + TH_MIN + ' to ' + TH_MAX + ' dB HL');
+          }
+          return bad;
+        },
+
+        // Saving is blocked while any entered threshold is out of range, and
+        // until at least one ear actually carries data.
+        get canSave() {
+          const anyEar = (this.ears.left.enabled && this.hasData(this.ears.left))
+                      || (this.ears.right.enabled && this.hasData(this.ears.right));
+          return anyEar
+              && this.thErrors('left').length === 0
+              && this.thErrors('right').length === 0;
+        },
+
+        // A 401 means the session expired — send the user back to the login form.
+        async api(url, opts) {
+          const r = await fetch(url, opts);
+          if (r.status === 401) {
+            location.href = '/login';
+            throw new Error('Session expired');
+          }
+          return r;
+        },
+
+        async logout() {
+          try { await fetch('/api/auth/logout', { method: 'POST' }); } catch (e) { /* ignore */ }
+          location.href = '/login';
         },
 
         reset() {
@@ -333,14 +390,14 @@
         // ── data ──
         async loadPatients() {
           try {
-            const r = await fetch('/api/patients');
+            const r = await this.api('/api/patients');
             this.patients = await r.json();
           } catch (e) { this.patients = []; }
         },
 
         async loadQA() {
           try {
-            const r = await fetch('/api/qa');
+            const r = await this.api('/api/qa');
             const d = await r.json();
             this.qaText = d.issues.length
               ? d.total_ear_records + ' records — ' + d.issues.length + ' flag(s): '
@@ -385,7 +442,7 @@
           try {
             const editing = this.form.patient_id !== null;
             const url = editing ? '/api/patients/' + this.form.patient_id + '/full' : '/api/patients/full';
-            const r = await fetch(url, {
+            const r = await this.api(url, {
               method: editing ? 'PUT' : 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(payload),
@@ -412,7 +469,7 @@
 
         async edit(pid) {
           try {
-            const r = await fetch('/api/patients/' + pid);
+            const r = await this.api('/api/patients/' + pid);
             const d = await r.json();
             const left = blankEar(false), right = blankEar(false);
             let testMY = null;
