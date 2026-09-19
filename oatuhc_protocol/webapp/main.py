@@ -344,7 +344,7 @@ LOGIN_PAGE = """<!DOCTYPE html>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <style>body{background:#07070d;color:#fff;font-family:Inter,system-ui,sans-serif;margin:0}</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
+<body class="min-h-screen flex flex-col items-center justify-center p-6 gap-6">
   <form id="f" class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/[0.03] p-7">
     <h1 class="text-lg font-bold mb-1">OAUTHC FAI <span class="text-violet-400">Validation</span></h1>
     <p class="text-xs text-white/40 mb-5">Sign in to continue</p>
@@ -360,6 +360,7 @@ LOGIN_PAGE = """<!DOCTYPE html>
     </button>
     <p id="e" class="mt-3 text-xs text-rose-300" style="display:none"></p>
   </form>
+  <p class="text-xs text-white/30">Designed By <span class="text-white/55 font-medium">Dr. Sanyaolu A. Ameye</span></p>
   <script>
     document.getElementById('f').addEventListener('submit', async function (ev) {
       ev.preventDefault();
