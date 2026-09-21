@@ -514,6 +514,16 @@ async def index():
     return FileResponse(STATIC_DIR / "index.html")
 
 
+@app.get("/patients")
+async def patients_page():
+    """Captured-record list and batch QA, on their own page.
+
+    Separate from the entry form so the data-entry screen stays focused. Both
+    pages are behind the same auth middleware and share /assets/app.css.
+    """
+    return FileResponse(STATIC_DIR / "patients.html")
+
+
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "db": str(DB_PATH)}

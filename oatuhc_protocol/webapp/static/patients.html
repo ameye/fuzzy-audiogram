@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OAUTHC FAI Validation — Patients</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/alpinejs@3.14.8/dist/cdn.min.js" defer></script>
+  <link rel="stylesheet" href="/assets/app.css" />
+</head>
+<body>
+  <div class="relative z-10 max-w-6xl mx-auto px-6 py-8" x-data="patientsApp()" x-init="init()">
+
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-lg">🗂️</div>
+        <div>
+          <h1 class="text-xl font-bold">OAUTHC FAI <span class="text-violet-400">Validation</span></h1>
+          <p class="text-xs text-white/40">Captured records and batch quality checks</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 text-xs">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
+        <span class="text-white/40" x-text="statusText"></span>
+        <span class="text-white/30" x-show="currentUser" x-cloak>
+          · signed in as <span class="text-white/50" x-text="currentUser"></span>
+        </span>
+        <button type="button" class="btn-ghost text-xs px-3 py-1" @click="logout()">Sign out</button>
+      </div>
+    </header>
+
+    <!-- Page navigation -->
+    <nav class="nav-tabs mb-6">
+      <a href="/" class="nav-tab">📝 Data entry</a>
+      <a href="/patients" class="nav-tab active" aria-current="page">
+        👥 Patients <span class="nav-badge" x-text="patients.length"></span>
+      </a>
+    </nav>
+
+    <!-- Captured records -->
+    <div class="glass-card p-6 mb-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <h2 class="font-semibold">
+          Recorded patients
+          <span class="text-white/30 text-sm" x-text="'(' + patients.length + ')'"></span>
+        </h2>
+        <div class="flex items-center gap-2">
+          <button type="button" class="btn-ghost text-sm" @click="loadPatients()">↻ Refresh</button>
+          <button type="button" class="btn-ghost text-sm" @click="exportCsv()">⬇ Export CSV</button>
+          <a href="/" class="btn-primary text-sm no-underline">＋ New patient</a>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-white/40 text-xs uppercase">
+              <th class="pb-2">Patient</th><th class="pb-2">Age</th><th class="pb-2">Sex</th>
+              <th class="pb-2">Ears</th><th class="pb-2">Included</th><th class="pb-2 w-20"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="p in patients" :key="p.patient_id">
+              <tr class="patient-row">
+                <td class="py-2.5 mono text-violet-300">#<span x-text="p.patient_id"></span></td>
+                <td class="py-2.5" x-text="p.age_years ?? '—'"></td>
+                <td class="py-2.5" x-text="p.sex === 1 ? 'M' : (p.sex === 2 ? 'F' : '—')"></td>
+                <td class="py-2.5" x-text="(p.ear_count || 0) + ' / 2'"></td>
+                <td class="py-2.5" x-text="p.included_ears ?? 0"></td>
+                <td class="py-2.5 text-right">
+                  <a :href="'/?edit=' + p.patient_id"
+                     class="btn-ghost text-xs px-2 py-1 no-underline inline-block">Edit</a>
+                </td>
+              </tr>
+            </template>
+            <tr x-show="!patients.length">
+              <td colspan="6" class="py-8 text-center text-white/30 text-sm">
+                No patients yet — <a href="/" class="text-violet-300 no-underline">go to data entry</a>.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-[10px] text-white/30 mt-3">
+        Editing a patient opens them on the data-entry page. Changes are saved there.
+      </p>
+    </div>
+
+    <!-- Batch QA -->
+    <div class="glass-card p-5 text-sm">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="font-semibold">Batch QA</h3>
+        <button type="button" class="btn-ghost text-xs" @click="loadQA()">Refresh</button>
+      </div>
+      <div class="text-white/60" x-text="qaText"></div>
+      <p class="text-[10px] text-white/30 mt-2">
+        Flags only — nothing is auto-corrected. Records are reviewed during the pre-analysis cleaning pass.
+      </p>
+    </div>
+
+    <!-- Footer / branding -->
+    <footer class="mt-10 pb-4 text-center text-xs text-white/30">
+      Designed By <span class="text-white/55 font-medium">Dr. Sanyaolu A. Ameye</span>
+    </footer>
+
+    <!-- Toast -->
+    <div x-show="toast" x-cloak
+         class="fixed bottom-6 right-6 border text-sm rounded-xl p-4 max-w-sm z-50 fade-in"
+         :class="toastError ? 'bg-rose-500/15 border-rose-500/30 text-rose-300' : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'">
+      <span x-text="toast"></span><button type="button" class="ml-3" @click="toast=null">✕</button>
+    </div>
+  </div>
+
+  <script>
+    function patientsApp() {
+      return {
+        statusText: '…', currentUser: null,
+        patients: [], qaText: '—',
+        toast: null, toastError: false,
+
+        async init() {
+          try {
+            const r = await fetch('/api/health');
+            this.statusText = (await r.json()).status === 'ok' ? 'DB ready' : 'offline';
+          } catch (e) { this.statusText = 'offline'; }
+          try {
+            const s = await fetch('/api/auth/status');
+            const d = await s.json();
+            this.currentUser = d.user || null;
+          } catch (e) { /* header simply omits the name */ }
+          await this.loadPatients();
+          await this.loadQA();
+        },
+
+        // A 401 means the session expired — send the user back to the login form.
+        async api(url, opts) {
+          const r = await fetch(url, opts);
+          if (r.status === 401) {
+            location.href = '/login?next=' + encodeURIComponent(location.pathname);
+            throw new Error('Session expired');
+          }
+          return r;
+        },
+
+        async loadPatients() {
+          try {
+            const r = await this.api('/api/patients');
+            this.patients = await r.json();
+          } catch (e) { this.patients = []; }
+        },
+
+        async loadQA() {
+          try {
+            const r = await this.api('/api/qa');
+            const d = await r.json();
+            this.qaText = d.issues.length
+              ? d.total_ear_records + ' records — ' + d.issues.length + ' note(s): '
+                + d.issues.map(i => '#' + i.study_id + ' ' + i.issue).join('; ')
+              : d.total_ear_records + ' records — no QA notes.';
+          } catch (e) { this.qaText = 'QA unavailable'; }
+        },
+
+        exportCsv() { window.location.href = '/api/export.csv'; },
+
+        async logout() {
+          try { await fetch('/api/auth/logout', { method: 'POST' }); } catch (e) { /* ignore */ }
+          location.href = '/login';
+        },
+
+        flash(msg, isError) {
+          this.toast = msg;
+          this.toastError = !!isError;
+          clearTimeout(this._toast);
+          this._toast = setTimeout(() => { this.toast = null; }, 6000);
+        },
+      };
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+/* OAUTHC FAI Validation — shared styles for all pages.
+   Extracted from index.html so the data-entry page and the patient-list page
+   cannot drift apart. Served at /assets/app.css (see the StaticFiles mount). */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+* { font-family: 'Inter', system-ui, sans-serif; }
+.mono { font-family: 'JetBrains Mono', monospace !important; }
+
+body { background: #07070d; min-height: 100vh; margin: 0; color: #fff; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(88,28,135,0.14), transparent 55%),
+    radial-gradient(ellipse at 80% 70%, rgba(14,116,144,0.10), transparent 55%);
+}
+
+.glass-card { background: rgba(255,255,255,0.03); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; }
+.input-dark { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 8px; color: #fff; outline: none; transition: all 0.2s; width: 100%; }
+.input-dark:focus { border-color: rgba(139,92,246,0.5); background: rgba(255,255,255,0.07); }
+.btn-primary { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.35); color: #c4b5fd; border-radius: 10px; padding: 8px 16px; font-weight: 600; transition: all 0.25s; cursor: pointer; }
+.btn-primary:hover { background: rgba(139,92,246,0.25); }
+.btn-ghost { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); border-radius: 10px; padding: 8px 16px; transition: all 0.25s; cursor: pointer; }
+.btn-ghost:hover { background: rgba(255,255,255,0.08); }
+.fade-in { animation: fadeIn 0.35s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+select.input-dark option { background: #16162a; color: #fff; }
+[x-cloak] { display: none !important; }
+
+/* ── Page navigation ─────────────────────────────────────────────────────── */
+.nav-tabs { display: flex; gap: 4px; margin-top: 10px; }
+.nav-tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 9px; font-size: 13px; font-weight: 500;
+  color: rgba(255,255,255,0.55); text-decoration: none;
+  border: 1px solid transparent; transition: all 0.2s;
+}
+.nav-tab:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); }
+.nav-tab.active {
+  background: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.35);
+  color: #c4b5fd;
+}
+.nav-badge {
+  font-size: 10px; padding: 1px 6px; border-radius: 999px;
+  background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
+}
+.nav-tab.active .nav-badge { background: rgba(139,92,246,0.25); color: #ddd6fe; }
+
+/* Row hover for the patient table */
+.patient-row { border-top: 1px solid rgba(255,255,255,0.05); }
+.patient-row:hover { background: rgba(255,255,255,0.03); }
