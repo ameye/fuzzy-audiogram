@@ -110,19 +110,29 @@
             <div x-show="ears[side].enabled" x-cloak>
               <!-- Air conduction -->
               <label class="text-[11px] text-white/40 block mb-1">Air conduction (dB HL, −10…120)</label>
-              <div class="grid grid-cols-8 gap-1 mb-3">
+              <div class="grid grid-cols-8 gap-1 mb-2">
                 <template x-for="f in FREQS" :key="side+f[0]">
                   <div>
-                    <div class="text-[10px] text-white/40 text-center mb-1 mono" x-text="f[0]"></div>
+                    <div class="text-[10px] text-center mb-1 mono"
+                         :class="OPT_AC.includes(f[0]) ? 'text-amber-300/60' : 'text-white/40'"
+                         x-text="f[0] + (OPT_AC.includes(f[0]) ? '*' : '')"></div>
                     <input type="number" step="5" min="-10" max="120"
                            class="input-dark text-center mono text-xs px-1"
-                           :class="thBad(side, f[1]) ? '!border-rose-500/70 !bg-rose-500/10' : ''"
-                           :title="thBad(side, f[1]) ? 'Must be between -10 and 120 dB HL' : ''"
+                           :class="thBad(side, f[1])
+                                     ? '!border-rose-500/70 !bg-rose-500/10'
+                                     : (OPT_AC.includes(f[0]) && (ears[side][f[1]] ?? null) === null
+                                        ? '!border-dashed !border-amber-300/25' : '')"
+                           :title="thBad(side, f[1])
+                                     ? 'Must be between -10 and 120 dB HL'
+                                     : (OPT_AC.includes(f[0])
+                                        ? 'Optional — 3 kHz and 6 kHz are often not measured. Leave blank.'
+                                        : '')"
                            :value="ears[side][f[1]] ?? ''"
                            @input="setTh(side, f[1], $event.target.value)">
                   </div>
                 </template>
               </div>
+              <p class="text-[10px] text-amber-300/50 mb-3">* 3 kHz and 6 kHz are optional — leave blank if not measured.</p>
 
               <!-- Bone conduction -->
               <label class="text-[11px] text-white/40 block mb-1">Bone conduction (optional)</label>
@@ -214,6 +224,33 @@
           </div>
         </template>
       </div>
+
+      <!-- ══ Audiogram preview — standard audiometric notation ══ -->
+      <div class="glass-card p-5 mt-5 mb-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <h3 class="font-semibold text-sm">Audiogram — live preview</h3>
+          <div class="flex flex-wrap items-center gap-4 text-[11px] text-white/50">
+            <span class="flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="4.5"
+                   fill="none" stroke="#fb7185" stroke-width="1.8"/></svg> right air (O)</span>
+            <span class="flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 3 L11 11 M11 3 L3 11"
+                   stroke="#38bdf8" stroke-width="1.8"/></svg> left air (X)</span>
+            <span class="flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 14 14"><path d="M11 3 L3 7 L11 11"
+                   fill="none" stroke="#fb7185" stroke-width="1.8"/></svg> right bone (&lt;)</span>
+            <span class="flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 3 L11 7 L3 11"
+                   fill="none" stroke="#38bdf8" stroke-width="1.8"/></svg> left bone (&gt;)</span>
+          </div>
+        </div>
+        <div x-html="audiogramSvg()"></div>
+        <p class="text-[10px] text-white/30 mt-1">
+          Air conduction joined by solid lines, bone conduction by dashed. Frequencies left
+          blank (e.g. 3 kHz, 6 kHz) are simply not plotted.
+        </p>
+      </div>
+
     </form>
 
     <!-- Saved records -->
@@ -283,6 +320,30 @@
                      'ototoxicity','meniere','other','not_documented'];
     const GRADES  = ['normal','mild','moderate','moderately_severe','severe','profound'];
     const SHAPES  = ['flat','sloping','notched','rising'];
+    // 3 kHz and 6 kHz are inter-octave frequencies and are often not measured.
+    // They are optional at entry and are never required for a valid record.
+    const OPT_AC  = ['3k','6k'];
+
+    // ── Audiogram preview geometry (standard audiometric notation) ──────────
+    // x: log2 frequency scale from 250 Hz to 8 kHz. y: dB HL, -10 at the top
+    // (i.e. the axis is inverted, as on every clinical audiogram).
+    // Symbols follow the standard convention:
+    //   air conduction   O = right (red)    X = left (blue)
+    //   bone conduction  < = right (red)    > = left (blue)
+    // AC thresholds are joined by solid lines, BC by dashed lines.
+    const AUDIO_FREQS = [250, 500, 1000, 2000, 3000, 4000, 6000, 8000];
+    const AUDIO_FIELD = { 250:'th_250', 500:'th_500', 1000:'th_1k', 2000:'th_2k',
+                          3000:'th_3k', 4000:'th_4k', 6000:'th_6k', 8000:'th_8k' };
+    const AUDIO_BC_FREQS = [500, 1000, 2000, 4000];
+    const AUDIO_BC_FIELD = { 500:'bc_500', 1000:'bc_1k', 2000:'bc_2k', 4000:'bc_4k' };
+    const AUDIO_TICK  = { 250:'250', 500:'500', 1000:'1k', 2000:'2k',
+                          3000:'3k', 4000:'4k', 6000:'6k', 8000:'8k' };
+    const PLOT = { x0: 62, x1: 692, y0: 26, y1: 384, db0: -10, db1: 120 };
+    const LOG2_MIN = Math.log2(250), LOG2_MAX = Math.log2(8000);
+    const audioX = hz => PLOT.x0 + (Math.log2(hz) - LOG2_MIN) / (LOG2_MAX - LOG2_MIN)
+                            * (PLOT.x1 - PLOT.x0);
+    const audioY = db => PLOT.y0 + (db - PLOT.db0) / (PLOT.db1 - PLOT.db0)
+                            * (PLOT.y1 - PLOT.y0);
 
     function blankEar(enabled) {
       const e = { enabled: enabled, test_month_year: null,
@@ -395,13 +456,103 @@
           if (pta4 !== null) {
             borderline = [25, 40, 60, 80].some(b => Math.abs(pta4 - b) <= 5) ? 1 : 0;
           }
-          // monotonicity: largest adjacent jump across the 8 AC thresholds
-          const seq = FREQS.map(f => e[f[1]]).filter(v => v !== null && v !== undefined);
+          // Monotonicity: largest jump between ADJACENT frequencies only. Pairs where
+          // either side is blank are skipped, so a missing 3 kHz does NOT make 2 kHz
+          // and 4 kHz neighbours. Mirrors mono_flag() in scripts/validate_oatuhc.py.
+          const seq = FREQS.map(f => e[f[1]]);
           let mono = false;
           for (let i = 1; i < seq.length; i++) {
-            if (Math.abs(seq[i] - seq[i - 1]) > 40) { mono = true; break; }
+            const a = seq[i - 1], b = seq[i];
+            if (a === null || a === undefined || b === null || b === undefined) continue;
+            if (Math.abs(b - a) > 40) { mono = true; break; }
           }
           return { pta4, who, borderline, mono };
+        },
+
+        // ── audiogram preview (standard audiometric notation) ────────────────
+        // Air conduction  O = right (red), X = left (blue)
+        // Bone conduction < = right (red), > = left (blue)
+        // AC joined by solid lines, BC by dashed. Right ear plotted red, left blue,
+        // per the international convention. Frequencies with no value are simply
+        // omitted, which is what makes a partially tested ear (no 3 kHz / 6 kHz)
+        // render correctly instead of plotting a spurious point.
+        audiogramSvg() {
+          const RED = '#fb7185', BLUE = '#38bdf8';
+          const s = [];
+
+          // Normal-hearing band, -10 to 20 dB HL
+          s.push(`<rect x="${PLOT.x0}" y="${audioY(PLOT.db0)}" width="${PLOT.x1 - PLOT.x0}" ` +
+                 `height="${audioY(20) - audioY(PLOT.db0)}" fill="#34d399" opacity="0.07"/>`);
+
+          // Horizontal gridlines: every 5 dB, heavier every 10 dB
+          for (let db = PLOT.db0; db <= PLOT.db1; db += 5) {
+            const y = audioY(db), major = db % 10 === 0;
+            s.push(`<line x1="${PLOT.x0}" x2="${PLOT.x1}" y1="${y}" y2="${y}" ` +
+                   `stroke="rgba(255,255,255,${major ? 0.18 : 0.06})" ` +
+                   `stroke-width="${major ? 1 : 0.5}"/>`);
+            if (major) {
+              s.push(`<text x="${PLOT.x0 - 8}" y="${y + 3.5}" text-anchor="end" ` +
+                     `font-size="10" fill="rgba(255,255,255,0.5)">${db}</text>`);
+            }
+          }
+
+          // Vertical gridlines and frequency labels
+          for (const hz of AUDIO_FREQS) {
+            const x = audioX(hz);
+            s.push(`<line x1="${x}" x2="${x}" y1="${PLOT.y0}" y2="${PLOT.y1}" ` +
+                   `stroke="rgba(255,255,255,0.10)" stroke-width="0.5"/>`);
+            s.push(`<text x="${x}" y="${PLOT.y1 + 16}" text-anchor="middle" ` +
+                   `font-size="10" fill="rgba(255,255,255,0.5)">${AUDIO_TICK[hz]}</text>`);
+          }
+
+          // Axis titles
+          const cx = (PLOT.x0 + PLOT.x1) / 2, cy = (PLOT.y0 + PLOT.y1) / 2;
+          s.push(`<text x="${cx}" y="${PLOT.y1 + 34}" text-anchor="middle" ` +
+                 `font-size="10" fill="rgba(255,255,255,0.4)">Frequency (Hz)</text>`);
+          s.push(`<text x="14" y="${cy}" text-anchor="middle" font-size="10" ` +
+                 `fill="rgba(255,255,255,0.4)" transform="rotate(-90 14 ${cy})">` +
+                 `Hearing level (dB HL)</text>`);
+
+          // One ear
+          const drawEar = (side, colour) => {
+            const acPts = [], bcPts = [];
+
+            for (const hz of AUDIO_FREQS) {
+              const v = this.ears[side][AUDIO_FIELD[hz]];
+              if (v === null || v === undefined || !Number.isFinite(v)) continue;
+              const x = audioX(hz), y = audioY(v);
+              acPts.push([x, y]);
+              s.push(side === 'right'
+                ? `<circle cx="${x}" cy="${y}" r="6" fill="none" stroke="${colour}" stroke-width="2"/>`
+                : `<path d="M ${x - 5} ${y - 5} L ${x + 5} ${y + 5} M ${x + 5} ${y - 5} L ${x - 5} ${y + 5}" ` +
+                  `stroke="${colour}" stroke-width="2" fill="none"/>`);
+            }
+
+            for (const hz of AUDIO_BC_FREQS) {
+              const v = this.ears[side][AUDIO_BC_FIELD[hz]];
+              if (v === null || v === undefined || !Number.isFinite(v)) continue;
+              const x = audioX(hz), y = audioY(v);
+              bcPts.push([x, y]);
+              s.push(`<path d="${side === 'right'
+                        ? `M ${x + 6} ${y - 6} L ${x - 6} ${y} L ${x + 6} ${y + 6}`
+                        : `M ${x - 6} ${y - 6} L ${x + 6} ${y} L ${x - 6} ${y + 6}`}" ` +
+                     `stroke="${colour}" stroke-width="2" fill="none"/>`);
+            }
+
+            const join = (pts, dash) => {
+              if (pts.length < 2) return;
+              s.push(`<polyline points="${pts.map(p => p.join(',')).join(' ')}" fill="none" ` +
+                     `stroke="${colour}" stroke-width="1.4" opacity="0.75"` +
+                     `${dash ? ' stroke-dasharray="5 4"' : ''}/>`);
+            };
+            join(acPts, false);
+            join(bcPts, true);
+          };
+
+          drawEar('right', RED);
+          drawEar('left', BLUE);
+
+          return `<svg viewBox="0 0 720 420" class="w-full">${s.join('')}</svg>`;
         },
 
         // ── data ──

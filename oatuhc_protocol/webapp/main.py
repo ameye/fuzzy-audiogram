@@ -773,17 +773,13 @@ async def qa_report():
             issues.append({"study_id": sid,
                            "issue": "not a 5 dB step: " + ", ".join(off_step)})
 
-        # Bone conduction can never be worse than air conduction at the same
-        # frequency — that would be a physically impossible air-bone gap.
-        for bc_field in BC_FIELDS:
-            freq = bc_field.split("_")[1]
-            ac_val = e["th_" + freq]
-            bc_val = e[bc_field]
-            if bc_val is not None and ac_val is not None and bc_val > ac_val:
-                issues.append({
-                    "study_id": sid,
-                    "issue": f"{bc_field} ({bc_val:g}) exceeds air conduction "
-                             f"th_{freq} ({ac_val:g}) — impossible air-bone gap"})
+        # NOTE (21 Sep 2026): the "impossible air-bone gap" check was REMOVED at the
+        # PI's request. Real audiograms produce negative air-bone gaps of 5-10 dB
+        # routinely (+/-5 dB test-retest reliability per ANSI S3.21/BSA, bone-vibrator
+        # calibration, unmasked BC picking up the contralateral ear, vibrotactile
+        # responses, and AC recorded at the audiometer's output ceiling), so the check
+        # was flagging valid observations. Air-bone gaps are instead reviewed during
+        # the pre-analysis cleaning pass, not at entry.
 
         # An ear marked eligible must carry the four PTA-4 frequencies, otherwise
         # the WHO reference standard cannot be computed for it.

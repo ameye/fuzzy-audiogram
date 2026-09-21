@@ -25,9 +25,9 @@
 | th_500 | Decimal | dB HL | Audiogram chart |
 | th_1k | Decimal | dB HL | Audiogram chart |
 | th_2k | Decimal | dB HL | Audiogram chart |
-| th_3k | Decimal | dB HL | Audiogram chart |
+| th_3k | Decimal | dB HL — **optional** (inter-octave frequency; blank if not measured) | Audiogram chart |
 | th_4k | Decimal | dB HL | Audiogram chart |
-| th_6k | Decimal | dB HL | Audiogram chart |
+| th_6k | Decimal | dB HL — **optional** (inter-octave frequency; blank if not measured) | Audiogram chart |
 | th_8k | Decimal | dB HL | Audiogram chart |
 | bc_500 | Decimal | dB HL, bone conduction where recorded | Audiogram chart |
 | bc_1k | Decimal | dB HL, bone conduction where recorded | Audiogram chart |
@@ -62,3 +62,17 @@ Computed by the frozen FAI pipeline from the thresholds above. Not part of the b
 5. Thresholds numeric within −10..120 dB HL.
 6. No duplicate (patient_id, ear) pairs.
 7. Threshold monotonicity flag: any frequency deviating >40 dB from an adjacent frequency in the same ear (e.g. th_4k = 25 vs th_3k = 70) → flag for review, do not auto-correct.
+8. `th_3k` and `th_6k` are **optional**. Inter-octave frequencies are frequently not
+   measured, so a blank value at these two is expected and is not a completeness defect. A
+   blank is passed downstream as a missing value (NaN), never as 0, so that PTA calculations
+   and the FAI pipeline treat it as unmeasured rather than as normal hearing.
+9. Adjacency for rule 7 is positional: a pair where either frequency is blank is skipped, so a
+   missing 3 kHz does **not** make 2 kHz and 4 kHz "adjacent".
+10. **Negative air-bone gap is not treated as an error.** Bone conduction occasionally exceeds
+    air conduction at the same frequency by 5–10 dB, which is expected in real audiometry
+    (±5 dB test–retest reliability per ANSI S3.21/BSA, bone-vibrator output limits, unmasked BC
+    reflecting the contralateral ear, and vibrotactile responses at high levels). Such records
+    are accepted at entry and reviewed during the pre-analysis cleaning pass. The automated
+    air-bone check was removed on 21 September 2026 accordingly.
+11. The only threshold values rejected at entry are those outside −10…120 dB HL (rule 5),
+    which is a protocol exclusion criterion.
