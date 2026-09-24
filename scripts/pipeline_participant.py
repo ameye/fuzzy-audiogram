@@ -23,6 +23,7 @@ from scipy.stats import spearmanr
 import skfuzzy as fuzz
 from skfuzzy import control as ctrl
 from fuzzy_audiogram import core
+from fuzzy_audiogram.ruspini import build_ruspini_partition, verify
 from fuzzy_audiogram.combined_data import (
     load_combined_nhanes, extract_combined_audiometry, clean_ears,
     FREQUENCIES)
@@ -37,6 +38,21 @@ SEVERITY_BOUNDS = {'normal': (0, 25), 'mild': (26, 40), 'moderate': (41, 55),
                    'moderately_severe': (56, 70), 'severe': (71, 90), 'profound': (91, 120)}
 BOUNDS = [25, 40, 55, 70, 90]
 OVERLAP_MIN = 2.0
+
+# Transition band to enforce between adjacent severity categories, in dB.
+#
+# The old construction placed each trapezoid's feet at P5-2 and P95+2
+# independently, which produced a fixed 2 dB band of *partial* membership in
+# which the six memberships did not sum to 1 -- too narrow to represent the
+# +/-5 dB test-retest variability the partition is meant to express. The
+# Ruspini construction makes adjacent shoulders complementary (so the
+# memberships sum to exactly 1 everywhere) and the transition width equals the
+# gap between neighbouring cores. Where the percentile fit leaves that gap
+# narrower than this value, it is widened symmetrically.
+#
+# Set to None to keep the raw percentile core gaps (the construction as
+# described in the manuscript, without the widening).
+MIN_TRANSITION_DB = 10.0
 
 
 def who_grade(v):
@@ -56,40 +72,71 @@ def who_category(v):
     return 'profound'
 
 
-def optimize_mfs(ear_rows):
+def optimize_mfs(ear_rows, min_transition=MIN_TRANSITION_DB):
+    """Fit severity cores on the training set, then arrange them as a Ruspini
+    partition.
+
+    Two stages, and the order matters:
+
+    1. Per-frequency percentile cores (b = P25, c = P75) are fitted, then
+       averaged *as cores*. The previous implementation averaged all four
+       trapezoid parameters, which silently preserved the 2 dB feet.
+
+    2. ``build_ruspini_partition`` ties each trapezoid's feet to its
+       neighbours' cores, so adjacent shoulders are complementary ramps and the
+       six memberships sum to exactly 1 across the whole 0-120 dB universe.
+       ``min_transition`` widens any core gap narrower than that value.
+
+    Returns ``{category: [a, b, c, d]}`` with the partition property verified.
+    """
     rows = []
     for seqn, cycle, side, th in ear_rows:
         for freq, idx in zip(FREQUENCIES, [1, 2, 3, 4, 5, 6, 7]):
             rows.append((freq, who_category(th[idx]), th[idx]))
     df = pd.DataFrame(rows, columns=['freq', 'cat', 'th'])
-    trap = {}
+
+    # ---- stage 1: percentile cores, per frequency ----
+    cores_by_freq = {}
     for freq in FREQUENCIES:
-        trap[freq] = {}
         fd = df[df['freq'] == freq]
+        cores_by_freq[freq] = {}
         for cat in SEVERITY_ORDER:
             vals = fd[fd['cat'] == cat]['th'].values
             if len(vals) < 10:
-                trap[freq][cat] = list(core.SEVERITY_MF_PARAMS[cat]); continue
-            p5, p25, p75, p95 = np.percentile(vals, [5, 25, 75, 95])
-            a = max(0.0, p5 - 2); b = p25; c = p75
-            d = 120.0 if cat == 'profound' else min(p95 + 2, 120.0)
-            if cat == 'normal': a, b = 0.0, 0.0
-            a, b, c, d = min(a, b), max(b, a), max(c, b), max(d, c)
-            trap[freq][cat] = [round(a, 1), round(b, 1), round(c, 1), round(d, 1)]
-    agg = {}
+                # too few observations at this frequency: fall back to the
+                # deployed core rather than fitting noise
+                p = core.SEVERITY_MF_PARAMS[cat]
+                p25, p75 = float(p[1]), float(p[2])
+            else:
+                p25, p75 = (float(x) for x in np.percentile(vals, [25, 75]))
+            cores_by_freq[freq][cat] = (p25, p75)
+
+    # average the cores across frequencies
+    cores = {}
     for cat in SEVERITY_ORDER:
-        arr = np.mean([trap[f][cat] for f in FREQUENCIES], axis=0)
-        agg[cat] = [round(float(v), 1) for v in arr]
-    for i in range(len(SEVERITY_ORDER) - 1):
-        cur, nxt = SEVERITY_ORDER[i], SEVERITY_ORDER[i + 1]
-        if agg[cur][3] - agg[nxt][0] < OVERLAP_MIN:
-            mid = (agg[cur][3] + agg[nxt][0]) / 2.0
-            agg[cur][3] = round(min(120.0, mid + OVERLAP_MIN / 2), 1)
-            agg[nxt][0] = round(max(0.0, mid - OVERLAP_MIN / 2), 1)
-            agg[cur][2] = min(agg[cur][2], agg[cur][3] - 0.5)
-            agg[nxt][1] = min(agg[nxt][1], agg[nxt][0] + 0.5) if agg[nxt][1] > agg[nxt][0] + 0.5 else agg[nxt][1]
-        if agg[nxt][0] > agg[nxt][1]:
-            agg[nxt][1] = round(agg[nxt][0], 1)
+        p25 = float(np.mean([cores_by_freq[f][cat][0] for f in FREQUENCIES]))
+        p75 = float(np.mean([cores_by_freq[f][cat][1] for f in FREQUENCIES]))
+        if cat == 'normal':
+            p25 = 0.0
+        if p75 < p25:
+            p75 = p25
+        cores[cat] = (p25, p75)
+
+    # ---- stage 2: Ruspini partition ----
+    params = build_ruspini_partition(cores, min_transition=min_transition)
+    agg = {
+        cat: [round(float(v), 1) for v in params[cat]]
+        for cat in SEVERITY_ORDER
+    }
+
+    # a partition must survive the rounding to one decimal place
+    report = verify(agg)
+    if not report['is_partition']:
+        raise RuntimeError(
+            'Ruspini construction failed after rounding: '
+            f"{report['n_offending']} offending points, "
+            f"max deviation {report['max_deviation']:.3e}"
+        )
     return agg
 
 
