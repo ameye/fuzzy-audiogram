@@ -227,11 +227,20 @@ def main():
     print('\n[3b] Calibrating label thresholds on the TRAINING set...')
     from scipy.optimize import minimize as _minimize
     _g = np.array([who_grade(np.mean([r[3][i] for i in PTA_IDX])) for r in train_rows])
-    _idx, _rng2 = [], np.random.RandomState(7)
-    for _c in range(6):
-        _cand = np.where(_g == _c)[0]
-        _take = min(int(4000 * max(len(_cand) / len(train_rows), 0.01)), len(_cand))
-        _idx.extend(_rng2.choice(_cand, _take, replace=False).tolist())
+
+    # Sample the calibration set to match the population rather than balancing it.
+    # The original objective maximised kappa on a class-balanced draw, but kappa is
+    # a population-level measure dominated by the 87% normal majority, so a
+    # balanced sample optimises the wrong target. Rare classes are protected by a
+    # floor instead of being inflated.
+    _rng2 = np.random.RandomState(7)
+    _n_calib = min(5000, len(train_rows))
+    _idx = _rng2.choice(len(train_rows), _n_calib, replace=False).tolist()
+    _rare = [i for i, g in enumerate(_g) if g >= 3]
+    if _rare:
+        _extra = _rng2.choice(_rare, min(300, len(_rare)), replace=False).tolist()
+        _idx = sorted(set(_idx) | set(_extra))
+
     calib_rows = [train_rows[i] for i in _idx]
     calib_res = classify_ears_batched(system, calib_rows)
     calib_fai = np.array([r['fai_score'] for r in calib_res])
@@ -247,14 +256,32 @@ def main():
     def _obj_kappa(th):
         return -cohen_kappa_score(calib_yt, _label_from_th(calib_fai, th), weights='quadratic')
 
-    opt = _minimize(_obj_kappa, np.array(DEFAULT_TH), method='Nelder-Mead',
-                    options={'xatol': 0.5, 'fatol': 1e-6, 'maxiter': 600})
-    label_th = np.sort(np.clip(opt.x, 5.0, 95.0)).tolist()
-    gaps = np.diff(label_th)
-    if gaps.min() < 2.0:
-        print('  WARNING: calibrated thresholds degenerate; keeping defaults')
+    # Multi-start: kappa has flat ridges, so a single Nelder-Mead run from the
+    # defaults lands on whichever local optimum it drifts into.
+    _best = None
+    for _s in range(12):
+        _x0 = np.array(DEFAULT_TH)
+        if _s:
+            _x0 = DEFAULT_TH + np.random.RandomState(_s).normal(0, 8, 5)
+        _o = _minimize(_obj_kappa, np.sort(np.clip(_x0, 5.0, 95.0)),
+                       method='Nelder-Mead',
+                       options={'xatol': 0.25, 'fatol': 1e-7, 'maxiter': 1200})
+        _th = np.sort(np.clip(_o.x, 5.0, 95.0))
+        # A 1 dB floor stops thresholds collapsing onto each other. The previous
+        # 2 dB guard rejected a legitimate optimum that came out at 1.99 dB and
+        # silently reverted to the defaults.
+        if np.diff(_th).min() < 1.0:
+            continue
+        if _best is None or _o.fun < _best[0]:
+            _best = (_o.fun, _th)
+
+    if _best is None:
+        print('  WARNING: no non-degenerate optimum found; keeping defaults')
         label_th = list(DEFAULT_TH)
-    print(f'  calibrated label thresholds: {[round(x, 1) for x in label_th]} (train kappa {-opt.fun:.3f})')
+    else:
+        label_th = [float(x) for x in _best[1]]
+    print(f'  calibrated label thresholds: {[round(x, 1) for x in label_th]}'
+          f' (train kappa {(-_best[0] if _best else -_obj_kappa(DEFAULT_TH)):.3f})')
     core.SEVERITY_LABEL_THRESHOLDS = label_th
 
     print(f'\n[4] Classifying test ears (n={len(test_rows)})...')
