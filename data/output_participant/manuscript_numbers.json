@@ -1,0 +1,495 @@
+{
+  "headline": {
+    "kappa": 0.946,
+    "overall": 0.9647,
+    "rho": 0.812,
+    "mae": 4.35,
+    "borderline": 0.8509,
+    "clear": 0.9909,
+    "borderline_share": 0.1869,
+    "bias": 1.9,
+    "loa_lo": -8.6,
+    "loa_hi": 12.3,
+    "test_ears": 3912
+  },
+  "by_distance": [
+    {
+      "within_db": 1,
+      "n": 70,
+      "agreement": 0.8428571428571429,
+      "share": 0.01789366053169734
+    },
+    {
+      "within_db": 2,
+      "n": 230,
+      "agreement": 0.8173913043478261,
+      "share": 0.058793456032719835
+    },
+    {
+      "within_db": 3,
+      "n": 417,
+      "agreement": 0.8129496402877698,
+      "share": 0.10659509202453987
+    },
+    {
+      "within_db": 4,
+      "n": 578,
+      "agreement": 0.8321799307958477,
+      "share": 0.14775051124744376
+    },
+    {
+      "within_db": 5,
+      "n": 731,
+      "agreement": 0.8508891928864569,
+      "share": 0.18686094069529652
+    },
+    {
+      "within_db": 10,
+      "n": 1359,
+      "agreement": 0.9006622516556292,
+      "share": 0.3473926380368098
+    },
+    {
+      "within_db": 15,
+      "n": 2119,
+      "agreement": 0.9353468617272298,
+      "share": 0.5416666666666666
+    }
+  ],
+  "per_class": [
+    {
+      "severity": "Normal",
+      "n_reference": 3401,
+      "n_predicted": 3334,
+      "sensitivity": 0.9802999117906498,
+      "specificity": 1.0,
+      "precision": 1.0
+    },
+    {
+      "severity": "Mild",
+      "n_reference": 361,
+      "n_predicted": 434,
+      "sensitivity": 0.9501385041551247,
+      "specificity": 0.974373415939172,
+      "precision": 0.7903225806451613
+    },
+    {
+      "severity": "Moderate",
+      "n_reference": 103,
+      "n_predicted": 91,
+      "sensitivity": 0.6213592233009708,
+      "specificity": 0.9929115253347335,
+      "precision": 0.7032967032967034
+    },
+    {
+      "severity": "Moderately Severe",
+      "n_reference": 26,
+      "n_predicted": 28,
+      "sensitivity": 0.5,
+      "specificity": 0.9961399897066392,
+      "precision": 0.4642857142857143
+    },
+    {
+      "severity": "Severe",
+      "n_reference": 18,
+      "n_predicted": 23,
+      "sensitivity": 1.0,
+      "specificity": 0.9987159732922445,
+      "precision": 0.782608695652174
+    },
+    {
+      "severity": "Profound",
+      "n_reference": 3,
+      "n_predicted": 2,
+      "sensitivity": 0.6666666666666666,
+      "specificity": 1.0,
+      "precision": 1.0
+    }
+  ],
+  "macro_f1": 0.77871152091635,
+  "macro_sensitivity": 0.7864107176522354,
+  "confusion_matrix": [
+    [
+      3334,
+      67,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      343,
+      18,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      24,
+      64,
+      15,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      9,
+      13,
+      4,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      18,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      1,
+      2
+    ]
+  ],
+  "errors": [
+    {
+      "reference": "Normal",
+      "predicted": "Mild",
+      "n": 67
+    },
+    {
+      "reference": "Mild",
+      "predicted": "Moderate",
+      "n": 18
+    },
+    {
+      "reference": "Moderate",
+      "predicted": "Mild",
+      "n": 24
+    },
+    {
+      "reference": "Moderate",
+      "predicted": "Moderately Severe",
+      "n": 15
+    },
+    {
+      "reference": "Moderately Severe",
+      "predicted": "Moderate",
+      "n": 9
+    },
+    {
+      "reference": "Moderately Severe",
+      "predicted": "Severe",
+      "n": 4
+    },
+    {
+      "reference": "Profound",
+      "predicted": "Severe",
+      "n": 1
+    }
+  ],
+  "upward": 104,
+  "downward": 34,
+  "normal_mild_transition": [
+    {
+      "pta4": 24.0,
+      "fai": 22.4,
+      "normal": 0.44,
+      "mild": 0.56,
+      "label": "Normal"
+    },
+    {
+      "pta4": 25.0,
+      "fai": 23.7,
+      "normal": 0.37,
+      "mild": 0.63,
+      "label": "Normal"
+    },
+    {
+      "pta4": 26.0,
+      "fai": 25.0,
+      "normal": 0.29,
+      "mild": 0.71,
+      "label": "Mild"
+    },
+    {
+      "pta4": 27.0,
+      "fai": 26.3,
+      "normal": 0.22,
+      "mild": 0.78,
+      "label": "Mild"
+    }
+  ],
+  "shoulder_cross_db": 23.2,
+  "transition_widths_db": [
+    13.6,
+    10.0,
+    10.0,
+    10.0,
+    11.2
+  ],
+  "decision_curve": {
+    "prevalence_any": 0.1306237218813906,
+    "prevalence_moderate": 0.03834355828220859,
+    "curves": [
+      {
+        "outcome": "any loss (grade>=1)",
+        "rows": [
+          {
+            "threshold_prob": 0.05,
+            "prevalence": 0.1306237218813906,
+            "fai_net_benefit": 0.12567269400495104,
+            "pta_net_benefit": 0.1306237218813906,
+            "treat_all": 0.08486707566462168,
+            "treat_none": 0.0
+          },
+          {
+            "threshold_prob": 0.1,
+            "prevalence": 0.1306237218813906,
+            "fai_net_benefit": 0.12619291070211316,
+            "pta_net_benefit": 0.1306237218813906,
+            "treat_all": 0.03402635764598955,
+            "treat_none": 0.0
+          },
+          {
+            "threshold_prob": 0.2,
+            "prevalence": 0.1306237218813906,
+            "fai_net_benefit": 0.1263420245398773,
+            "pta_net_benefit": 0.1306237218813906,
+            "treat_all": -0.08672034764826175,
+            "treat_none": 0.0
+          },
+          {
+            "threshold_prob": 0.3,
+            "prevalence": 0.1306237218813906,
+            "fai_net_benefit": 0.11126935436751388,
+            "pta_net_benefit": 0.1306237218813906,
+            "treat_all": -0.24196611159801346,
+            "treat_none": 0.0
+          }
+        ]
+      },
+      {
+        "outcome": "moderate-or-worse (grade>=2)",
+        "rows": [
+          {
+            "threshold_prob": 0.05,
+            "prevalence": 0.03834355828220859,
+            "fai_net_benefit": 0.03679636207082122,
+            "pta_net_benefit": 0.038101388440426216,
+            "treat_all": -0.012269938650306754,
+            "treat_none": 0.0
+          },
+          {
+            "threshold_prob": 0.1,
+            "prevalence": 0.03834355828220859,
+            "fai_net_benefit": 0.03308907066575778,
+            "pta_net_benefit": 0.03834355828220859,
+            "treat_all": -0.06850715746421268,
+            "treat_none": 0.0
+          },
+          {
+            "threshold_prob": 0.2,
+            "prevalence": 0.03834355828220859,
+            "fai_net_benefit": 0.02933282208588957,
+            "pta_net_benefit": 0.03834355828220859,
+            "treat_all": -0.20207055214723926,
+            "treat_none": 0.0
+          },
+          {
+            "threshold_prob": 0.3,
+            "prevalence": 0.03834355828220859,
+            "fai_net_benefit": 0.02716914986853637,
+            "pta_net_benefit": 0.03834355828220859,
+            "treat_all": -0.37379491673970205,
+            "treat_none": 0.0
+          }
+        ]
+      }
+    ],
+    "fitted_on": "train"
+  },
+  "case_studies": {
+    "A_BorderlineMild": {
+      "left": [
+        25.0,
+        25.0,
+        25.0,
+        30.0,
+        30.0,
+        30.0,
+        30.0,
+        30.0
+      ],
+      "right": null,
+      "pta4": 27.5,
+      "pta4_right": null,
+      "fai": 26.9,
+      "label": "Mild",
+      "shape_score": 22.9,
+      "configuration": "Flat",
+      "memberships": {
+        "normal": 0.18,
+        "mild": 0.82,
+        "moderate": 0.0,
+        "moderately_severe": 0.0,
+        "severe": 0.0,
+        "profound": 0.0
+      },
+      "slope": 5.0,
+      "notch": 0.0,
+      "asymmetry": 0.0
+    },
+    "B_NoiseNotch": {
+      "left": [
+        15.0,
+        10.0,
+        10.0,
+        20.0,
+        15.0,
+        50.0,
+        50.0,
+        20.0
+      ],
+      "right": null,
+      "pta4": 22.5,
+      "pta4_right": null,
+      "fai": 21.2,
+      "label": "Normal",
+      "shape_score": 75.3,
+      "configuration": "Precipitous",
+      "memberships": {
+        "normal": 0.55,
+        "mild": 0.45,
+        "moderate": 0.0,
+        "moderately_severe": 0.0,
+        "severe": 0.0,
+        "profound": 0.0
+      },
+      "slope": 40.0,
+      "notch": 30.0,
+      "asymmetry": 0.0
+    },
+    "C_Presbycusis": {
+      "left": [
+        20.0,
+        20.0,
+        25.0,
+        35.0,
+        45.0,
+        55.0,
+        60.0,
+        65.0
+      ],
+      "right": null,
+      "pta4": 33.8,
+      "pta4_right": null,
+      "fai": 30.0,
+      "label": "Mild",
+      "shape_score": 47.5,
+      "configuration": "Sloping",
+      "memberships": {
+        "normal": 0.0,
+        "mild": 1.0,
+        "moderate": 0.0,
+        "moderately_severe": 0.0,
+        "severe": 0.0,
+        "profound": 0.0
+      },
+      "slope": 35.0,
+      "notch": 5.0,
+      "asymmetry": 0.0
+    },
+    "D_Asymmetric": {
+      "left": [
+        50.0,
+        55.0,
+        55.0,
+        55.0,
+        55.0,
+        55.0,
+        55.0,
+        55.0
+      ],
+      "right": [
+        25.0,
+        25.0,
+        30.0,
+        30.0,
+        30.0,
+        30.0,
+        30.0,
+        30.0
+      ],
+      "pta4": 55.0,
+      "pta4_right": 28.8,
+      "fai": 65.2,
+      "label": "Moderately Severe",
+      "shape_score": 24.6,
+      "configuration": "Flat",
+      "memberships": {
+        "normal": 0.0,
+        "mild": 0.0,
+        "moderate": 0.71,
+        "moderately_severe": 0.29,
+        "severe": 0.0,
+        "profound": 0.0
+      },
+      "slope": 0.0,
+      "notch": 0.0,
+      "asymmetry": 30.0
+    }
+  },
+  "label_thresholds": [
+    23.8,
+    48.9,
+    63.8,
+    66.4,
+    95.0
+  ],
+  "mf_params": {
+    "normal": [
+      -0.5,
+      0.0,
+      16.4,
+      30.0
+    ],
+    "mild": [
+      16.4,
+      30.0,
+      35.4,
+      45.4
+    ],
+    "moderate": [
+      35.4,
+      45.4,
+      52.1,
+      62.1
+    ],
+    "moderately_severe": [
+      52.1,
+      62.1,
+      66.1,
+      76.1
+    ],
+    "severe": [
+      66.1,
+      76.1,
+      83.6,
+      94.8
+    ],
+    "profound": [
+      83.6,
+      94.8,
+      120.0,
+      120.5
+    ]
+  }
+}

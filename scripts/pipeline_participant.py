@@ -7,7 +7,7 @@ Everything else identical to pipeline_combined.py (MF opt on train, label-thresh
 calibration on train, batched classification, validation, ML comparators).
 Outputs to data/output_participant/.
 """
-import sys, json, pickle, warnings
+import sys, json, os, pickle, warnings
 from pathlib import Path
 
 warnings.filterwarnings('ignore')
@@ -52,7 +52,11 @@ OVERLAP_MIN = 2.0
 #
 # Set to None to keep the raw percentile core gaps (the construction as
 # described in the manuscript, without the widening).
-MIN_TRANSITION_DB = 10.0
+# Minimum transition width between adjacent severity cores, in dB. The Ruspini
+# construction makes the transition band equal to the core gap, so this is the
+# knob that controls how wide the graded region is. Override with
+# FA_MIN_TRANSITION to run the width ablation.
+MIN_TRANSITION_DB = float(os.environ.get("FA_MIN_TRANSITION", "10.0"))
 
 
 def who_grade(v):
