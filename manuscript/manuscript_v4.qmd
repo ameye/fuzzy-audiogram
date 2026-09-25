@@ -16,11 +16,11 @@
 
 Pure-tone audiometry remains the primary quantitative assessment of hearing, reporting thresholds at octave and inter-octave frequencies from 0.25 to 8 kHz. In clinical and epidemiological practice these seven or eight values are condensed into a single pure-tone average and graded against fixed boundaries, most commonly the WHO PTA-4 classification of 1997: normal, mild, moderate, moderately severe, severe and profound [@who1997]. The convention is useful precisely because it is simple, and it is now embedded in reporting standards, disability assessment and hearing-aid candidacy criteria worldwide.
 
-Its limitations are equally well established. A continuous quantity is forced into six discrete bins, so a difference of one decibel can change a diagnosis while a clinically meaningful difference within a bin is invisible. The boundaries are administrative rather than physiological: the ±5 dB test-retest variability of audiometry exceeds the distance between adjacent categories at some thresholds, so many ears sit within measurement noise of a verdict. The PTA also discards configuration, so a flat loss and a notched one can share an average while implying different pathologies and prognoses, and a label cannot express trajectory.
+Its limitations are well established. A continuous quantity is forced into six discrete bins, so one decibel can change a diagnosis while a meaningful difference within a bin is invisible. The boundaries are administrative, not physiological: the ±5 dB test-retest variability of audiometry exceeds the distance between adjacent categories, so many ears sit within measurement noise of a verdict. The PTA also discards configuration, so a flat loss and a notched one can share an average while implying different pathologies, and a label cannot express trajectory.
 
-Approaches that soften these boundaries have been proposed. Machine-learning classifiers predict the severity grade directly but predict the same crisp categories and are not inspectable [@achakulvisut2025]; preclinical work in the same vein detects cochlear synaptopathy in mice from auditory brainstem responses [@ceriani2025], a different task from grading a human audiogram. Data-driven profiling recovers auditory phenotypes without offering an interpretable decision [@saak2022; @saak2025]. These methods answer a different question: the difficulty is not predicting the label more accurately but representing the underlying quantity so it preserves gradation and remains legible to a clinician.
+Approaches that soften these boundaries have been proposed. Machine-learning classifiers predict the severity grade directly but predict the same crisp categories and are not inspectable [@achakulvisut2025]; preclinical work in the same vein detects cochlear synaptopathy from murine auditory brainstem responses [@ceriani2025], a different task. Data-driven profiling recovers phenotypes without an interpretable decision [@saak2022; @saak2025]. These methods answer a different question: the difficulty is not predicting the label more accurately but representing the quantity so it preserves gradation and stays legible to a clinician.
 
-Fuzzy set theory is a natural fit for that requirement. Membership functions express partial belonging rather than binary assignment, and a Mamdani inference system [@mamdani1975] expresses the decision rules in linguistic terms a clinician can read and modify. Fuzzy approaches have been applied across clinical diagnosis since their introduction [@adlassnig1986] and more recently to EEG-based dementia staging [@amezquita2021], but no published system integrates severity classification, configuration typing, asymmetry grading and temporal tracking in one inspectable framework validated on population-level audiometric data.
+Fuzzy set theory fits that requirement. Membership functions express partial belonging rather than binary assignment, and a Mamdani system [@mamdani1975] states its rules in terms a clinician can read and modify. Fuzzy approaches have been applied across clinical diagnosis since their introduction [@adlassnig1986] and to EEG-based dementia staging [@amezquita2021], but no published system integrates severity classification, configuration typing, asymmetry grading and temporal tracking in one inspectable framework validated on population-level audiometric data.
 
 This study develops such a framework and validates it on a large nationally representative cohort. The objectives were to construct severity membership functions forming a formal Ruspini partition; to validate the index on a held-out test set with a participant-level split; to benchmark its graded output against probabilistic multi-class models using proper scoring rules; to determine empirically how the width of the graded region affects agreement; and to establish how far the results depend on the classification schema rather than on the method.
 
@@ -40,7 +40,7 @@ The clean-ear dataset was split at the participant level into training (80%) and
 
 ## Membership Function Construction
 
-Thresholds were assigned to six severity categories and a trapezoidal membership function [a, b, c, d] was fitted per category on percentile criteria, with cores at b = P25 and c = P75 across all training-set thresholds. The categories follow the Clark scheme at 25, 40, 55, 70 and 90 dB HL [@clark1981], the convention in most clinical reporting. WHO's own grade tables use five categories at 20 dB steps [@who1991; @who1997] and its 2021 revision uses seven at 15 dB steps [@who2021]; the 2021 schema was validated alongside and is reported as a companion analysis.
+Thresholds were assigned to six severity categories and a trapezoidal membership function [a, b, c, d] was fitted per category on percentile criteria, with cores at b = P25 and c = P75 across all training-set thresholds. The categories follow the Clark scheme at 25, 40, 55, 70 and 90 dB HL [@clark1981], the convention in most clinical reporting; Clark defined those tiers on the three-frequency average, and they are applied here to the four-frequency window that WHO later adopted for grading. WHO's own grade tables use five categories at 20 dB steps [@who1991; @who1997] and its 2021 revision uses seven at 15 dB steps [@who2021]; the 2021 schema was validated alongside and is reported as a companion analysis.
 
 The six trapezoids were arranged as a formal Ruspini partition, so their memberships sum to exactly 1 at every point of the 0 to 120 dB universe and no threshold is unclassified. Retaining the percentile cores, each trapezoid's left foot was set to the previous category's core end and its right foot to the next category's core start, making adjacent shoulders complementary linear ramps that cross at 0.5 at the midpoint of the core gap.
 
@@ -90,7 +90,7 @@ No ethics approval was required for this secondary analysis of de-identified, pu
 
 ## Cohort Characteristics
 
-The cohort comprised 10,889 adults aged 20-69 years (mean 43.9). After exclusions, 19,568 ears from 9,832 adults had complete air-conduction thresholds at all seven frequencies: 15,656 ears (7,866 participants) in the training set and 3,912 (1,966 participants) in the test set. Thresholds were right-skewed with a floor effect at 0 to 10 dB HL, and mean thresholds rose from 11.2 dB HL at 500 Hz to 27.4 dB HL at 8 kHz, consistent with age-related and noise-induced high-frequency loss in a working-age sample. Under the WHO PTA-4 classification [@who1997], 88.1% of ears were normal, 8.7% mild, 2.2% moderate, 0.6% moderately severe, 0.3% severe and 0.1% profound, 
+The cohort comprised 10,889 adults aged 20-69 years (mean 43.9). After exclusions, 19,568 ears from 9,832 adults had complete air-conduction thresholds at all seven frequencies: 15,656 ears (7,866 participants) in the training set and 3,912 (1,966 participants) in the test set. Thresholds were right-skewed with a floor effect at 0 to 10 dB HL, rising from 11.2 dB HL at 500 Hz to 27.4 dB HL at 8 kHz, consistent with age-related and noise-induced high-frequency loss. Under the WHO PTA-4 classification [@who1997], 88.1% of ears were normal, 8.7% mild, 2.2% moderate, 0.6% moderately severe, 0.3% severe and 0.1% profound, 
 
 Nearly one in five ears (18.7%) fell within ±5 dB of a boundary, where crisp classification is least certain.
 
@@ -124,13 +124,13 @@ FAI-based referral maintained net benefit comparable to PTA-4-based referral acr
 
 ## Transition-Width Ablation
 
-Flooring the core gaps at 10 dB against the raw percentile gaps, which ranged from 5.7 to 13.6 dB, raised weighted kappa from 0.9266 to 0.9456 (+0.0190, 95% CI +0.0108 to +0.0272) and borderline agreement from 79.5% to 85.1% (+5.6 pp, 95% CI +2.8 to +8.5), both intervals excluding zero. Of the 152 ears (3.9%) the two widths labelled differently, the wider construction was correct 72.4% of the time against 24.3%.
+Flooring the core gaps at 10 dB against the raw percentile gaps, which ranged from 5.7 to 13.6 dB, raised weighted kappa from 0.9266 to 0.9456 (+0.0190, 95% CI +0.0108 to +0.0272) borderline agreement from 79.5% to 85.1% (+5.6 pp, 95% CI +2.8 to +8.5) and clear-case agreement from 98.1% to 99.1% (+1.0 pp, 95% CI +0.7 to +1.4), all three intervals excluding zero. Of the 152 ears (3.9%) the two widths labelled differently, the wider construction was correct 72.4% of the time against 24.3%.
 
 Sweeping the floor from 4 to 16 dB in 2 dB steps showed the deployed setting sits on a plateau rather than a peak (Table 3): every floor from 6 to 12 dB was statistically indistinguishable from 10 dB, whereas 4 dB and 14 to 16 dB were significantly worse. Absolute error nevertheless fell monotonically with width, from 4.38 dB to 4.20 dB, so categorical and continuous agreement diverge at the wide end, wider shoulders smoothing the graded output while blurring the boundary. A 4 dB floor reproduces the raw-gap arm, so the percentile gaps were already about that wide.
 
 ## The Normal–Mild Transition
 
-At the classic 25 dB cut-off the crisp rule flips the label between 26 and 27 dB with no graded information, whereas the system returns a smooth rise, so a 25 dB threshold is visibly closer to normal than a 27 dB one (Table S4).
+At the classic 25 dB cut-off the crisp rule flips the label between 26 and 27 dB with no graded information, whereas the system returns a smooth rise, so 25 dB is visibly closer to normal than 27 dB (Table S4).
 
 ## Clinical Case Studies
 
@@ -158,7 +158,7 @@ In audiologic triage the FAI could refine referral pathways by flagging patients
 
 ## Comparison with Prior Work
 
-The results are consistent with the computational audiology literature and qualify it. Machine-learning classifiers [@achakulvisut2025; @ceriani2025] achieve strong accuracy but are not inspectable, and clustering-based profiling [@saak2022; @saak2025] recovers phenotypes without offering an explicit decision a clinician can interrogate. This study adds that such comparisons are confounded when the target is a deterministic function of its inputs, and that graded outputs require proper scoring rules. No previously published fuzzy system integrates severity classification, configuration typing, asymmetry and temporal tracking in one inspectable framework validated with a participant-level split.
+The results are consistent with the computational audiology literature and qualify it. Machine-learning classifiers [@achakulvisut2025] achieve strong accuracy but are not inspectable, and clustering-based profiling [@saak2022; @saak2025] recovers phenotypes without offering an explicit decision a clinician can interrogate. This study adds that such comparisons are confounded when the target is a deterministic function of its inputs, and that graded outputs require proper scoring rules. No previously published fuzzy system integrates severity classification, configuration typing, asymmetry and temporal tracking in one inspectable framework validated with a participant-level split.
 
 ## Limitations
 
@@ -201,14 +201,14 @@ The NHANES data analysed here are publicly available from the U.S. Centers for D
 
 **Table 1.** Classification performance on the held-out test set (n = 3,912 ears).
 
-| Severity category | n | Sensitivity | Specificity | Precision |
+| Severity category | n | Sensitivity (95% CI) | Specificity (95% CI) | Precision (95% CI) |
 |---|---|---|---|---|
-| Normal | 3,401 | 0.980 | 1.000 | 1.000 |
-| Mild | 361 | 0.950 | 0.974 | 0.790 |
-| Moderate | 103 | 0.621 | 0.993 | 0.703 |
-| Moderately severe | 26 | 0.500 | 0.996 | 0.464 |
-| Severe | 18 | 1.000 | 0.999 | 0.783 |
-| Profound | 3 | 0.667 | 1.000 | 1.000 |
+| Normal | 3,401 | 0.980 (0.975–0.984) | 1.000 (0.993–1.000) | 1.000 (0.999–1.000) |
+| Mild | 361 | 0.950 (0.923–0.968) | 0.974 (0.969–0.979) | 0.790 (0.750–0.826) |
+| Moderate | 103 | 0.621 (0.525–0.709) | 0.993 (0.990–0.995) | 0.703 (0.603–0.787) |
+| Moderately severe | 26 | 0.500 (0.321–0.679) | 0.996 (0.994–0.998) | 0.464 (0.295–0.642) |
+| Severe | 18 | 1.000 (0.824–1.000) | 0.999 (0.997–0.999) | 0.783 (0.581–0.903) |
+| Profound | 3 | 0.667 (0.208–0.939) | 1.000 (0.999–1.000) | 1.000 (0.342–1.000) |
 
 Note. Macro-averaged sensitivity 0.786 and macro-averaged F1 0.779 against 96.5% overall agreement, which the normal majority largely determines. Of 138 disagreements, 104 moved upward by one grade and 34 downward.
 
@@ -259,6 +259,6 @@ Note. For reference, scoring the Clark six-category system against the WHO 2021 
 # Figure Captions {.unnumbered}
 
 **Figure 1.** Trapezoidal membership functions for the six hearing loss severity categories, arranged as a formal Ruspini partition. Successive functions share their feet with their neighbours' cores, so adjacent shoulders are complementary linear ramps that cross at 0.5 and memberships sum to 1 at every threshold across the 0 to 120 dB universe. Transition bands measure 13.6, 10.0, 10.0, 10.0 and 11.2 dB from normal to profound.
-**Figure 2.** (a) Bland-Altman plot of the difference between FAI and PTA-4 against their mean on the held-out test set (bias +0.25 dB after mapping the index onto the decibel scale, 95% limits of agreement −11.2 to +11.7 dB). (b) Classification agreement as a function of distance from the nearest WHO severity boundary. The FAI matches the crisp grade on 99.1% of clear cases (≥6 dB from a boundary) and returns graded membership on 85.1% of borderline cases (±5 dB).
+**Figure 2.** (a) Bland-Altman plot of the difference between FAI and PTA-4 against their mean on the held-out test set. The FAI is a defuzzified index on a 0 to 100 universe rather than a decibel quantity, so it is mapped onto the decibel scale before differencing, using FAI = 0.890 × PTA-4 + 3.11 fitted on the training partition (r = 0.887); bias +0.25 dB, 95% limits of agreement −11.2 to +11.7 dB. (b) Classification agreement as a function of distance from the nearest Clark severity boundary. The FAI matches the crisp grade on 99.1% of clear cases (≥6 dB from a boundary) and returns graded membership on 85.1% of borderline cases (±5 dB).
 **Figure 3.** Decision-curve analysis on the held-out test set: net benefit of FAI-based referral versus PTA-4-based referral, the crisp reference grade rule, and treat-all/treat-none strategies, for (a) any hearing loss (≥ mild) and (b) moderate-or-worse loss. Risk models were fitted on the training partition.
 **Figure 4.** Clinical case panels: four synthetic archetypes (A borderline mild, B noise notch, C presbycusis, D asymmetric) showing PTA versus FAI labels, membership bar plots and configuration vectors. Coloured background bands indicate WHO severity categories. Threshold arrays are given in Table S5.

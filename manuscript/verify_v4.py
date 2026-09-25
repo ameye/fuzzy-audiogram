@@ -3,9 +3,18 @@
 import re
 from docx import Document
 
-PATH = "/opt/data/fuzzy-audiogram/cmbp_v2/Manuscript_CMPB_v4.docx"
+import os
+# Resolve beside this file. It previously pointed at cmbp_v2/, the superseded
+# scratch dir, so it silently verified a stale document.
+PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Manuscript_CMPB_v4.docx")
 d = Document(PATH)
 paras = [p.text.strip() for p in d.paragraphs if p.text.strip()]
+# Table cells carry several asserted values; without them those probes cannot pass.
+for _t in d.tables:
+    for _r in _t.rows:
+        for _c in _r.cells:
+            if _c.text.strip():
+                paras.append(_c.text.strip())
 
 
 def wc(t):
@@ -59,6 +68,16 @@ probes = [
     ("corrected kappa",              "kappa 0.946"),
     ("corrected borderline",         "85.1%"),
     ("no stale BA caption",          "+1.9 dB", True),
+    ("Clark three-frequency basis",  "three-frequency average"),
+    ("four-frequency credited to WHO", "four-frequency window that WHO later adopted"),
+    ("Fig 2 caption states transfer", "0.890"),
+    ("Fig 2 caption says Clark",     "nearest Clark severity boundary"),
+    ("clear-case interval",          "+0.7 to +1.4"),
+    ("Table 1 Wilson intervals",     "0.824"),
+    ("WHO/PDH/91.1 code",            "WHO/PDH/91.1"),
+    ("Suen: United States cased",    "United States"),
+    ("no [2,3] grouping",            "[2,3]", True),
+    ("no mixed-loss naming",         "mixed-loss", True),
     ("no stale 0.95 claim",          "0.95 against the WHO"),
 ]
 print("\n  content probes:")
