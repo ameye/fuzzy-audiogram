@@ -1,0 +1,51 @@
+name: tests
+
+# The Ruspini sum-to-one guarantee is the claim the manuscript rests on, so it is
+# checked on every push against a dense sweep of the decibel axis rather than a
+# grid. The rest of the suite covers the partition builder, the pipeline wiring and
+# the asymmetry refactor's metrics-neutrality property.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-lock.txt
+          pip install pytest
+
+      - name: Ruspini partition constraint (continuous, 0-120 dB HL)
+        run: python tests/test_ruspini_continuous.py
+
+      - name: Ruspini partition unit tests
+        run: python tests/test_ruspini.py
+
+      - name: Pipeline partition integration
+        run: python tests/test_pipeline_ruspini.py
+
+      - name: Asymmetry refactor is metrics-neutral
+        run: python tests/verify_asymmetry_refactor.py
+
+      - name: Remaining suite via pytest
+        # The NHANES analyses need the CDC data files, which are not vendored, so
+        # those are skipped rather than failed when the cohort is absent.
+        run: python -m pytest tests/ -q --ignore=tests/test_ruspini_continuous.py
+        continue-on-error: false

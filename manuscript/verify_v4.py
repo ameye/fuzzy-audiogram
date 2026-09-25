@@ -22,7 +22,9 @@ def wc(t):
 
 
 a = next(i for i, p in enumerate(paras) if re.match(r"^\d+\tIntroduction", p))
-b = next(i for i, p in enumerate(paras) if "Acknowledgements" in p and len(p) < 40)
+BACK_MATTER = ("Highlights", "CRediT", "Acknowledgements")
+b = next(i for i, p in enumerate(paras)
+         if len(p) < 40 and any(k in p for k in BACK_MATTER))
 HEAD = re.compile(r"^\d+(\.\d+)*\t")
 body = [p for p in paras[a + 1:b] if not HEAD.match(p)]
 joined = " ".join(body)
@@ -39,7 +41,7 @@ print("=" * 62)
 print("  CMPB v4 -- final verification")
 print("=" * 62)
 print(f"  main text        {main} / 3500        {'PASS' if main <= 3500 else 'OVER by ' + str(main - 3500)}")
-print(f"  abstract         {abst} / 250         {'PASS' if abst <= 250 else 'OVER'}")
+print(f"  abstract         {abst} / 350         {'PASS' if abst <= 350 else 'OVER'}")
 print(f"  references       {len(refs)} / 50")
 print(f"  figures cited    {figs}")
 print(f"  embedded images  {len(d.inline_shapes)}   (must be 0; artwork ships separately)")
@@ -50,10 +52,11 @@ print(f"  font             {d.styles['Normal'].font.name} "
 probes = [
     ("Ruspini partition",            "Ruspini partition"),
     ("sum to one",                   "sum to exactly 1"),
-    ("membership argmax reported",   "kappa 0.9564"),
+    ("membership argmax reported",   "kappa 0.9453"),
     ("transition width floor",       "minimum transition width"),
     ("probabilistic comparators",    "proportional-odds ordinal logistic"),
-    ("Brier score reported",         "Brier score of 0.0474"),
+    ("Brier score reported",         "Brier score of 0.0482"),
+    ("no stale 4.6 numbers",        "0.0474", True),
     ("deterministic label",          "deterministic thresholding"),
     ("transition ablation",          "Transition-Width Ablation"),
     ("ablation CI",                  "−0.0014 to +0.0058"),

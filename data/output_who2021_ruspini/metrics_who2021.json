@@ -4,60 +4,60 @@
   "cohort": "combined 20-69 (AUX1+AUX_G+AUX_I)",
   "split": "participant-level (80/20, seed 42)",
   "participants": 10889,
-  "clean_ears": 19568,
-  "train_ears": 15656,
-  "test_ears": 3912,
-  "test_participants": 1966,
-  "n_valid": 3912,
+  "clean_ears": 19623,
+  "train_ears": 15710,
+  "test_ears": 3913,
+  "test_participants": 1962,
+  "n_valid": 3913,
   "who2021": {
-    "kappa": 0.959,
-    "overall": 0.9604,
-    "rho": 0.844,
-    "mae": 3.74,
-    "borderline": 0.8795,
-    "clear": 0.9942,
-    "borderline_share": 0.295,
-    "n": 3912,
-    "bias": 1.3,
-    "loa_lo": -8.6,
-    "loa_hi": 11.3
+    "kappa": 0.961,
+    "overall": 0.9673,
+    "rho": 0.84,
+    "mae": 3.69,
+    "borderline": 0.9055,
+    "clear": 0.9935,
+    "borderline_share": 0.2975,
+    "n": 3913,
+    "bias": 1.0,
+    "loa_lo": -8.8,
+    "loa_hi": 10.9
   },
   "deployed_6grade": {
-    "kappa": 0.875,
-    "overall": 0.9018,
-    "rho": 0.812,
-    "mae": 4.35,
-    "borderline": 0.6976,
+    "kappa": 0.864,
+    "overall": 0.9024,
+    "rho": 0.8,
+    "mae": 4.32,
+    "borderline": 0.7019,
     "clear": 0.9873,
-    "borderline_share": 0.295,
-    "n": 3912,
-    "bias": 1.9,
-    "loa_lo": -8.6,
-    "loa_hi": 12.3
+    "borderline_share": 0.2975,
+    "n": 3913,
+    "bias": 1.6,
+    "loa_lo": -9.0,
+    "loa_hi": 12.1
   },
   "comparators": {
     "XGBoost": {
       "kappa": 0.983,
-      "overall": 0.9849,
-      "borderline": 0.9489,
+      "overall": 0.9857,
+      "borderline": 0.9519,
       "clear": 1.0,
-      "mae": 0.24
+      "mae": 0.22
     },
     "Random Forest": {
-      "kappa": 0.982,
-      "overall": 0.9836,
-      "borderline": 0.9454,
-      "clear": 0.9996,
+      "kappa": 0.979,
+      "overall": 0.9826,
+      "borderline": 0.9416,
+      "clear": 1.0,
       "mae": 0.52
     }
   },
   "label_thresholds": [
     21.2,
-    43.9,
-    54.8,
-    66.1,
-    84.6,
-    87.9
+    40.6,
+    62.1,
+    68.2,
+    84.5,
+    88.8
   ],
   "mf_params": {
     "normal": [
@@ -69,36 +69,36 @@
     "mild": [
       14.3,
       25.0,
-      30.0,
-      40.0
+      30.4,
+      40.4
     ],
     "moderate": [
-      30.0,
-      40.0,
+      30.4,
+      40.4,
       46.4,
       56.4
     ],
     "moderately_severe": [
       46.4,
       56.4,
-      61.2,
-      71.2
+      61.4,
+      71.4
     ],
     "severe": [
-      61.2,
-      71.2,
-      76.1,
-      86.1
+      61.4,
+      71.4,
+      76.2,
+      86.2
     ],
     "profound": [
-      76.1,
-      86.1,
-      89.5,
-      99.5
+      76.2,
+      86.2,
+      90.6,
+      100.6
     ],
     "complete": [
-      89.5,
-      99.5,
+      90.6,
+      100.6,
       120.0,
       120.5
     ]

@@ -1,0 +1,29 @@
+# Direct dependencies, pinned to the versions used for the reported results.
+#
+# Python 3.13.5. Validated on Linux x86-64.
+#
+# Versions are pinned exactly rather than bounded, because the Ruspini partition
+# sums to one to within 1e-9 at every point of a 0-120 dB HL sweep and that
+# tolerance depends on the arithmetic of scipy's trapezoid evaluation. A silently
+# upgraded scipy is the most likely way for that guarantee to change underneath a
+# reported result.
+#
+# See requirements-lock.txt for the fully resolved graph including transitive
+# dependencies.
+
+numpy==2.4.6
+scipy==1.18.0
+pandas==2.3.3
+scikit-fuzzy==0.5.0
+scikit-learn==1.9.0
+matplotlib==3.11.1
+seaborn==0.13.2
+statsmodels==0.14.6
+xgboost==3.3.0
+networkx==3.6.1
+
+# Manuscript build only (pandoc wrapper for the DOCX pipeline)
+python-docx==1.2.0
+pillow==12.3.0
+# pypandoc-binary is installed into a separate tools environment, not the analysis
+# environment: it bundles a pandoc 3.9 binary. See manuscript/README.md.

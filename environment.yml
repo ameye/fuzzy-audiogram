@@ -1,0 +1,29 @@
+# Conda environment for the fuzzy-audiogram pipeline.
+#
+#   conda env create -f environment.yml
+#   conda activate fuzzy-audiogram
+#   python -m pytest tests/ -q
+#
+# Python and the compiled stack come from conda-forge so that BLAS/LAPACK are
+# consistent; the analysis packages are pinned to the exact versions that produced
+# the reported results. requirements-lock.txt is the pip equivalent.
+name: fuzzy-audiogram
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13.5
+  - numpy=2.4.6
+  - scipy=1.18.0
+  - pandas=2.3.3
+  - scikit-learn=1.9.0
+  - matplotlib=3.11.1
+  - seaborn=0.13.2
+  - statsmodels=0.14.6
+  - networkx=3.6.1
+  - pillow=12.3.0
+  - pytest
+  - pip
+  - pip:
+      - scikit-fuzzy==0.5.0
+      - xgboost==3.3.0
+      - python-docx==1.2.0
