@@ -22,7 +22,7 @@ This script rebuilds the entire pipeline under the WHO 2021 schema:
 Outputs: data/output_who2021/{params,metrics}_who2021.json, reclassification
 matrix + boundary analysis CSVs, predictions pkl.
 """
-import sys, json, pickle, warnings
+import sys, json, pickle, warnings, hashlib
 from pathlib import Path
 
 warnings.filterwarnings('ignore')
@@ -194,13 +194,23 @@ def build_fis_who2021(severity_params, single_ear=True):
     for cat, params in core.SHAPE_OUTPUT_PARAMS.items():
         shape_con[cat] = fuzz.trapmf(shape_con.universe, params)
 
+    # Asymmetry is decoupled from severity since the refactor: it drives a
+    # separate referral consequent rather than upgrading the severity grade, and
+    # the former mixed-loss rules are now complex-interaction rules that read
+    # threshold and slope against a severity output.
+    referral_con = ctrl.Consequent(np.arange(0, 101, 1), 'referral')
+    for cat, params in core.REFERRAL_OUTPUT_PARAMS.items():
+        referral_con[cat] = fuzz.trapmf(referral_con.universe, params)
+
     from fuzzy_audiogram.rules import (get_configuration_rules,
-                                       get_asymmetry_rules, get_mixed_loss_rules)
+                                       get_complex_interaction_rules,
+                                       get_referral_rules)
     rules = []
     rules.extend(get_severity_rules_7cat(threshold_ant, severity_con))
     rules.extend(get_configuration_rules(slope_ant, notch_ant, shape_con, severity_con))
-    rules.extend(get_asymmetry_rules(asym_ant, severity_con, single_ear=single_ear))
-    rules.extend(get_mixed_loss_rules(threshold_ant, slope_ant, asym_ant, severity_con))
+    rules.extend(get_complex_interaction_rules(threshold_ant, slope_ant, severity_con))
+    if not single_ear:
+        rules.extend(get_referral_rules(asym_ant, referral_con))
 
     system = ctrl.ControlSystem(rules)
     simulation = ctrl.ControlSystemSimulation(system)
@@ -240,7 +250,13 @@ def classify_ears_batched(system, ear_rows, label_fn):
             sim.input['threshold'] = np.clip(feats['threshold_primary'], 0, 120)
             sim.input['slope'] = np.clip(feats['slope'], -40, 80)
             sim.input['notch'] = np.clip(feats['notch_depth'], 0, 50)
-            sim.input['asymmetry'] = np.clip(feats['asymmetry'], 0, 60)
+            # The asymmetry antecedent is created only in bilateral mode. Setting
+            # it unconditionally raises "Unexpected input: asymmetry" for every ear,
+            # and because this loop swallows exceptions each ear is recorded as
+            # ERROR -- an empty result set with a suspiciously fast runtime rather
+            # than a visible failure.
+            if 'asymmetry' in {a.label for a in system.antecedents}:
+                sim.input['asymmetry'] = np.clip(feats['asymmetry'], 0, 60)
             with warnings.catch_warnings():
                 warnings.simplefilter('ignore')
                 sim.compute()
@@ -268,12 +284,16 @@ def main():
     print(f'  participants: {len(raw)} | clean ears: {len(ear_rows)} '
           f'from {len(set(s for s, _, _, _ in ear_rows))} participants')
 
-    print('\n[1b] Participant-level 80/20 split (random_state 42)...')
+    print('\n[1b] Participant-level 80/20 split (SEQN-keyed, seed 42)...')
     participants = sorted(set(s for s, _, _, _ in ear_rows))
-    rng = np.random.RandomState(42)
-    perm = rng.permutation(len(participants))
-    n_test_ppl = int(round(0.2 * len(participants)))
-    test_ppl = set(participants[i] for i in perm[:n_test_ppl])
+    # SEQN-keyed holdout, identical to scripts/pipeline_participant.py, so the two
+    # schemas are compared on the same ears. A positional permutation would reshuffle
+    # the test set whenever the cohort changes.
+    def _in_test(p, seed=42, holdout=0.20):
+        h = hashlib.md5(f'{int(p)}:{seed}'.encode()).hexdigest()
+        return (int(h[:8], 16) % 10_000) < int(holdout * 10_000)
+
+    test_ppl = set(p for p in participants if _in_test(p))
     train_rows = [r for r in ear_rows if r[0] not in test_ppl]
     test_rows = [r for r in ear_rows if r[0] in test_ppl]
     print(f'  train: {len(train_rows):,} ears / {len(set(s for s,_,_,_ in train_rows)):,} participants')

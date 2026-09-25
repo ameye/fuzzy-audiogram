@@ -4,18 +4,18 @@
   "beta": 3.114015233797531,
   "r_training": 0.8869603594409232,
   "scale_factor": 1.123607730498244,
-  "unscaled_bias": 1.5524559161768459,
+  "unscaled_bias": 1.8511937627811854,
   "unscaled_loa": [
-    -9.004447401615284,
-    12.109359233968977
+    -8.553904037911328,
+    12.2562915634737
   ],
-  "bias_db": -0.1338278509028436,
+  "bias_db": 0.24988318585753208,
   "loa_db": [
-    -11.463629783640792,
-    11.195974081835105
+    -11.207179711816412,
+    11.706946083531477
   ],
-  "n": 3913,
-  "proportional_slope": 0.0861901845023519,
-  "proportional_intercept": -1.2581916010138066,
+  "n": 3912,
+  "proportional_slope": 0.1279716146377471,
+  "proportional_intercept": -1.4938207268758457,
   "note": "The FAI is an index on a 0-100 consequent universe, not dB HL. The dB figures map the index through a linear transfer fitted on training data. The unscaled difference mixes units and must not be reported as decibels."
 }

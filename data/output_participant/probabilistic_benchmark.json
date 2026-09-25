@@ -1,29 +1,29 @@
 {
-  "n_test": 3912,
+  "n_test": 3913,
   "class_counts": [
-    3401,
-    361,
-    103,
+    3486,
+    310,
+    73,
     26,
-    18,
-    3
+    12,
+    6
   ],
   "results": [
     {
       "model": "FAI membership vector (PTA-4)",
-      "kappa": 0.9564,
-      "accuracy": 0.9719,
-      "brier": 0.04744,
-      "log_loss": 0.0805,
-      "ece": 0.03
+      "kappa": 0.9453,
+      "accuracy": 0.9688,
+      "brier": 0.04817,
+      "log_loss": 0.081,
+      "ece": 0.0266
     },
     {
       "model": "uniform reference",
       "kappa": 0.0,
-      "accuracy": 0.8694,
+      "accuracy": 0.8909,
       "brier": 0.83333,
       "log_loss": 1.7918,
-      "ece": 0.7027
+      "ece": 0.7242
     },
     {
       "model": "ordinal logistic (PTA-4)",
@@ -35,43 +35,43 @@
     },
     {
       "model": "multinomial logistic (PTA-4)",
-      "kappa": 0.9941,
-      "accuracy": 0.9964,
-      "brier": 0.01583,
-      "log_loss": 0.0335,
-      "ece": 0.0242
+      "kappa": 0.9958,
+      "accuracy": 0.9977,
+      "brier": 0.01385,
+      "log_loss": 0.0297,
+      "ece": 0.0228
     },
     {
       "model": "ordinal logistic (7 freq)",
-      "kappa": 1.0,
-      "accuracy": 1.0,
-      "brier": 0.0,
-      "log_loss": 0.0,
-      "ece": 0.0
+      "kappa": 0.9995,
+      "accuracy": 0.9997,
+      "brier": 0.00051,
+      "log_loss": 0.0071,
+      "ece": 0.0003
     },
     {
       "model": "multinomial logistic (7 freq)",
-      "kappa": 0.9934,
-      "accuracy": 0.9959,
-      "brier": 0.01075,
-      "log_loss": 0.0227,
-      "ece": 0.0135
+      "kappa": 0.9953,
+      "accuracy": 0.9974,
+      "brier": 0.00975,
+      "log_loss": 0.0212,
+      "ece": 0.0142
     },
     {
       "model": "gradient boosting (7 freq)",
-      "kappa": 0.9177,
-      "accuracy": 0.9744,
-      "brier": 0.04794,
-      "log_loss": 0.2771,
-      "ece": 0.0304
+      "kappa": 0.9832,
+      "accuracy": 0.9908,
+      "brier": 0.01364,
+      "log_loss": 0.0302,
+      "ece": 0.0021
     },
     {
       "model": "random forest (7 freq)",
-      "kappa": 0.9701,
-      "accuracy": 0.9829,
-      "brier": 0.0321,
-      "log_loss": 0.0599,
-      "ece": 0.0291
+      "kappa": 0.9685,
+      "accuracy": 0.9839,
+      "brier": 0.02937,
+      "log_loss": 0.054,
+      "ece": 0.0238
     }
   ],
   "note": "metrics on the held-out test set; FAI membership vector is the Ruspini partition evaluated at PTA-4"

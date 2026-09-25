@@ -35,6 +35,7 @@ Usage:  python3 tests/probabilistic_benchmark.py
 import sys
 import json
 import pickle
+import hashlib
 import warnings
 from pathlib import Path
 
@@ -108,11 +109,18 @@ def report(name, y, P, extra=""):
 print("  loading cohort and reproducing the participant-level split...")
 raw = load_combined_nhanes()
 ear_rows = clean_ears(extract_combined_audiometry(raw))
-rng = np.random.RandomState(SEED)
 participants = sorted(set(s for s, _, _, _ in ear_rows))
-perm = rng.permutation(len(participants))
-n_test_ppl = int(round(0.2 * len(participants)))
-test_ppl = set(participants[i] for i in perm[:n_test_ppl])
+
+
+def _in_test(p, seed=SEED, holdout=0.20):
+    """SEQN-keyed holdout. Must match scripts/pipeline_participant.py exactly:
+    a positional permutation reshuffles the whole test set whenever the cohort
+    changes, so the two would silently disagree after any cohort correction."""
+    h = hashlib.md5(f'{int(p)}:{seed}'.encode()).hexdigest()
+    return (int(h[:8], 16) % 10_000) < int(holdout * 10_000)
+
+
+test_ppl = set(p for p in participants if _in_test(p))
 test_rows = [r for r in ear_rows if r[0] in test_ppl]
 train_rows = [r for r in ear_rows if r[0] not in test_ppl]
 
@@ -155,7 +163,7 @@ rows = []
 
 # ---------------------------------------------------------------- FAI
 print("\n  --- fuzzy system (Ruspini memberships at PTA-4) ---")
-params = json.load(open(ROOT / "archive/transition_10.0/metrics_participant.json"))["mf_params"]
+params = json.load(open(ROOT / "data/output_participant/metrics_participant.json"))["mf_params"]
 P_fai = np.zeros((len(pta_te), N_CLASS))
 for i, x in enumerate(np.clip(pta_te, 0, 120)):
     for j, name in enumerate(SEVERITY_ORDER):
