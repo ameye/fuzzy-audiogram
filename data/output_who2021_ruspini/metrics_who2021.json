@@ -1,0 +1,107 @@
+{
+  "schema": "WHO 2021 (7 grades; boundaries 20/35/50/65/80/95 dB)",
+  "comparison_schema": "deployed WHO 1991-style 6 grades (25/40/55/70/90)",
+  "cohort": "combined 20-69 (AUX1+AUX_G+AUX_I)",
+  "split": "participant-level (80/20, seed 42)",
+  "participants": 10889,
+  "clean_ears": 19568,
+  "train_ears": 15656,
+  "test_ears": 3912,
+  "test_participants": 1966,
+  "n_valid": 3912,
+  "who2021": {
+    "kappa": 0.959,
+    "overall": 0.9604,
+    "rho": 0.844,
+    "mae": 3.74,
+    "borderline": 0.8795,
+    "clear": 0.9942,
+    "borderline_share": 0.295,
+    "n": 3912,
+    "bias": 1.3,
+    "loa_lo": -8.6,
+    "loa_hi": 11.3
+  },
+  "deployed_6grade": {
+    "kappa": 0.875,
+    "overall": 0.9018,
+    "rho": 0.812,
+    "mae": 4.35,
+    "borderline": 0.6976,
+    "clear": 0.9873,
+    "borderline_share": 0.295,
+    "n": 3912,
+    "bias": 1.9,
+    "loa_lo": -8.6,
+    "loa_hi": 12.3
+  },
+  "comparators": {
+    "XGBoost": {
+      "kappa": 0.983,
+      "overall": 0.9849,
+      "borderline": 0.9489,
+      "clear": 1.0,
+      "mae": 0.24
+    },
+    "Random Forest": {
+      "kappa": 0.982,
+      "overall": 0.9836,
+      "borderline": 0.9454,
+      "clear": 0.9996,
+      "mae": 0.52
+    }
+  },
+  "label_thresholds": [
+    21.2,
+    43.9,
+    54.8,
+    66.1,
+    84.6,
+    87.9
+  ],
+  "mf_params": {
+    "normal": [
+      -0.5,
+      0.0,
+      14.3,
+      25.0
+    ],
+    "mild": [
+      14.3,
+      25.0,
+      30.0,
+      40.0
+    ],
+    "moderate": [
+      30.0,
+      40.0,
+      46.4,
+      56.4
+    ],
+    "moderately_severe": [
+      46.4,
+      56.4,
+      61.2,
+      71.2
+    ],
+    "severe": [
+      61.2,
+      71.2,
+      76.1,
+      86.1
+    ],
+    "profound": [
+      76.1,
+      86.1,
+      89.5,
+      99.5
+    ],
+    "complete": [
+      89.5,
+      99.5,
+      120.0,
+      120.5
+    ]
+  },
+  "single_ear": true
+}

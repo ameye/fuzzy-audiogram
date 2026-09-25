@@ -81,6 +81,16 @@ SEVERITY_OUTPUT_PARAMS = {
     'profound':         [88, 95, 100, 100],
 }
 
+# Referral output: asymmetry drives a medical referral recommendation rather
+# than altering the severity grading. Universes are on the same 0-100 scale as
+# the other consequents for consistency.
+REFERRAL_OUTPUT_PARAMS = {
+    'none':      [0, 0, 10, 25],
+    'routine':   [15, 25, 45, 55],
+    'expedited': [45, 55, 75, 85],
+    'urgent':    [75, 88, 100, 100],
+}
+
 SHAPE_OUTPUT_PARAMS = {
     'normal':           [0, 0, 10, 20],
     'flat':             [10, 18, 30, 40],
@@ -171,6 +181,7 @@ def build_audiogram_fis(single_ear=False):
     # --- Output universes ---
     severity_con = ctrl.Consequent(np.arange(0, 101, 1), 'severity')
     shape_con = ctrl.Consequent(np.arange(0, 101, 1), 'audiogram_shape')
+    referral_con = ctrl.Consequent(np.arange(0, 101, 1), 'referral')
 
     # --- Attach membership functions (input) ---
     for cat, params in SEVERITY_MF_PARAMS.items():
@@ -192,11 +203,15 @@ def build_audiogram_fis(single_ear=False):
     for cat, params in SHAPE_OUTPUT_PARAMS.items():
         shape_con[cat] = fuzz.trapmf(shape_con.universe, params)
 
+    for cat, params in REFERRAL_OUTPUT_PARAMS.items():
+        referral_con[cat] = fuzz.trapmf(referral_con.universe, params)
+
     # --- Build rules ---
     from .rules import get_all_rules
     rules = get_all_rules(
         threshold_ant, slope_ant, notch_ant, asym_ant,
         severity_con, shape_con,
+        referral=referral_con,
         single_ear=single_ear,
     )
 
@@ -206,7 +221,7 @@ def build_audiogram_fis(single_ear=False):
 
     return (system, simulation,
             threshold_ant, slope_ant, notch_ant, asym_ant,
-            severity_con, shape_con)
+            severity_con, shape_con, referral_con)
 
 
 # =========================================================================
@@ -345,8 +360,7 @@ def classify_audiogram(thresholds_left, thresholds_right=None):
     # ear, compressing the FAI scale (structural fix S4). Bilateral input
     # keeps the full 48-rule base.
     single_ear = thresholds_right is None
-    (_, sim, threshold_ant, slope_ant, _notch_ant, _asym_ant,
-     _severity_con, _shape_con) = build_audiogram_fis(single_ear=single_ear)
+    (_, sim, threshold_ant, slope_ant, *_rest) = build_audiogram_fis(single_ear=single_ear)
 
     features = compute_audiogram_features(thresholds_left, thresholds_right)
 

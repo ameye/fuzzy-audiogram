@@ -228,7 +228,7 @@ def main():
 
     # 4. build FIS with new params
     print('\n[3] Building Mamdani FIS with optimised parameters (single-ear mode)...')
-    system, sim, threshold_ant, slope_ant, _n, _a, _sc, _sh = build_fis_with_params(params)
+    system, sim, threshold_ant, slope_ant, *_rest = build_fis_with_params(params)
     print('  FIS built (47-rule single-ear base, new severity MFs; symmetric-anchor rule omitted)')
 
     # 4b. calibrate FAI -> label thresholds on the TRAINING set (structural fix:

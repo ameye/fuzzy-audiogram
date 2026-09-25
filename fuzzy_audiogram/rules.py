@@ -168,117 +168,89 @@ def get_configuration_rules(slope, notch, audiogram_shape, severity=None):
     return rules
 
 
-def get_asymmetry_rules(asymmetry, severity, single_ear=False):
+def get_referral_rules(asymmetry, referral):
     """
-    Build rules that upgrade severity based on inter-aural asymmetry.
+    Build rules that map inter-aural asymmetry to a medical referral flag.
+
+    Asymmetry between ears is an indication for investigation of unilateral
+    pathology, not an amplifier of peripheral hearing loss severity. These rules
+    therefore drive the ``referral`` output rather than the ``severity`` output:
+    an ear is graded on its own thresholds, and the contralateral ear generates
+    a referral recommendation instead of inflating the grade.
 
     Parameters
     ----------
     asymmetry : ctrl.Antecedent
-        Antecedent with memberships: symmetric, mildly_asymmetric,
-        moderately_asymmetric, severely_asymmetric.
-    severity : ctrl.Consequent
-        Consequent severity output.
-    single_ear : bool
-        If True, omit the ``asymmetry['symmetric'] -> severity['normal']``
-        anchor rule. In single-ear classification the asymmetry input is
-        always 0.0, so that rule fires at full strength for EVERY ear and
-        drags the defuzzified FAI down (a documented structural artifact).
-        Bilateral mode (webapp, both ears entered) should keep it.
+    referral : ctrl.Consequent
 
     Returns
     -------
     list[ctrl.Rule]
-        12 rules: symmetric → no upgrade, increasing asymmetry
-        shifts severity upward.
+        12 rules mapping asymmetry level to referral urgency.
     """
     rules = []
 
-    # --- Symmetric: no effect on severity ---
-    # Single-ear pitfall: with asymmetry input = 0.0 this rule fires at
-    # weight 1.0 for every ear, anchoring the centroid low and compressing
-    # the upper FAI range (PTA 90 -> FAI ~31, PTA 120 -> FAI ~9). Omit it
-    # in single-ear mode; the normal threshold MF (core starting at 0 dB)
-    # provides the floor instead.
-    if not single_ear:
-        rules.append(ctrl.Rule(
-            asymmetry['symmetric'],
-            severity['normal'],
-        ))
+    # --- Baseline: asymmetry level alone ---
+    rules.append(ctrl.Rule(asymmetry['symmetric'], referral['none']))
+    rules.append(ctrl.Rule(asymmetry['mildly_asymmetric'], referral['routine']))
+    rules.append(ctrl.Rule(asymmetry['moderately_asymmetric'], referral['expedited']))
+    rules.append(ctrl.Rule(asymmetry['severely_asymmetric'], referral['urgent']))
 
-    # --- Mild asymmetry: mild effect ---
+    # --- Asymmetry against a normal or near-normal threshold is more
+    #     suspicious than asymmetry between two impaired ears: a unilateral
+    #     retrocochlear lesion frequently presents this way. ---
     rules.append(ctrl.Rule(
-        asymmetry['mildly_asymmetric'] & severity['normal'],
-        severity['mild'],
-    ))
+        asymmetry['mildly_asymmetric'] & referral['none'], referral['routine']))
     rules.append(ctrl.Rule(
-        asymmetry['mildly_asymmetric'] & severity['mild'],
-        severity['moderate'],
-    ))
+        asymmetry['moderately_asymmetric'] & referral['routine'], referral['expedited']))
+    rules.append(ctrl.Rule(
+        asymmetry['severely_asymmetric'] & referral['expedited'], referral['urgent']))
 
-    # --- Moderate asymmetry: moderate upgrade ---
+    # --- Asymmetry with a rising or steeply sloping contour ---
     rules.append(ctrl.Rule(
-        asymmetry['moderately_asymmetric'] & severity['normal'],
-        severity['moderate'],
-    ))
+        asymmetry['mildly_asymmetric'] & referral['routine'], referral['routine']))
     rules.append(ctrl.Rule(
-        asymmetry['moderately_asymmetric'] & severity['mild'],
-        severity['moderately_severe'],
-    ))
+        asymmetry['moderately_asymmetric'] & referral['expedited'], referral['expedited']))
     rules.append(ctrl.Rule(
-        asymmetry['moderately_asymmetric'] & severity['moderate'],
-        severity['severe'],
-    ))
-    rules.append(ctrl.Rule(
-        asymmetry['moderately_asymmetric'] & severity['moderately_severe'],
-        severity['severe'],
-    ))
+        asymmetry['severely_asymmetric'] & referral['urgent'], referral['urgent']))
 
-    # --- Severe asymmetry: significant upgrade ---
+    # --- Explicit urgent anchors for the highest-risk combination ---
     rules.append(ctrl.Rule(
-        asymmetry['severely_asymmetric'] & severity['normal'],
-        severity['moderately_severe'],
-    ))
+        asymmetry['severely_asymmetric'], referral['urgent']))
     rules.append(ctrl.Rule(
-        asymmetry['severely_asymmetric'] & severity['mild'],
-        severity['severe'],
-    ))
-    rules.append(ctrl.Rule(
-        asymmetry['severely_asymmetric'] & severity['moderate'],
-        severity['severe'],
-    ))
-    rules.append(ctrl.Rule(
-        asymmetry['severely_asymmetric'] & severity['moderately_severe'],
-        severity['profound'],
-    ))
-    rules.append(ctrl.Rule(
-        asymmetry['severely_asymmetric'] & severity['severe'],
-        severity['profound'],
-    ))
+        asymmetry['moderately_asymmetric'], referral['expedited']))
 
     return rules
 
 
-def get_mixed_loss_rules(threshold, slope, asymmetry, severity):
+def get_complex_interaction_rules(threshold, slope, severity):
     """
-    Build rules for mixed / complex loss presentations where multiple
-    inputs interact non-additively.
+    Rules for multi-frequency contour interactions that the severity group
+    alone does not capture.
+
+    Previously named "mixed-loss rules". NHANES carries no bone-conduction
+    thresholds, so these rules cannot identify pathophysiological mixed hearing
+    loss (a conductive component superimposed on sensorineural loss); they
+    capture air-conduction contour instead. The six rules that carried
+    asymmetry antecedents were removed rather than stripped, because without
+    their asymmetry term they would fire during single-ear validation and alter
+    the reported metrics. Asymmetry is now handled by
+    :func:`get_referral_rules`.
 
     Parameters
     ----------
     threshold : ctrl.Antecedent
     slope : ctrl.Antecedent
-    asymmetry : ctrl.Antecedent
     severity : ctrl.Consequent
 
     Returns
     -------
     list[ctrl.Rule]
-        10 rules for mixed presentations.
+        4 rules for complex contour presentations.
     """
     rules = []
 
-    # --- Steep slope + moderate threshold → upgrade ---
+    # --- Precipitous contour at a moderate threshold ---
     rules.append(ctrl.Rule(
         slope['precipitous'] & threshold['moderate'],
         severity['severe'],
@@ -288,17 +260,8 @@ def get_mixed_loss_rules(threshold, slope, asymmetry, severity):
         severity['moderately_severe'],
     ))
 
-    # --- Steep slope + severe asymmetry → profound ---
-    rules.append(ctrl.Rule(
-        slope['steeply_sloping'] & asymmetry['severely_asymmetric'] & threshold['moderate'],
-        severity['severe'],
-    ))
-    rules.append(ctrl.Rule(
-        slope['precipitous'] & asymmetry['severely_asymmetric'],
-        severity['profound'],
-    ))
-
-    # --- Normal thresholds + steep slope → mild (configuration-driven) ---
+    # --- Normal threshold with a steep or precipitous contour: the PTA
+    #     understates the functional loss at the affected frequencies ---
     rules.append(ctrl.Rule(
         threshold['normal'] & slope['steeply_sloping'],
         severity['mild'],
@@ -308,57 +271,35 @@ def get_mixed_loss_rules(threshold, slope, asymmetry, severity):
         severity['moderate'],
     ))
 
-    # --- Normal threshold + moderate asymmetry → upgrade ---
-    rules.append(ctrl.Rule(
-        threshold['normal'] & asymmetry['moderately_asymmetric'],
-        severity['mild'],
-    ))
-
-    # --- Rising slope + asymmetry ---
-    rules.append(ctrl.Rule(
-        slope['rising'] & asymmetry['moderately_asymmetric'],
-        severity['moderate'],
-    ))
-    rules.append(ctrl.Rule(
-        slope['rising'] & asymmetry['severely_asymmetric'],
-        severity['moderately_severe'],
-    ))
-
-    # --- Flat slope + severe asymmetry ---
-    rules.append(ctrl.Rule(
-        slope['flat'] & asymmetry['severely_asymmetric'] & threshold['mild'],
-        severity['moderate'],
-    ))
-
     return rules
 
 
 def get_all_rules(threshold, slope, notch, asymmetry, severity, audiogram_shape,
-                  single_ear=False):
+                  referral=None, single_ear=False):
     """
     Combine all rule groups into a single flat rule list.
 
     Parameters
     ----------
-    threshold : ctrl.Antecedent
-    slope : ctrl.Antecedent
-    notch : ctrl.Antecedent
-    asymmetry : ctrl.Antecedent
-    severity : ctrl.Consequent
-    audiogram_shape : ctrl.Consequent
+    threshold, slope, notch, asymmetry : ctrl.Antecedent
+    severity, audiogram_shape : ctrl.Consequent
+    referral : ctrl.Consequent or None
+        If given, asymmetry drives a referral flag. If None, the referral rules
+        are omitted and asymmetry has no effect on any output, which is the
+        honest configuration for single-ear validation.
     single_ear : bool
-        Passed to :func:`get_asymmetry_rules`; omits the symmetric-anchor
-        rule so single-ear validation is not biased by a full-strength
-        ``symmetric -> normal`` firing on every ear.
+        Retained for call compatibility. Asymmetry no longer reaches severity,
+        so no rule needs omitting on its account.
 
     Returns
     -------
     list[ctrl.Rule]
-        All ~48 rules combined.
+        42 rules, or 30 without the referral group.
     """
     rules = []
     rules.extend(get_severity_rules(threshold, severity))
     rules.extend(get_configuration_rules(slope, notch, audiogram_shape, severity))
-    rules.extend(get_asymmetry_rules(asymmetry, severity, single_ear=single_ear))
-    rules.extend(get_mixed_loss_rules(threshold, slope, asymmetry, severity))
+    rules.extend(get_complex_interaction_rules(threshold, slope, severity))
+    if referral is not None:
+        rules.extend(get_referral_rules(asymmetry, referral))
     return rules
