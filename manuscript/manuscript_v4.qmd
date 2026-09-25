@@ -6,7 +6,7 @@
 
 **Methods.** Three NHANES cycles administering air-conduction audiometry to adults aged 20 to 69 years were combined and split at the participant level. Six trapezoidal membership functions were constructed as a Ruspini partition, so memberships sum to one at every threshold, and a 42-rule Mamdani system produced a Fuzzy Audiometric Index. Agreement was assessed by weighted kappa, stratification by distance from a boundary, decision-curve analysis, and a probabilistic benchmark scored by Brier score, log loss and calibration error.
 
-**Results.** Among 19,568 ears from 9,832 adults, the FAI achieved kappa 0.946 against the reference grade, 96.5% overall agreement and a mean absolute error of 4.35 dB, with 99.1% agreement for clear cases and 85.1% within 5 dB of a boundary. An ordinal logistic model recovered the reference grade exactly in all 3,912 test ears with a Brier score of zero, establishing that the reference label is a deterministic thresholding of its input. 
+**Results.** Among 19,623 ears from 9,843 adults, the FAI achieved kappa 0.946 against the reference grade, 96.9% overall agreement and a mean absolute error of 4.32 dB, with 99.1% agreement for clear cases and 85.1% within 5 dB of a boundary. An ordinal logistic model recovered the reference grade exactly in all 3,913 test ears with a Brier score of zero, establishing that the reference label is a deterministic thresholding of its input. 
 
 **Conclusions.** The framework reproduces the reference classification while preserving the gradation that crisp thresholds discard. Because the reference label is a deterministic function of the pure-tone average, agreement cannot evidence the graded representation's value, and the probabilistic metrics are where the comparison carries information.
 
@@ -90,7 +90,7 @@ No ethics approval was required for this secondary analysis of de-identified, pu
 
 ## Cohort Characteristics
 
-The cohort comprised 10,889 adults aged 20-69 years (mean 43.9). After exclusions, 19,568 ears from 9,832 adults had complete air-conduction thresholds at all seven frequencies: 15,656 ears (7,866 participants) in the training set and 3,912 (1,966 participants) in the test set. Thresholds were right-skewed with a floor effect at 0 to 10 dB HL, rising from 11.2 dB HL at 500 Hz to 27.4 dB HL at 8 kHz, consistent with age-related and noise-induced high-frequency loss. Under the WHO PTA-4 classification [@who1997], 88.1% of ears were normal, 8.7% mild, 2.2% moderate, 0.6% moderately severe, 0.3% severe and 0.1% profound, 
+The cohort comprised 10,889 adults aged 20-69 years (mean 43.9). After exclusions, 19,623 ears from 9,843 adults had complete air-conduction thresholds at all seven frequencies: 15,710 ears (7,881 participants) in the training set and 3,913 (1,962 participants) in the test set. Thresholds were right-skewed with a floor effect at 0 to 10 dB HL, rising from 11.2 dB HL at 500 Hz to 27.4 dB HL at 8 kHz, consistent with age-related and noise-induced high-frequency loss. Under the WHO PTA-4 classification [@who1997], 88.1% of ears were normal, 8.7% mild, 2.2% moderate, 0.6% moderately severe, 0.3% severe and 0.1% profound, 
 
 Nearly one in five ears (18.7%) fell within ±5 dB of a boundary, where crisp classification is least certain.
 
@@ -100,23 +100,23 @@ The percentile-based optimization produced the Ruspini-partition functions shown
 
 ## Classification Agreement with the Reference Grade
 
-On the test set the FAI achieved weighted Cohen's κ = 0.946 against the Clark PTA-4 grade, with 96.5% overall agreement and a mean absolute error of 4.35 dB. Agreement 99.1% for clear cases (≥6 dB from a boundary) and 85.1% within the borderline zone (±5 dB, 18.7% of test ears). Spearman's correlation was 0.812, restricted in range because 86.9% of test ears are normal and the upper tail is compressed; kappa and MAE are therefore the more direct agreement measures.
+On the test set the FAI achieved weighted Cohen's κ = 0.946 against the Clark PTA-4 grade, with 96.9% overall agreement and a mean absolute error of 4.32 dB. Agreement 99.1% for clear cases (≥6 dB from a boundary) and 85.1% within the borderline zone (±5 dB, 18.7% of test ears). Spearman's correlation was 0.812, restricted in range because 86.9% of test ears are normal and the upper tail is compressed; kappa and MAE are therefore the more direct agreement measures.
 
 Per-class performance is given in Table 1. Sensitivity was 0.980 for normal and 0.950 for mild but fell to 0.621 for moderate and 0.500 for moderately severe loss, macro-averaged sensitivity was 0.786 against the 96.5% overall figure, which the normal majority largely determines. Of 138 disagreements, 104 moved upward by one grade and 34 downward, a predominantly upward error structure that increases false-positive referrals.
 
 ## Agreement and Distance from the Severity Boundary
 
-Agreement recovered with distance from the nearest boundary (Figure 2b): 85.1% within ±5 dB, 90.1% at 10 dB and 93.5% at 15 dB. Bland-Altman analysis (Figure 2a) compared the FAI with PTA-4 after a linear transfer fitted on the training partition mapped the index onto the decibel scale, FAI = 0.890 x PTA + 3.11 (r = 0.887). The sub-unity slope follows from centroid defuzzification, which returns the centre of mass of the aggregated output and so compresses the ends of the universe: mean difference +0.25 dB with 95% limits of agreement −11.2 to +11.7 dB, with a proportionate bias widening by 0.13 dB per decibel of mean level.
+Agreement recovered with distance from the nearest boundary (Figure 2b): 86.3% within ±5 dB, 91.0% at 10 dB and 94.3% at 15 dB. Bland-Altman analysis (Figure 2a) compared the FAI with PTA-4 after a linear transfer fitted on the training partition mapped the index onto the decibel scale, FAI = 0.890 x PTA + 3.11 (r = 0.887). The sub-unity slope follows from centroid defuzzification, which returns the centre of mass of the aggregated output and so compresses the ends of the universe: mean difference +0.25 dB with 95% limits of agreement −11.2 to +11.7 dB, with a proportionate bias widening by 0.13 dB per decibel of mean level.
 
 ## Probabilistic Comparison with Machine-Learning Models
 
-Table 2 reports the probabilistic benchmark. A proportional-odds ordinal logistic regression on the primary threshold alone reproduced the reference grade exactly in all 3,912 test ears, with a Brier score and log loss of 0.0000, and the same model on all seven frequencies performed identically. The reference label is therefore not a prediction target but a deterministic thresholding of the pure-tone average, so agreement metrics cannot discriminate between models here: any model able to represent monotone thresholds recovers the label exactly, and residual differences measure how well each approximation fits a step function.
+Table 2 reports the probabilistic benchmark. A proportional-odds ordinal logistic regression on the primary threshold alone reproduced the reference grade exactly in all 3,913 test ears, with a Brier score and log loss of 0.0000, and the same model on all seven frequencies performed identically. The reference label is therefore not a prediction target but a deterministic thresholding of the pure-tone average, so agreement metrics cannot discriminate between models here: any model able to represent monotone thresholds recovers the label exactly, and residual differences measure how well each approximation fits a step function.
 
 Among the models that do not saturate, the FAI membership vector returned a Brier score of 0.0474, log loss 0.0805 and expected calibration error 0.0300, against 0.0479, 0.2771 and 0.0304 for gradient boosting on the richer seven-frequency input. The memberships were as well calibrated as gradient boosting and substantially better on log loss from less input, and their arg-max recovered the reference grade at kappa 0.9564, exceeding the 0.946 from the separately calibrated thresholds.
 
 ## Validation Under the WHO 2021 Schema
 
-Under the 2021 schema the framework performed better on every metric except raw overall agreement (Table 4): kappa 0.959 against 0.946, mean absolute error 3.74 dB against 4.35, and rho 0.844 against 0.812. Borderline agreement was 88.0%, measured over the harder population, since the 2021 boundaries place 29.5% of ears within ±5 dB of one against 18.7%. Scoring the six-category system against the 2021 reference returned kappa 0.875.
+Under the 2021 schema the framework performed better on every metric except raw overall agreement (Table 4): kappa 0.961 against 0.946, mean absolute error 3.69 dB against 4.32, and rho 0.840 against 0.800. Borderline agreement was 90.5%, measured over the harder population, since the 2021 boundaries place 29.7% of ears within ±5 dB of one against 17.8%. Scoring the six-category system against the 2021 reference returned kappa 0.864.
 
 ## Decision-Curve Analysis
 
@@ -124,9 +124,9 @@ FAI-based referral maintained net benefit comparable to PTA-4-based referral acr
 
 ## Transition-Width Ablation
 
-Flooring the core gaps at 10 dB against the raw percentile gaps, which ranged from 5.7 to 13.6 dB, raised weighted kappa from 0.9266 to 0.9456 (+0.0190, 95% CI +0.0108 to +0.0272) borderline agreement from 79.5% to 85.1% (+5.6 pp, 95% CI +2.8 to +8.5) and clear-case agreement from 98.1% to 99.1% (+1.0 pp, 95% CI +0.7 to +1.4), all three intervals excluding zero. Of the 152 ears (3.9%) the widths labelled differently, the wider construction was correct 72.4% of the time against 24.3%.
+Flooring the core gaps at 10 dB against the raw percentile gaps, which ranged from 5.7 to 13.6 dB, moved weighted kappa from 0.9437 to 0.9460 (+0.0022, 95% CI −0.0014 to +0.0058), borderline agreement from 85.9% to 86.3% and clear-case agreement from 99.0% to 99.2%. The raw gaps were therefore already behaving like a floor near 4 dB, and the deployed setting buys a small, non-significant gain over them.
 
-Sweeping the floor from 4 to 16 dB in 2 dB steps showed the deployed setting sits on a plateau rather than a peak (Table 3): every floor from 6 to 12 dB was statistically indistinguishable from 10 dB, whereas 4 and 14 to 16 dB were worse. Absolute error nevertheless fell monotonically with width, from 4.38 to 4.20 dB, so categorical and continuous agreement diverge: wider shoulders smooth the graded output while blurring the boundary. A 4 dB floor reproduces the raw-gap arm, so the percentile gaps were already about that wide.
+Sweeping the floor from 4 to 16 dB in 2 dB steps made the deployed setting the best-performing floor (Table 3): every setting except 4 dB differed significantly from 10 dB. Absolute error nevertheless fell monotonically with width, from 4.34 to 4.17 dB, so categorical and continuous agreement diverge: wider shoulders smooth the graded output while blurring the boundary.
 
 ## Clinical Case Studies
 
@@ -140,9 +140,9 @@ A Mamdani fuzzy inference system was developed and validated that maps pure-tone
 
 ## Agreement Cannot Evidence the Graded Representation
 
-The probabilistic benchmark produced the key result. A proportional-odds ordinal logistic regression recovered the reference grade exactly in all 3,912 test ears with a Brier score of zero, which is not a strong model but proof the label is a deterministic monotone function of the pure-tone average. The mechanism is complete quasi-separation: the maximum-likelihood estimate diverges because no interior optimum exists, so the fitted probabilities are exactly 0 and 1 rather than close to them. Because the label is a thresholding, any model able to represent monotone thresholds recovers it exactly and agreement metrics saturate, so a graded representation cannot be shown to be better by kappa.
+The probabilistic benchmark produced the key result. A proportional-odds ordinal logistic regression recovered the reference grade exactly in all 3,913 test ears with a Brier score of zero, which is not a strong model but proof the label is a deterministic monotone function of the pure-tone average. The mechanism is complete quasi-separation: the maximum-likelihood estimate diverges because no interior optimum exists, so the fitted probabilities are exactly 0 and 1 rather than close to them. Because the label is a thresholding, any model able to represent monotone thresholds recovers it exactly and agreement metrics saturate, so a graded representation cannot be shown to be better by kappa.
 
-What survives is discrimination among approximations. Gradient boosting, on seven-frequency input with more capacity, scored kappa 0.9177 against 0.9564. Trapezoidal memberships express thresholds on a continuous quantity natively, whereas a tree ensemble must approximate that step function through axis-aligned splits on noisy inputs. It is the probabilistic properties that discriminate, and there the memberships matched gradient boosting on Brier score and calibration error and halved its log loss, from the primary threshold alone. Membership degrees are not probabilities: they express graded belonging to a category, the vagueness of a boundary, rather than the aleatory uncertainty of an outcome, and are scored as a distribution over grades rather than a belief about one.
+What survives is discrimination among approximations. Gradient boosting, on seven-frequency input, scored kappa 0.9832 against the memberships' 0.9453, with a lower Brier score (0.0136 against 0.0482), lower log loss (0.0302 against 0.0810) and better calibration (expected calibration error 0.0021 against 0.0266). Read on one threshold rather than seven the index is at an information disadvantage no construction removes, so its contribution is not accuracy. Trapezoidal memberships express thresholds on a continuous quantity natively, whereas a tree ensemble must approximate that step function through axis-aligned splits on noisy inputs. It is the probabilistic properties that discriminate, what the index offers instead is an inspectable rule base, a graded output no crisp classifier provides, and explicit behaviour at the boundaries where graders disagree. Membership degrees are not probabilities: they express graded belonging to a category, the vagueness of a boundary, rather than the aleatory uncertainty of an outcome, and are scored as a distribution over grades rather than a belief about one.
 
 ## The Classification Schema Is a Parameter
 
@@ -170,7 +170,7 @@ Additional inputs can be accommodated by adding membership functions and rules, 
 
 ## Conclusions
 
-The Fuzzy Audiometric Index provides a continuous, frequency-resolved, interpretable classification of hearing loss that preserves the gradation lost to crisp thresholds. Validated on held-out NHANES ears, it agrees substantially with the reference classification while preserving borderline, configuration and graded information. The probabilistic benchmark shows the reference label is a deterministic thresholding of its input, so agreement cannot evidence a graded representation; the memberships matched a gradient-boosted model on Brier score and calibration error and improved on log loss from less input.
+The Fuzzy Audiometric Index provides a continuous, frequency-resolved, interpretable classification of hearing loss that preserves the gradation lost to crisp thresholds. Validated on held-out NHANES ears, it agrees substantially with the reference classification while preserving borderline, configuration and graded information. The probabilistic benchmark shows the reference label is a deterministic thresholding of its input, so agreement cannot evidence a graded representation; a seven-frequency learner outperforms the index on accuracy and calibration, locating its value in interpretability and the graded output rather than accuracy.
 
 # Acknowledgements {.unnumbered}
 
@@ -195,66 +195,65 @@ The NHANES data analysed here are publicly available from the U.S. Centers for D
 
 # Tables {.unnumbered}
 
-**Table 1.** Classification performance on the held-out test set (n = 3,912 ears).
+**Table 1.** Classification performance on the held-out test set (n = 3,913 ears).
 
 | Severity category | n | Sensitivity (95% CI) | Specificity (95% CI) | Precision (95% CI) |
 |---|---|---|---|---|
-| Normal | 3,401 | 0.980 (0.975–0.984) | 1.000 (0.993–1.000) | 1.000 (0.999–1.000) |
-| Mild | 361 | 0.950 (0.923–0.968) | 0.974 (0.969–0.979) | 0.790 (0.750–0.826) |
-| Moderate | 103 | 0.621 (0.525–0.709) | 0.993 (0.990–0.995) | 0.703 (0.603–0.787) |
-| Moderately severe | 26 | 0.500 (0.321–0.679) | 0.996 (0.994–0.998) | 0.464 (0.295–0.642) |
-| Severe | 18 | 1.000 (0.824–1.000) | 0.999 (0.997–0.999) | 0.783 (0.581–0.903) |
-| Profound | 3 | 0.667 (0.208–0.939) | 1.000 (0.999–1.000) | 1.000 (0.342–1.000) |
+| Normal | 3,486 | 0.978 (0.973–0.983) | 1.000 (0.991–1.000) | 1.000 (0.999–1.000) |
+| Mild | 310 | 0.977 (0.954–0.989) | 0.974 (0.968–0.979) | 0.763 (0.719–0.802) |
+| Moderate | 73 | 0.507 (0.395–0.618) | 0.997 (0.995–0.999) | 0.787 (0.651–0.880) |
+| Moderately severe | 26 | 0.885 (0.710–0.960) | 0.995 (0.993–0.997) | 0.561 (0.410–0.701) |
+| Severe | 12 | 1.000 (0.757–1.000) | 1.000 (0.999–1.000) | 1.000 (0.757–1.000) |
+| Profound | 6 | 1.000 (0.610–1.000) | 1.000 (0.999–1.000) | 1.000 (0.610–1.000) |
 
-Note. Macro-averaged sensitivity 0.786 and macro-averaged F1 0.779 against 96.5% overall agreement, which the normal majority largely determines. Of 138 disagreements, 104 moved upward by one grade and 34 downward.
+Note. Wilson score intervals. Macro-averaged sensitivity 0.891 and macro-averaged F1 0.858 against 96.9% overall agreement, which the normal majority largely determines. Of 122 disagreements, 101 moved upward by one grade and 21 downward.
 
-**Table 2.** Probabilistic benchmark on the held-out test set (n = 3,912 ears).
+**Table 2.** Probabilistic benchmark on the held-out test set (n = 3,913 ears).
 
 | Model | Features | Weighted κ | Accuracy | Brier | Log loss | ECE |
 |---|---|---|---|---|---|---|
 | Ordinal logistic | PTA-4 | 1.0000 | 100.0% | 0.0000 | 0.0000 | 0.0000 |
-| Ordinal logistic | 7 frequencies | 1.0000 | 100.0% | 0.0000 | 0.0000 | 0.0000 |
-| Multinomial logistic | PTA-4 | 0.9941 | 99.6% | 0.0158 | 0.0335 | 0.0242 |
-| Multinomial logistic | 7 frequencies | 0.9934 | 99.6% | 0.0107 | 0.0227 | 0.0135 |
-| Random forest | 7 frequencies | 0.9701 | 98.3% | 0.0321 | 0.0599 | 0.0291 |
-| **FAI membership vector** | **PTA-4** | **0.9564** | **97.2%** | **0.0474** | **0.0805** | **0.0300** |
-| Gradient boosting | 7 frequencies | 0.9177 | 97.4% | 0.0479 | 0.2771 | 0.0304 |
-| Majority-class baseline | — | 0.0000 | 86.9% | 0.8333 | 1.7918 | 0.7027 |
+| Ordinal logistic | 7 frequencies | 0.9995 | 100.0% | 0.0005 | 0.0071 | 0.0003 |
+| Multinomial logistic | PTA-4 | 0.9958 | 99.8% | 0.0138 | 0.0297 | 0.0228 |
+| Multinomial logistic | 7 frequencies | 0.9953 | 99.7% | 0.0097 | 0.0212 | 0.0142 |
+| Gradient boosting | 7 frequencies | 0.9832 | 99.1% | 0.0136 | 0.0302 | 0.0021 |
+| Random forest | 7 frequencies | 0.9685 | 98.4% | 0.0294 | 0.0540 | 0.0238 |
+| **FAI membership vector** | **PTA-4** | **0.9453** | **96.9%** | **0.0482** | **0.0810** | **0.0266** |
+| Uniform reference | — | 0.0000 | 89.1% | 0.8333 | 1.7918 | 0.7242 |
 
-Note. The FAI row scores the six Ruspini memberships evaluated at the primary threshold as a probability distribution. ECE, expected calibration error. The baseline assigns every ear to the majority class, which is why its accuracy is 86.9% while its Brier score of 0.8333 and log loss of 1.7918 are those of a uniform distribution over six classes; a uniform classifier would score 16.7% accuracy. The ordinal logistic's exact reconstruction shows that the reference label is a deterministic thresholding of the pure-tone average, so agreement metrics cannot discriminate between models on this task.
+Note. The FAI row scores the six Ruspini memberships evaluated at the primary threshold as a probability distribution. ECE, expected calibration error. The baseline assigns every ear to the majority class, which is why its accuracy is 89.1% while its Brier score of 0.8333 and log loss of 1.7918 are those of a uniform distribution over six classes; a uniform classifier would score 16.7% accuracy. The ordinal logistic's exact reconstruction shows that the reference label is a deterministic thresholding of the pure-tone average, so agreement metrics cannot discriminate between models on this task. Among models that do not saturate, the seven-frequency learners outperform the FAI memberships on every metric, so the index's contribution is interpretability and a graded output rather than accuracy.
 
 **Table 3.** Transition-width sweep. Same construction and same calibration at every setting; only the floor on the core gap differs. A 4 dB floor is equivalent to the raw percentile gaps, which ranged from 5.7 to 13.6 dB.
 
-| Floor (dB) | Weighted κ | 95% CI | Borderline (±5 dB) | MAE (dB) | Difference vs 10 dB | 95% CI |
-|---|---|---|---|---|---|---|
-| 4 | 0.9266 | 0.9140 to 0.9370 | 79.5% | 4.38 | −0.0189 | −0.0274 to −0.0108 |
-| 6 | 0.9417 | 0.9288 to 0.9521 | 85.0% | 4.38 | −0.0039 | −0.0101 to +0.0019 |
-| 8 | 0.9485 | 0.9376 to 0.9575 | 85.4% | 4.37 | +0.0029 | −0.0016 to +0.0074 |
-| 10 (deployed) | 0.9456 | 0.9345 to 0.9550 | 85.1% | 4.35 | — | — |
-| 12 | 0.9443 | 0.9330 to 0.9532 | 83.7% | 4.33 | −0.0013 | −0.0051 to +0.0026 |
-| 14 | 0.9368 | 0.9251 to 0.9461 | 82.9% | 4.30 | −0.0089 | −0.0141 to −0.0037 |
-| 16 | 0.9340 | 0.9209 to 0.9439 | 82.6% | 4.20 | −0.0118 | −0.0169 to −0.0069 |
+| Floor (dB) | Weighted κ | Borderline (±5 dB) | MAE (dB) | Difference vs 10 dB | 95% CI |
+|---|---|---|---|---|---|
+| 4 | 0.9437 | 85.9% | 4.34 | −0.0022 | −0.0058 to +0.0014 |
+| 6 | 0.9436 | 85.8% | 4.34 | −0.0023 | −0.0037 to −0.0010 |
+| 8 | 0.9399 | 85.0% | 4.33 | −0.0060 | −0.0113 to −0.0005 |
+| **10 (deployed)** | **0.9460** | **86.3%** | **4.32** | — | — |
+| 12 | 0.9371 | 84.3% | 4.30 | −0.0089 | −0.0135 to −0.0042 |
+| 14 | 0.9402 | 84.3% | 4.27 | −0.0058 | −0.0091 to −0.0029 |
+| 16 | 0.9371 | 83.9% | 4.17 | −0.0088 | −0.0129 to −0.0052 |
 
-Note. Paired bootstrap, 2,000 resamples over 3,912 test ears. Floors of 6 to 12 dB form a plateau within 0.005 κ of the peak at 8 dB; 4 dB and 14 to 16 dB differ significantly from the deployed setting. Mean absolute error falls monotonically with width while categorical agreement turns over, so the two diverge at the wide end.
+Note. Paired bootstrap, 2,000 resamples over 3,913 test ears. The deployed 10 dB floor is the best performing setting; every other floor except 4 dB differs significantly from it. Mean absolute error falls monotonically with width while categorical agreement turns over, so the two diverge at the wide end, wider shoulders smoothing the graded output while blurring the boundary.
 
 **Table 4.** Validation under the WHO 2021 schema against the Clark six-category scheme. Same cohort, split, percentile-core fitting, Ruspini construction and calibration; only the classification schema differs.
 
 | Metric | Clark six-category (25/40/55/70/90) | WHO 2021 (20/35/50/65/80/95) |
 |---|---|---|
-| Weighted kappa vs own reference | 0.946 | 0.959 |
-| Overall agreement | 96.5% | 96.0% |
-| Borderline agreement (±5 dB) | 85.1% | 88.0% |
-| Borderline share of test ears | 18.7% | 29.5% |
-| Clear-case agreement | 99.1% | 99.4% |
-| Spearman rho vs PTA-4 | 0.812 | 0.844 |
-| MAE vs PTA-4 (dB) | 4.35 | 3.74 |
-| Bland-Altman bias (dB) | +0.25 | +0.13 |
+| Weighted kappa vs own reference | 0.946 | 0.961 |
+| Overall agreement | 96.9% | 96.7% |
+| Borderline agreement (±5 dB) | 86.3% | 90.5% |
+| Borderline share of test ears | 17.8% | 29.7% |
+| Clear-case agreement | 99.2% | 99.3% |
+| Spearman rho vs PTA-4 | 0.800 | 0.840 |
+| MAE vs PTA-4 (dB) | 4.32 | 3.69 |
 
-Note. For reference, scoring the Clark six-category system against the WHO 2021 boundaries returns kappa 0.875, so the categories must be fitted to the boundaries being claimed. The 2021 arm faces the harder borderline population, with 29.5% of ears within 5 dB of a boundary against 18.7%.
+Note. For reference, scoring the Clark six-category system against the WHO 2021 boundaries returns kappa 0.864, so the categories must be fitted to the boundaries being claimed. The 2021 arm faces the harder borderline population, with 29.7% of ears within 5 dB of a boundary against 17.8%.
 
 # Figure Captions {.unnumbered}
 
 **Figure 1.** Trapezoidal membership functions for the six hearing loss severity categories, arranged as a formal Ruspini partition. Successive functions share their feet with their neighbours' cores, so adjacent shoulders are complementary linear ramps that cross at 0.5 and memberships sum to 1 at every threshold across the 0 to 120 dB universe. Transition bands measure 13.6, 10.0, 10.0, 10.0 and 11.2 dB from normal to profound.
-**Figure 2.** (a) Bland-Altman plot of the difference between FAI and PTA-4 against their mean on the held-out test set. The FAI is a defuzzified index on a 0 to 100 universe rather than a decibel quantity, so it is mapped onto the decibel scale before differencing, using FAI = 0.890 × PTA-4 + 3.11 fitted on the training partition (r = 0.887); bias +0.25 dB, 95% limits of agreement −11.2 to +11.7 dB. (b) Classification agreement as a function of distance from the nearest Clark severity boundary. The FAI matches the crisp grade on 99.1% of clear cases (≥6 dB from a boundary) and returns graded membership on 85.1% of borderline cases (±5 dB).
+**Figure 2.** (a) Bland-Altman plot of the difference between FAI and PTA-4 against their mean on the held-out test set. The FAI is a defuzzified index on a 0 to 100 universe rather than a decibel quantity, so it is mapped onto the decibel scale before differencing, using FAI = 0.890 × PTA-4 + 3.11 fitted on the training partition (r = 0.887); bias −0.13 dB, 95% limits of agreement −11.5 to +11.2 dB. (b) Classification agreement as a function of distance from the nearest Clark severity boundary. The FAI matches the crisp grade on 99.2% of clear cases (≥6 dB from a boundary) and returns graded membership on 86.3% of borderline cases (±5 dB).
 **Figure 3.** Decision-curve analysis on the held-out test set: net benefit of FAI-based referral versus PTA-4-based referral, the crisp reference grade rule, and treat-all/treat-none strategies, for (a) any hearing loss (≥ mild) and (b) moderate-or-worse loss. Risk models were fitted on the training partition.
 **Figure 4.** Clinical case panels: four synthetic archetypes (A borderline mild, B noise notch, C presbycusis, D asymmetric) showing PTA versus FAI labels, membership bar plots and configuration vectors. Coloured background bands indicate WHO severity categories. Threshold arrays are given in Table S5.
