@@ -6,7 +6,7 @@
 
 **Methods.** Three NHANES cycles administering air-conduction audiometry to adults aged 20 to 69 years were combined and split at the participant level. Six trapezoidal membership functions were constructed as a Ruspini partition, so memberships sum to one at every threshold, and a 42-rule Mamdani system produced a Fuzzy Audiometric Index. Agreement was assessed by weighted kappa, stratification by distance from a boundary, decision-curve analysis, and a probabilistic benchmark scored by Brier score, log loss and calibration error.
 
-**Results.** Among 19,623 ears from 9,843 adults, the FAI achieved kappa 0.946 against the reference grade, 96.9% overall agreement and a mean absolute error of 4.32 dB, with 99.1% agreement for clear cases and 85.1% within 5 dB of a boundary. An ordinal logistic model recovered the reference grade exactly in all 3,913 test ears with a Brier score of zero, establishing that the reference label is a deterministic thresholding of its input. 
+**Results.** Among 19,623 ears from 9,843 adults, the FAI achieved kappa 0.946 against the reference grade, 96.9% overall agreement and a mean absolute error of 4.32 dB, with 99.2% agreement for clear cases and 86.3% within 5 dB of a boundary. An ordinal logistic model recovered the reference grade exactly in all 3,913 test ears with a Brier score of zero, establishing that the reference label is a deterministic thresholding of its input. 
 
 **Conclusions.** The framework reproduces the reference classification while preserving the gradation that crisp thresholds discard. Because the reference label is a deterministic function of the pure-tone average, agreement cannot evidence the graded representation's value, and the probabilistic metrics are where the comparison carries information.
 
@@ -90,7 +90,7 @@ No ethics approval was required for this secondary analysis of de-identified, pu
 
 ## Cohort Characteristics
 
-The cohort comprised 10,889 adults aged 20-69 years (mean 43.9). After exclusions, 19,623 ears from 9,843 adults had complete air-conduction thresholds at all seven frequencies: 15,710 ears (7,881 participants) in the training set and 3,913 (1,962 participants) in the test set. Thresholds were right-skewed with a floor effect at 0 to 10 dB HL, rising from 11.2 dB HL at 500 Hz to 27.4 dB HL at 8 kHz, consistent with age-related and noise-induced high-frequency loss. Under the WHO PTA-4 classification [@who1997], 88.1% of ears were normal, 8.7% mild, 2.2% moderate, 0.6% moderately severe, 0.3% severe and 0.1% profound, 
+The cohort comprised 10,889 adults aged 20-69. After exclusions, 19,623 ears from 9,843 adults had complete air-conduction thresholds at all seven frequencies: 15,710 ears (7,881 participants) in the training set and 3,913 (1,962 participants) in the test set. Thresholds were right-skewed with a floor effect at 0 to 10 dB HL, rising from 11.2 dB HL at 500 Hz to 27.4 dB HL at 8 kHz, consistent with age-related and noise-induced high-frequency loss. Under the WHO PTA-4 classification [@who1997], 88.1% of ears were normal, 8.7% mild, 2.2% moderate, 0.6% moderately severe, 0.3% severe and 0.1% profound, 
 
 Nearly one in five ears (18.7%) fell within ±5 dB of a boundary, where crisp classification is least certain.
 
@@ -100,9 +100,9 @@ The percentile-based optimization produced the Ruspini-partition functions shown
 
 ## Classification Agreement with the Reference Grade
 
-On the test set the FAI achieved weighted Cohen's κ = 0.946 against the Clark PTA-4 grade, with 96.9% overall agreement and a mean absolute error of 4.32 dB. Agreement 99.1% for clear cases (≥6 dB from a boundary) and 85.1% within the borderline zone (±5 dB, 18.7% of test ears). Spearman's correlation was 0.812, restricted in range because 86.9% of test ears are normal and the upper tail is compressed; kappa and MAE are therefore the more direct agreement measures.
+On the test set the FAI achieved weighted Cohen's κ = 0.946 against the Clark PTA-4 grade, with 96.9% overall agreement and a mean absolute error of 4.32 dB. Agreement 99.2% for clear cases (≥6 dB from a boundary) and 86.3% within the borderline zone (±5 dB, 18.7% of test ears). Spearman's correlation was 0.812, restricted in range because 86.9% of test ears are normal and the upper tail is compressed; kappa and MAE are therefore the more direct agreement measures.
 
-Per-class performance is given in Table 1. Sensitivity was 0.980 for normal and 0.950 for mild but fell to 0.621 for moderate and 0.500 for moderately severe loss, macro-averaged sensitivity was 0.786 against the 96.5% overall figure, which the normal majority largely determines. Of 138 disagreements, 104 moved upward by one grade and 34 downward, a predominantly upward error structure that increases false-positive referrals.
+Per-class performance is given in Table 1. Sensitivity was 0.978 for normal and 0.977 for mild, fell to 0.507 for moderate and recovered to 0.885 for moderately severe; macro-averaged sensitivity was 0.891 against the 96.9% overall figure, which the normal class, 89.1% of test ears, determines. Of 122 disagreements, 101 moved upward by one grade and 21 downward, a predominantly upward error structure that increases false-positive referrals.
 
 ## Agreement and Distance from the Severity Boundary
 
@@ -142,7 +142,7 @@ A Mamdani fuzzy inference system was developed and validated that maps pure-tone
 
 The probabilistic benchmark produced the key result. A proportional-odds ordinal logistic regression recovered the reference grade exactly in all 3,913 test ears with a Brier score of zero, which is not a strong model but proof the label is a deterministic monotone function of the pure-tone average. The mechanism is complete quasi-separation: the maximum-likelihood estimate diverges because no interior optimum exists, so the fitted probabilities are exactly 0 and 1 rather than close to them. Because the label is a thresholding, any model able to represent monotone thresholds recovers it exactly and agreement metrics saturate, so a graded representation cannot be shown to be better by kappa.
 
-What survives is discrimination among approximations. Gradient boosting, on seven-frequency input, scored kappa 0.9832 against the memberships' 0.9453, with a lower Brier score (0.0136 against 0.0482), lower log loss (0.0302 against 0.0810) and better calibration (expected calibration error 0.0021 against 0.0266). Read on one threshold rather than seven the index is at an information disadvantage no construction removes, so its contribution is not accuracy. Trapezoidal memberships express thresholds on a continuous quantity natively, whereas a tree ensemble must approximate that step function through axis-aligned splits on noisy inputs. It is the probabilistic properties that discriminate, what the index offers instead is an inspectable rule base, a graded output no crisp classifier provides, and explicit behaviour at the boundaries where graders disagree. Membership degrees are not probabilities: they express graded belonging to a category, the vagueness of a boundary, rather than the aleatory uncertainty of an outcome, and are scored as a distribution over grades rather than a belief about one.
+What survives is discrimination among approximations. Gradient boosting, on seven-frequency input, scored kappa 0.9832 against the memberships' 0.9453, with a lower Brier score (0.0136 against 0.0482), lower log loss (0.0302 against 0.0810) and better calibration (expected calibration error 0.0021 against 0.0266). Read on one threshold rather than seven the index is at an information disadvantage no construction removes, so its contribution is not accuracy. Trapezoidal memberships express thresholds on a continuous quantity natively, whereas a tree ensemble must approximate that step function through axis-aligned splits on noisy inputs. The probabilistic properties discriminate, what the index offers instead is an inspectable rule base, a graded output no crisp classifier provides, and explicit behaviour at the boundaries where graders disagree. Membership degrees are not probabilities: they express graded belonging to a category, the vagueness of a boundary, rather than the aleatory uncertainty of an outcome, and are scored as a distribution over grades rather than a belief about one.
 
 ## The Classification Schema Is a Parameter
 
@@ -150,7 +150,7 @@ The construction is not tied to the 25/40/55/70/90 boundaries, which trace to Cl
 
 ## Clinical Implications
 
-In audiologic triage the FAI could refine referral pathways by flagging patients who straddle severity boundaries, so a borderline case is monitored rather than forced into a category that misstates the loss. Prescriptive methods such as NAL-NL2 [@keidser2011] and DSL [@scollie2005] change compression ratios discretely at severity boundaries, whereas a configuration vector could guide frequency-specific amplification for notched or sloping patterns in which the PTA is a poor summary. For ototoxicity monitoring, the temporal tracking module flags sub-threshold FAI changes without a PTA boundary crossing, an early warning that conventional staging misses and that requires prospective validation.
+In triage the FAI could refine referral pathways by flagging patients who straddle severity boundaries, so a borderline case is monitored rather than forced into a category that misstates the loss. Prescriptive methods such as NAL-NL2 [@keidser2011] and DSL [@scollie2005] already derive frequency-specific gain from the full audiogram, so the index is not a fitting prescription: its contribution is automated triage and remote screening, and a configuration summary for notched or sloping patterns the PTA obscures. For ototoxicity monitoring, the temporal module flags sub-threshold FAI changes without a PTA boundary crossing, an early warning conventional staging misses and that requires prospective validation.
 
 ## Comparison with Prior Work
 
@@ -166,7 +166,7 @@ The World Report on Hearing [@who2021] lowered the normal boundary to 20 dB HL a
 
 ## Generalizability and Future Directions
 
-Additional inputs can be accommodated by adding membership functions and rules, and a web-based calculator with a REST API for EHR integration has been deployed for clinical evaluation. Future work will validate the system prospectively, explore neuro-fuzzy approaches such as ANFIS [@jang1993] that learn rule parameters while remaining interpretable, and test whether the graded index improves on the crisp grade in predicting speech-in-noise performance or hearing-aid outcomes.
+Additional inputs can be accommodated by adding membership functions and rules, and a calculator with a REST API for EHR integration has been deployed for clinical evaluation. Future work will validate the system prospectively, explore neuro-fuzzy approaches such as ANFIS [@jang1993] that learn rule parameters while remaining interpretable, and test whether the graded index improves on the crisp grade in predicting speech-in-noise performance or hearing-aid outcomes.
 
 ## Conclusions
 
