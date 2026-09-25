@@ -1,29 +1,29 @@
 {
   "cohort": "combined 20-69 (AUX1+AUX_G+AUX_I)",
-  "split": "participant-level (80/20, seed 42)",
+  "split": "participant-level (80/20, SEQN-keyed, seed 42)",
   "participants": 10889,
-  "clean_ears": 19568,
-  "train_ears": 15656,
-  "test_ears": 3912,
-  "train_participants": 7866,
-  "test_participants": 1966,
-  "kappa": 0.946,
-  "overall": 0.9647,
-  "rho": 0.812,
-  "mae": 4.35,
-  "borderline": 0.8509,
-  "clear": 0.9909,
-  "borderline_share": 0.1869,
-  "bias": 1.9,
-  "loa_lo": -8.6,
-  "loa_hi": 12.3,
-  "n_valid": 3912,
+  "clean_ears": 19623,
+  "train_ears": 15710,
+  "test_ears": 3913,
+  "train_participants": 7881,
+  "test_participants": 1962,
+  "kappa": 0.944,
+  "overall": 0.9665,
+  "rho": 0.8,
+  "mae": 4.34,
+  "borderline": 0.859,
+  "clear": 0.9897,
+  "borderline_share": 0.1776,
+  "bias": 1.6,
+  "loa_lo": -9.0,
+  "loa_hi": 12.1,
+  "n_valid": 3913,
   "label_thresholds": [
     23.8,
-    48.9,
-    63.8,
-    66.4,
-    95.0
+    50.0,
+    53.1,
+    71.3,
+    77.2
   ],
   "single_ear": true,
   "mf_params": {
@@ -36,30 +36,30 @@
     "mild": [
       16.4,
       30.0,
-      35.4,
-      45.4
+      35.7,
+      45.0
     ],
     "moderate": [
-      35.4,
-      45.4,
-      52.1,
-      62.1
+      35.7,
+      45.0,
+      54.3,
+      60.0
     ],
     "moderately_severe": [
-      52.1,
-      62.1,
-      66.1,
-      76.1
+      54.3,
+      60.0,
+      67.1,
+      75.0
     ],
     "severe": [
-      66.1,
-      76.1,
-      83.6,
-      94.8
+      67.1,
+      75.0,
+      85.0,
+      95.9
     ],
     "profound": [
-      83.6,
-      94.8,
+      85.0,
+      95.9,
       120.0,
       120.5
     ]

@@ -78,6 +78,9 @@ probes = [
     ("Suen: United States cased",    "United States"),
     ("no [2,3] grouping",            "[2,3]", True),
     ("no mixed-loss naming",         "mixed-loss", True),
+    ("abstract rule count = 42",     "42-rule Mamdani"),
+    ("no 47-rule claim",            "47-rule", True),
+    ("four-group split stated",      "A further 12 rules"),
     ("no stale 0.95 claim",          "0.95 against the WHO"),
 ]
 print("\n  content probes:")

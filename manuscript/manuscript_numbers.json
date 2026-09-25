@@ -1,117 +1,117 @@
 {
   "headline": {
     "kappa": 0.946,
-    "overall": 0.9688,
-    "rho": 0.8,
-    "mae": 4.32,
-    "borderline": 0.8633,
-    "clear": 0.9916,
-    "borderline_share": 0.1776,
-    "bias": 1.6,
-    "loa_lo": -9.0,
-    "loa_hi": 12.1,
-    "test_ears": 3913
+    "overall": 0.9647,
+    "rho": 0.812,
+    "mae": 4.35,
+    "borderline": 0.8509,
+    "clear": 0.9909,
+    "borderline_share": 0.1869,
+    "bias": 1.9,
+    "loa_lo": -8.6,
+    "loa_hi": 12.3,
+    "test_ears": 3912
   },
   "by_distance": [
     {
       "within_db": 1,
       "n": 70,
-      "agreement": 0.7857142857142857,
-      "share": 0.017889087656529516
+      "agreement": 0.8428571428571429,
+      "share": 0.01789366053169734
     },
     {
       "within_db": 2,
-      "n": 231,
-      "agreement": 0.8441558441558441,
-      "share": 0.059033989266547404
+      "n": 230,
+      "agreement": 0.8173913043478261,
+      "share": 0.058793456032719835
     },
     {
       "within_db": 3,
-      "n": 398,
-      "agreement": 0.8391959798994975,
-      "share": 0.10171224124712497
+      "n": 417,
+      "agreement": 0.8129496402877698,
+      "share": 0.10659509202453987
     },
     {
       "within_db": 4,
-      "n": 538,
-      "agreement": 0.8475836431226765,
-      "share": 0.13749041656018401
+      "n": 578,
+      "agreement": 0.8321799307958477,
+      "share": 0.14775051124744376
     },
     {
       "within_db": 5,
-      "n": 695,
-      "agreement": 0.8633093525179856,
-      "share": 0.17761308458982877
+      "n": 731,
+      "agreement": 0.8508891928864569,
+      "share": 0.18686094069529652
     },
     {
       "within_db": 10,
-      "n": 1348,
-      "agreement": 0.9102373887240356,
-      "share": 0.3444927165857398
+      "n": 1359,
+      "agreement": 0.9006622516556292,
+      "share": 0.3473926380368098
     },
     {
       "within_db": 15,
-      "n": 2151,
-      "agreement": 0.9432821943282195,
-      "share": 0.5497061078456428
+      "n": 2119,
+      "agreement": 0.9353468617272298,
+      "share": 0.5416666666666666
     }
   ],
   "per_class": [
     {
       "severity": "Normal",
-      "n_reference": 3486,
-      "n_predicted": 3410,
-      "sensitivity": 0.9781985083189902,
+      "n_reference": 3401,
+      "n_predicted": 3334,
+      "sensitivity": 0.9802999117906498,
       "specificity": 1.0,
       "precision": 1.0
     },
     {
       "severity": "Mild",
-      "n_reference": 310,
-      "n_predicted": 397,
-      "sensitivity": 0.9774193548387097,
-      "specificity": 0.9739106300305301,
-      "precision": 0.7632241813602015
+      "n_reference": 361,
+      "n_predicted": 434,
+      "sensitivity": 0.9501385041551247,
+      "specificity": 0.974373415939172,
+      "precision": 0.7903225806451613
     },
     {
       "severity": "Moderate",
-      "n_reference": 73,
-      "n_predicted": 47,
-      "sensitivity": 0.5068493150684932,
-      "specificity": 0.9973958333333334,
-      "precision": 0.7872340425531915
+      "n_reference": 103,
+      "n_predicted": 91,
+      "sensitivity": 0.6213592233009708,
+      "specificity": 0.9929115253347335,
+      "precision": 0.7032967032967034
     },
     {
       "severity": "Moderately Severe",
       "n_reference": 26,
-      "n_predicted": 41,
-      "sensitivity": 0.8846153846153846,
-      "specificity": 0.9953691793156676,
-      "precision": 0.5609756097560976
+      "n_predicted": 28,
+      "sensitivity": 0.5,
+      "specificity": 0.9961399897066392,
+      "precision": 0.4642857142857143
     },
     {
       "severity": "Severe",
-      "n_reference": 12,
-      "n_predicted": 12,
+      "n_reference": 18,
+      "n_predicted": 23,
       "sensitivity": 1.0,
-      "specificity": 1.0,
-      "precision": 1.0
+      "specificity": 0.9987159732922445,
+      "precision": 0.782608695652174
     },
     {
       "severity": "Profound",
-      "n_reference": 6,
-      "n_predicted": 6,
-      "sensitivity": 1.0,
+      "n_reference": 3,
+      "n_predicted": 2,
+      "sensitivity": 0.6666666666666666,
       "specificity": 1.0,
       "precision": 1.0
     }
   ],
-  "macro_f1": 0.8582259677196825,
-  "macro_sensitivity": 0.891180427140263,
+  "macro_f1": 0.77871152091635,
+  "macro_sensitivity": 0.7864107176522354,
   "confusion_matrix": [
     [
-      3410,
-      76,
+      3334,
+      67,
       0,
       0,
       0,
@@ -119,34 +119,26 @@
     ],
     [
       0,
-      303,
-      7,
-      0,
-      0,
-      0
-    ],
-    [
-      0,
-      18,
-      37,
+      343,
       18,
       0,
-      0
-    ],
-    [
-      0,
-      0,
-      3,
-      23,
       0,
       0
     ],
     [
       0,
+      24,
+      64,
+      15,
+      0,
+      0
+    ],
+    [
       0,
       0,
-      0,
-      12,
+      9,
+      13,
+      4,
       0
     ],
     [
@@ -154,39 +146,57 @@
       0,
       0,
       0,
+      18,
+      0
+    ],
+    [
       0,
-      6
+      0,
+      0,
+      0,
+      1,
+      2
     ]
   ],
   "errors": [
     {
       "reference": "Normal",
       "predicted": "Mild",
-      "n": 76
+      "n": 67
     },
     {
       "reference": "Mild",
       "predicted": "Moderate",
-      "n": 7
+      "n": 18
     },
     {
       "reference": "Moderate",
       "predicted": "Mild",
-      "n": 18
+      "n": 24
     },
     {
       "reference": "Moderate",
       "predicted": "Moderately Severe",
-      "n": 18
+      "n": 15
     },
     {
       "reference": "Moderately Severe",
       "predicted": "Moderate",
-      "n": 3
+      "n": 9
+    },
+    {
+      "reference": "Moderately Severe",
+      "predicted": "Severe",
+      "n": 4
+    },
+    {
+      "reference": "Profound",
+      "predicted": "Severe",
+      "n": 1
     }
   ],
-  "upward": 101,
-  "downward": 21,
+  "upward": 104,
+  "downward": 34,
   "normal_mild_transition": [
     {
       "pta4": 24.0,
@@ -223,45 +233,45 @@
     10.0,
     10.0,
     10.0,
-    10.9
+    11.2
   ],
   "decision_curve": {
-    "prevalence_any": 0.10912343470483005,
-    "prevalence_moderate": 0.029900332225913623,
+    "prevalence_any": 0.1306237218813906,
+    "prevalence_moderate": 0.03834355828220859,
     "curves": [
       {
         "outcome": "any loss (grade>=1)",
         "rows": [
           {
             "threshold_prob": 0.05,
-            "prevalence": 0.10912343470483005,
-            "fai_net_benefit": 0.1037701588497182,
-            "pta_net_benefit": 0.10912343470483005,
-            "treat_all": 0.06223519442613688,
+            "prevalence": 0.1306237218813906,
+            "fai_net_benefit": 0.12567269400495104,
+            "pta_net_benefit": 0.1306237218813906,
+            "treat_all": 0.08486707566462168,
             "treat_none": 0.0
           },
           {
             "threshold_prob": 0.1,
-            "prevalence": 0.10912343470483005,
-            "fai_net_benefit": 0.10421103444359257,
-            "pta_net_benefit": 0.10912343470483005,
-            "treat_all": 0.010137149672033371,
+            "prevalence": 0.1306237218813906,
+            "fai_net_benefit": 0.12619291070211316,
+            "pta_net_benefit": 0.1306237218813906,
+            "treat_all": 0.03402635764598955,
             "treat_none": 0.0
           },
           {
             "threshold_prob": 0.2,
-            "prevalence": 0.10912343470483005,
-            "fai_net_benefit": 0.10426782519805775,
-            "pta_net_benefit": 0.10912343470483005,
-            "treat_all": -0.11359570661896246,
+            "prevalence": 0.1306237218813906,
+            "fai_net_benefit": 0.1263420245398773,
+            "pta_net_benefit": 0.1306237218813906,
+            "treat_all": -0.08672034764826175,
             "treat_none": 0.0
           },
           {
             "threshold_prob": 0.3,
-            "prevalence": 0.10912343470483005,
-            "fai_net_benefit": 0.0875104961483699,
-            "pta_net_benefit": 0.10912343470483005,
-            "treat_all": -0.27268080756452856,
+            "prevalence": 0.1306237218813906,
+            "fai_net_benefit": 0.11126935436751388,
+            "pta_net_benefit": 0.1306237218813906,
+            "treat_all": -0.24196611159801346,
             "treat_none": 0.0
           }
         ]
@@ -271,34 +281,34 @@
         "rows": [
           {
             "threshold_prob": 0.05,
-            "prevalence": 0.029900332225913623,
-            "fai_net_benefit": 0.028757044668917375,
-            "pta_net_benefit": 0.029765827807443475,
-            "treat_all": -0.021157545025354087,
+            "prevalence": 0.03834355828220859,
+            "fai_net_benefit": 0.03679636207082122,
+            "pta_net_benefit": 0.038101388440426216,
+            "treat_all": -0.012269938650306754,
             "treat_none": 0.0
           },
           {
             "threshold_prob": 0.1,
-            "prevalence": 0.029900332225913623,
-            "fai_net_benefit": 0.02646449158077065,
-            "pta_net_benefit": 0.029900332225913623,
-            "treat_all": -0.07788851974898488,
+            "prevalence": 0.03834355828220859,
+            "fai_net_benefit": 0.03308907066575778,
+            "pta_net_benefit": 0.03834355828220859,
+            "treat_all": -0.06850715746421268,
             "treat_none": 0.0
           },
           {
             "threshold_prob": 0.2,
-            "prevalence": 0.029900332225913623,
-            "fai_net_benefit": 0.023319703552261692,
-            "pta_net_benefit": 0.029900332225913623,
-            "treat_all": -0.21262458471760798,
+            "prevalence": 0.03834355828220859,
+            "fai_net_benefit": 0.02933282208588957,
+            "pta_net_benefit": 0.03834355828220859,
+            "treat_all": -0.20207055214723926,
             "treat_none": 0.0
           },
           {
             "threshold_prob": 0.3,
-            "prevalence": 0.029900332225913623,
-            "fai_net_benefit": 0.022197072030959074,
-            "pta_net_benefit": 0.029900332225913623,
-            "treat_all": -0.3858566682486949,
+            "prevalence": 0.03834355828220859,
+            "fai_net_benefit": 0.02716914986853637,
+            "pta_net_benefit": 0.03834355828220859,
+            "treat_all": -0.37379491673970205,
             "treat_none": 0.0
           }
         ]
@@ -438,11 +448,11 @@
     }
   },
   "label_thresholds": [
-    24.6,
-    48.2,
-    57.3,
-    74.0,
-    85.8
+    23.8,
+    48.9,
+    63.8,
+    66.4,
+    95.0
   ],
   "mf_params": {
     "normal": [
@@ -472,12 +482,12 @@
     "severe": [
       66.1,
       76.1,
-      85.0,
-      95.9
+      83.6,
+      94.8
     ],
     "profound": [
-      85.0,
-      95.9,
+      83.6,
+      94.8,
       120.0,
       120.5
     ]

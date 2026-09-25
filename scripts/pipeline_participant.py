@@ -7,7 +7,7 @@ Everything else identical to pipeline_combined.py (MF opt on train, label-thresh
 calibration on train, batched classification, validation, ML comparators).
 Outputs to data/output_participant/.
 """
-import sys, json, os, pickle, warnings
+import sys, json, os, pickle, warnings, hashlib
 from pathlib import Path
 
 warnings.filterwarnings('ignore')
@@ -198,12 +198,21 @@ def main():
           f'from {len(set(s for s, _, _, _ in ear_rows))} participants')
 
     # participant-level split: all ears of one participant stay together
-    print('\n[1b] Participant-level 80/20 split (random_state 42)...')
+    print('\n[1b] Participant-level 80/20 split (SEQN-keyed, seed 42)...')
     participants = sorted(set(s for s, _, _, _ in ear_rows))
-    rng = np.random.RandomState(42)
-    perm = rng.permutation(len(participants))
-    n_test_ppl = int(round(0.2 * len(participants)))
-    test_ppl = set(participants[i] for i in perm[:n_test_ppl])
+
+    # The assignment is a deterministic function of SEQN rather than of position
+    # in the participant list. A positional permutation reshuffles the entire test
+    # set whenever the cohort changes by even one participant, which makes a
+    # cohort correction impossible to interpret: right-censoring 55 ears moved the
+    # severe count from 18 to 12 and profound from 3 to 12, effects far larger
+    # than the 55 ears responsible. Keying on SEQN holds the split fixed as the
+    # cohort is revised, so before/after comparisons mean what they appear to.
+    def _in_test(p, seed=42, holdout=0.20):
+        h = hashlib.md5(f'{int(p)}:{seed}'.encode()).hexdigest()
+        return (int(h[:8], 16) % 10_000) < int(holdout * 10_000)
+
+    test_ppl = set(p for p in participants if _in_test(p))
     train_rows = [r for r in ear_rows if r[0] not in test_ppl]
     test_rows = [r for r in ear_rows if r[0] in test_ppl]
     print(f'  train: {len(train_rows):,} ears / {len(set(s for s,_,_,_ in train_rows)):,} participants')
@@ -347,7 +356,7 @@ def main():
               f'MAE={mean_absolute_error(y_te, pred):.2f}')
 
     metrics = {'cohort': 'combined 20-69 (AUX1+AUX_G+AUX_I)',
-               'split': 'participant-level (80/20, seed 42)',
+               'split': 'participant-level (80/20, SEQN-keyed, seed 42)',
                'participants': int(len(raw)), 'clean_ears': len(ear_rows),
                'train_ears': len(train_rows), 'test_ears': len(test_rows),
                'train_participants': int(len(set(s for s, _, _, _ in train_rows))),
