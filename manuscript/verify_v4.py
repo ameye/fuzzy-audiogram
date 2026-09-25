@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+"""Final verification of the CMPB v4 manuscript."""
+import re
+from docx import Document
+
+PATH = "/opt/data/fuzzy-audiogram/cmbp_v2/Manuscript_CMPB_v4.docx"
+d = Document(PATH)
+paras = [p.text.strip() for p in d.paragraphs if p.text.strip()]
+
+
+def wc(t):
+    return len([w for w in t.split() if re.search(r"[A-Za-z0-9]", w)])
+
+
+a = next(i for i, p in enumerate(paras) if re.match(r"^\d+\tIntroduction", p))
+b = next(i for i, p in enumerate(paras) if "Acknowledgements" in p and len(p) < 40)
+HEAD = re.compile(r"^\d+(\.\d+)*\t")
+body = [p for p in paras[a + 1:b] if not HEAD.match(p)]
+joined = " ".join(body)
+
+ab = next(j for j, p in enumerate(paras) if p.startswith("Background and Objective"))
+kw = next(j for j, p in enumerate(paras) if p.startswith("Keywords"))
+refs = [p for p in paras if re.match(r"^\[\d+\]", p)]
+figs = sorted(set(re.findall(r"Figure (\d)", joined)))
+
+main = wc(joined)
+abst = wc(" ".join(paras[ab:kw]))
+
+print("=" * 62)
+print("  CMPB v4 -- final verification")
+print("=" * 62)
+print(f"  main text        {main} / 3500        {'PASS' if main <= 3500 else 'OVER by ' + str(main - 3500)}")
+print(f"  abstract         {abst} / 250         {'PASS' if abst <= 250 else 'OVER'}")
+print(f"  references       {len(refs)} / 50")
+print(f"  figures cited    {figs}")
+print(f"  embedded images  {len(d.inline_shapes)}   (must be 0; artwork ships separately)")
+print(f"  first-person     {len(re.findall(r'\b(?:We|we|our|Our|I|my)\b', joined))}   (must be 0)")
+print(f"  font             {d.styles['Normal'].font.name} "
+      f"{d.styles['Normal'].font.size.pt:g}pt")
+
+probes = [
+    ("Ruspini partition",            "Ruspini partition"),
+    ("sum to one",                   "sum to exactly 1"),
+    ("membership argmax reported",   "kappa 0.9564"),
+    ("transition width floor",       "minimum transition width"),
+    ("probabilistic comparators",    "proportional-odds ordinal logistic"),
+    ("Brier score reported",         "Brier score of 0.0474"),
+    ("deterministic label",          "deterministic thresholding"),
+    ("transition ablation",          "Transition-Width Ablation"),
+    ("ablation CI",                  "+0.0108 to +0.0272"),
+    ("per-class table",              "Macro-averaged sensitivity 0.786"),
+    ("decision curve",               "net benefit"),
+    ("Clark for the six cut-offs",    "Clark PTA-4 grade"),
+    ("WHO 1997 cited for grades",    "five categories at 20 dB steps"),
+    ("WHO 2021 difference",          "normal boundary to 20 dB"),
+    ("single-ear protocol",          "single-ear protocol"),
+    ("no longitudinal cohort",       "no longitudinal audiometric sub-cohort"),
+    ("open-source repo in data statement", "github.com/ameye/fuzzy-audiogram"),
+    ("corrected kappa",              "kappa 0.946"),
+    ("corrected borderline",         "85.1%"),
+    ("no stale BA caption",          "+1.9 dB", True),
+    ("no stale 0.95 claim",          "0.95 against the WHO"),
+]
+print("\n  content probes:")
+bad = 0
+for _p in probes:
+    label, probe = _p[0], _p[1]
+    absent = len(_p) > 2 and bool(_p[2])
+    hit = probe.lower() in joined.lower() or probe.lower() in " ".join(paras).lower()
+    if absent or probe == "0.95 against the WHO":
+        hit = not hit          # these must be ABSENT
+        label += " (must be absent)"
+    if not hit:
+        bad += 1
+    print(f"    {'OK  ' if hit else 'FAIL'}  {label}")
+
+print(f"\n  reference list ({len(refs)}):")
+for p in refs:
+    print("   ", p[:88])
+print(f"\n  probes failed: {bad}")

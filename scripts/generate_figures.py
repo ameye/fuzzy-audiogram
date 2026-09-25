@@ -189,8 +189,13 @@ def fig2_fis_architecture():
     draw_arrow(6.25, row3_y, 7.75, row3_y)
 
     # Outputs box (right side)
-    outputs_text = 'FAI (0–100)  •  Configuration Vector  •  Asymmetry Index  •  Linguistic Summary'
-    draw_box(9.5, row3_y, 5.5, 1.0,
+    # The list of outputs is too long for one line at this font size: laid out
+    # on a single line it needs ~6.5 data units inside a 5.5-unit box and spills
+    # past both edges. Split over two lines instead of shrinking the type, so it
+    # stays the same weight as the other stage labels.
+    outputs_text = ('FAI (0–100)  •  Configuration Vector\n'
+                    'Asymmetry Index  •  Linguistic Summary')
+    draw_box(9.5, row3_y, 5.5, 1.15,
              'Outputs\n' + outputs_text,
              c_output, subtext='Scalar + vector + categorical outputs')
 
