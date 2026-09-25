@@ -226,7 +226,7 @@ def main():
 
     print('\n[3] Building Mamdani FIS (single-ear mode)...')
     system, sim, *_ = build_fis_with_params(params)
-    print('  FIS built (47-rule single-ear base)')
+    print('  FIS built (42-rule base)')
 
     print('\n[3b] Calibrating label thresholds on the TRAINING set...')
     from scipy.optimize import minimize as _minimize
