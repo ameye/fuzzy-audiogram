@@ -48,7 +48,9 @@ from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 
 OUT = ROOT / "data/output_participant"
-FIGDIR = ROOT / "cmbp_v2/figures_v3"
+# The manuscript pack keeps its artwork in manuscript/figures/. Writing to the
+# cmbp_v2 scratch directory instead left the tracked figures silently stale.
+FIGDIR = ROOT / "manuscript/figures"
 FIGDIR.mkdir(parents=True, exist_ok=True)
 DPI = 600
 
