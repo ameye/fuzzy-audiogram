@@ -1,5 +1,13 @@
 # A Mamdani fuzzy inference framework for graded pure-tone audiometric classification: development, validation and open-source implementation
 
+**Sanyaolu Ameye**
+
+ORCID: 0000-0002-5217-7997
+
+Affiliation: [TO CONFIRM]
+
+**Corresponding author:** Sanyaolu Ameye. Email: sanyaameye@hotmail.com
+
 ## Abstract {.unnumbered}
 
 **Background and Objective.** Pure-tone audiometry is summarised by the pure-tone average and graded against fixed severity boundaries, which forces a binary verdict on thresholds that carry graded information. A Mamdani fuzzy inference system was developed to return a continuous index, and validated against the six-category Clark PTA-4 schema.
