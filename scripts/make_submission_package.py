@@ -19,14 +19,16 @@ SUPP = MS / "supplementary"
 FIGDIR = MS / "figures"
 
 TITLE = ("A Mamdani fuzzy inference framework for graded pure-tone audiometric "
-         "classification: development, validation and open-source implementation")
+         "classification: development, validation, and open-source implementation")
 AUTHOR = "Sanyaolu Ameye"
+BYLINE = "Sanyaolu Ameye – MBBS, FWACS, FMCORL, Pg Cert AI/ML, MDS"
+ROLE = "Consultant Otorhinolaryngology Head and Neck Surgeon"
 ORCID = "0000-0002-5217-7997"
 EMAIL = "sanyaameye@hotmail.com"
 REPO = "https://github.com/ameye/fuzzy-audiogram"
 
 # no real institution is named anywhere in this package
-AFFIL = "[TO CONFIRM]"
+AFFIL = ROLE
 
 CSS = """
 @page { size: A4; margin: 22mm 20mm; @bottom-center { content: counter(page); font-size: 9pt; color:#666 } }
@@ -51,10 +53,10 @@ def pdf(path, body):
 def cover_letter(path):
     body = f"""
 <h1>Cover letter</h1>
-<p class="meta"><b>To:</b> The Editors-in-Chief, <i>Computer Methods and Programs in Biomedicine</i></p>
-<p class="meta"><b>Manuscript title:</b> {html.escape(TITLE)}</p>
-<p class="meta"><b>Article type:</b> Full-length research article</p>
-<p class="meta"><b>Corresponding author:</b> {AUTHOR}, {ORCID}, {EMAIL}</p>
+<p class="meta"><b>To:</b></p>
+<p class="meta">The Editors-in-Chief</p>
+<p class="meta"><i>Computer Methods and Programs in Biomedicine</i></p>
+<p class="meta" style="margin-top:10pt"><b>Manuscript title:</b> {html.escape(TITLE)}</p>
 
 <p>Dear Editors,</p>
 
@@ -97,10 +99,10 @@ funding for this work. A declaration of generative AI use is included in the man
 
 <p>Thank you for considering this submission.</p>
 
-<p style="margin-top:14pt">Yours sincerely,</p>
-<p style="margin:0"><b>{AUTHOR}</b><br/>
+<p style="margin-top:22pt">Yours sincerely,</p>
+<p style="margin:0"><b>{html.escape(BYLINE)}</b><br/>
+{html.escape(ROLE)}<br/>
 ORCID: {ORCID}<br/>
-{AFFIL}<br/>
 {EMAIL}</p>
 """
     pdf(path, body)
@@ -109,9 +111,9 @@ ORCID: {ORCID}<br/>
 def title_page(path):
     body = f"""
 <h1>{html.escape(TITLE)}</h1>
-<p class="meta" style="margin-top:10pt"><b>{AUTHOR}</b></p>
+<p class="meta" style="margin-top:10pt"><b>{html.escape(BYLINE)}</b></p>
+<p class="meta">{html.escape(ROLE)}</p>
 <p class="meta">ORCID: {ORCID}</p>
-<p class="meta">Affiliation: {html.escape(AFFIL)}</p>
 <p class="meta"><b>Corresponding author:</b> {AUTHOR}, {EMAIL}</p>
 
 <h2>Article type</h2>
@@ -236,15 +238,13 @@ FIGURES
 
 All Word files use Bookman Old Style 12 pt, justified, no first-line indent.
 
-BEFORE YOU UPLOAD - TWO OUTSTANDING ITEMS
-  1. AFFILIATION IS UNFILLED. The title page and cover letter read
-     "Affiliation: [TO CONFIRM]". Give me the affiliation and I will rebuild.
-  2. The shipped classifier has a rule-base hole. Two slope/notch combinations have no
-     configuration rule (steeply_sloping + shallow_notch, precipitous + deep_notch).
-     When none fires, the FIS returns no audiogram_shape and core.py:379 raises
-     KeyError. A textbook noise notch (slope 35 dB, notch 17.5 dB) hits it, and the
-     deployed web calculator returns an error for that ear. Fixing it adds rules,
-     which changes the count of 42 and ripples into the Abstract and Section 3.6.
+BEFORE YOU UPLOAD - ONE OUTSTANDING ITEM
+  The shipped classifier has a rule-base hole. Two slope/notch combinations have no
+  configuration rule (steeply_sloping + shallow_notch, precipitous + deep_notch).
+  When none fires, the FIS returns no audiogram_shape and core.py:379 raises
+  KeyError. A textbook noise notch (slope 35 dB, notch 17.5 dB) hits it, and the
+  deployed web calculator returns an error for that ear. Fixing it adds rules, which
+  changes the count of 42 and ripples into the Abstract and Section 3.6.
 
 EDITORIAL CHECKS - ALL SATISFIED
   Main text          3,497 words   (CMPB limit 3,500 excluding abstract)

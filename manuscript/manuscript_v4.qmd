@@ -1,10 +1,10 @@
-# A Mamdani fuzzy inference framework for graded pure-tone audiometric classification: development, validation and open-source implementation
+# A Mamdani fuzzy inference framework for graded pure-tone audiometric classification: development, validation, and open-source implementation
 
-**Sanyaolu Ameye**
+Sanyaolu Ameye – MBBS, FWACS, FMCORL, Pg Cert AI/ML, MDS
+
+Consultant Otorhinolaryngology Head and Neck Surgeon
 
 ORCID: 0000-0002-5217-7997
-
-Affiliation: [TO CONFIRM]
 
 **Corresponding author:** Sanyaolu Ameye. Email: sanyaameye@hotmail.com
 

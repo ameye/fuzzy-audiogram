@@ -22,12 +22,14 @@ SUB = ROOT / "submission"
 QMD = MS / "manuscript_v4.qmd"
 
 TITLE = ("A Mamdani fuzzy inference framework for graded pure-tone audiometric "
-         "classification: development, validation and open-source implementation")
+         "classification: development, validation, and open-source implementation")
 AUTHOR = "Sanyaolu Ameye"
+BYLINE = "Sanyaolu Ameye – MBBS, FWACS, FMCORL, Pg Cert AI/ML, MDS"
+ROLE = "Consultant Otorhinolaryngology Head and Neck Surgeon"
 ORCID = "0000-0002-5217-7997"
 EMAIL = "sanyaameye@hotmail.com"
 REPO = "https://github.com/ameye/fuzzy-audiogram"
-AFFIL = "[TO CONFIRM]"
+AFFIL = ROLE
 FONT = "Bookman Old Style"
 
 HIGHLIGHTS = [
@@ -118,13 +120,11 @@ def add_table(d, rows):
 def cover_letter(path):
     d = new_doc()
     heading(d, "Cover letter", 15)
-    para(d, f"To: The Editors-in-Chief, Computer Methods and Programs in Biomedicine",
-         align=WD_ALIGN_PARAGRAPH.LEFT, space_after=2)
-    para(d, f"Manuscript title: {TITLE}", align=WD_ALIGN_PARAGRAPH.LEFT, space_after=2)
-    para(d, "Article type: Full-length research article",
-         align=WD_ALIGN_PARAGRAPH.LEFT, space_after=2)
-    para(d, f"Corresponding author: {AUTHOR}, {ORCID}, {EMAIL}",
+    para(d, "To:", align=WD_ALIGN_PARAGRAPH.LEFT, space_after=0)
+    para(d, "The Editors-in-Chief", align=WD_ALIGN_PARAGRAPH.LEFT, space_after=0)
+    para(d, "Computer Methods and Programs in Biomedicine",
          align=WD_ALIGN_PARAGRAPH.LEFT, space_after=12)
+    para(d, f"Manuscript title: {TITLE}", align=WD_ALIGN_PARAGRAPH.LEFT, space_after=12)
 
     para(d, "Dear Editors,")
     para(d, "I am submitting for consideration a research article describing an open-source "
@@ -163,10 +163,10 @@ def cover_letter(path):
             "specific funding for this work. A declaration of generative AI use is included in "
             "the manuscript.")
     para(d, "Thank you for considering this submission.")
-    para(d, "Yours sincerely,", space_after=2)
-    para(d, AUTHOR, bold=True, align=WD_ALIGN_PARAGRAPH.LEFT, space_after=0)
+    para(d, "Yours sincerely,", space_after=16)
+    para(d, BYLINE, bold=True, align=WD_ALIGN_PARAGRAPH.LEFT, space_after=0)
+    para(d, ROLE, align=WD_ALIGN_PARAGRAPH.LEFT, space_after=0)
     para(d, f"ORCID: {ORCID}", align=WD_ALIGN_PARAGRAPH.LEFT, space_after=0)
-    para(d, AFFIL, align=WD_ALIGN_PARAGRAPH.LEFT, space_after=0)
     para(d, EMAIL, align=WD_ALIGN_PARAGRAPH.LEFT, space_after=0)
     d.save(path)
 
@@ -174,9 +174,9 @@ def cover_letter(path):
 def title_page(path):
     d = new_doc()
     para(d, TITLE, size=16, bold=True, align=WD_ALIGN_PARAGRAPH.LEFT, space_after=14)
-    para(d, AUTHOR, bold=True, align=WD_ALIGN_PARAGRAPH.LEFT, space_after=2)
+    para(d, BYLINE, bold=True, align=WD_ALIGN_PARAGRAPH.LEFT, space_after=2)
+    para(d, ROLE, align=WD_ALIGN_PARAGRAPH.LEFT, space_after=2)
     para(d, f"ORCID: {ORCID}", align=WD_ALIGN_PARAGRAPH.LEFT, space_after=2)
-    para(d, f"Affiliation: {AFFIL}", align=WD_ALIGN_PARAGRAPH.LEFT, space_after=2)
     para(d, f"Corresponding author: {AUTHOR}, {EMAIL}",
          align=WD_ALIGN_PARAGRAPH.LEFT, space_after=12)
 
