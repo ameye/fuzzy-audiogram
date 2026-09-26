@@ -8,6 +8,7 @@ Run:  python3 scripts/make_submission_package.py
 """
 import html
 import shutil
+import sys
 import zipfile
 from pathlib import Path
 
@@ -201,20 +202,39 @@ def main():
     shutil.copy2(MS / "Rule_Base.pdf", SUB / "06_Rule_Base.pdf")
     made.append("06_Rule_Base.pdf")
 
+    # Word versions. Elsevier accepts DOCX, and the tables and captions are wanted as
+    # separate files, so these are built after the PDFs rather than converted from them.
+    import subprocess
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "make_word_docs.py")],
+                   check=True, capture_output=True)
+    for f in sorted(SUB.glob("*.docx")):
+        made.append(f.name)
+
     # checklist
     chk = f"""CMPB SUBMISSION PACKAGE
 {TITLE}
 {AUTHOR} | ORCID {ORCID} | {EMAIL}
 
-FILES
+FILES - PDF
   01_Cover_Letter.pdf            cover letter to the Editors-in-Chief
   02_Title_Page.pdf              title page, keywords, highlights, CRediT, declarations
-  03_Manuscript.docx             manuscript for submission (no embedded figures)
-  03_Manuscript.pdf              the same text as a readable PDF, figures inlined
+  03_Manuscript.pdf              the manuscript as a readable PDF, figures inlined
   04_Highlights.pdf              highlights, for the separate highlights field
   05_Supplementary_Material.pdf  Table S1 and Figure S1
   06_Rule_Base.pdf               the 42 rules, for reviewers
+
+FILES - WORD
+  01_Cover_Letter.docx
+  02_Title_Page.docx
+  03_Manuscript.docx             manuscript for submission (no embedded figures)
+  04_Highlights.docx
+  07_Tables.docx                 all four tables, as a separate document
+  08_Figure_Captions.docx        all four captions, as a separate document
+
+FIGURES
   figures/                       four 600 dpi PNGs, separate as Elsevier requires
+
+All Word files use Bookman Old Style 12 pt, justified, no first-line indent.
 
 BEFORE YOU UPLOAD - TWO OUTSTANDING ITEMS
   1. AFFILIATION IS UNFILLED. The title page and cover letter read
