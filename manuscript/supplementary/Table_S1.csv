@@ -1,0 +1,7 @@
+Category,P25 core (dB HL),P75 core (dB HL),"Trapezoid [a, b, c, d]",Transition band to this category (dB HL),Transition width (dB),0.5 crossover (dB HL),Calibrated label cut point (dB HL)
+Normal,0.0,16.4,"[-0.5, 0.0, 16.4, 30.0]",—,—,—,—
+Mild,30.0,35.4,"[16.4, 30.0, 35.4, 45.4]",16.4–35.4,19.0,23.2,23.8
+Moderate,45.4,52.1,"[35.4, 45.4, 52.1, 62.1]",35.4–52.1,16.7,40.4,48.9
+Moderately severe,62.1,66.1,"[52.1, 62.1, 66.1, 76.1]",52.1–66.1,14.0,57.1,63.8
+Severe,76.1,85.0,"[66.1, 76.1, 85.0, 95.9]",66.1–85.0,18.9,71.1,66.4
+Profound,95.9,120.0,"[85.0, 95.9, 120.0, 120.5]",85.0–120.0,35.0,90.5,95.0

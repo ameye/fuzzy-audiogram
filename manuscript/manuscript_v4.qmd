@@ -18,7 +18,7 @@ Pure-tone audiometry remains the primary quantitative assessment of hearing, rep
 
 Its limitations are well established. A continuous quantity is forced into six discrete bins, so one decibel can change a diagnosis while a meaningful difference within a bin is invisible. The boundaries are administrative, not physiological: the ±5 dB test-retest variability of audiometry exceeds the distance between adjacent categories, so many ears sit within measurement noise of a verdict. The PTA also discards configuration, so a flat loss and a notched one can share an average while implying different pathologies, and a label cannot express trajectory.
 
-Approaches that soften these boundaries have been proposed. Machine-learning systems that digitise audiogram images classify the same crisp severity levels without an inspectable decision [@achakulvisut2025]; preclinical work in the same vein detects cochlear synaptopathy in mice [@ceriani2025], a different task. Data-driven profiling recovers phenotypes without an interpretable decision [@saak2022; @saak2025]. These methods answer a different question: the difficulty is not predicting the label more accurately but representing the quantity so it preserves gradation and stays legible to a clinician.
+Approaches that soften these boundaries have been proposed. Machine-learning systems that digitise audiogram images classify the same crisp severity levels without an inspectable decision [@achakulvisut2025]. Data-driven profiling recovers phenotypes without an interpretable decision [@saak2022; @saak2025]. These methods answer a different question: the difficulty is not predicting the label more accurately but representing the quantity so it preserves gradation and stays legible to a clinician.
 
 Fuzzy set theory fits that requirement: membership functions express partial belonging rather than binary assignment, and a Mamdani system [@mamdani1975] states its rules in terms a clinician can read and modify. Fuzzy approaches have been applied across clinical diagnosis [@adlassnig1986] and to EEG-based dementia staging [@amezquita2021], but no published system integrates severity classification, configuration typing, asymmetry and temporal tracking in one inspectable framework validated on population-level data.
 
@@ -76,7 +76,7 @@ Decision-curve analysis [@vickers2006] compared FAI-based with PTA-4-based refer
 
 ## Temporal Tracking
 
-The NHANES cycles analysed here are repeated cross-sectional surveys with no repeat audiometry on any participant, so no longitudinal audiometric sub-cohort could be constructed and the temporal tracking module, which applies fuzzy-adapted ASHA ototoxicity criteria [@asha1994] to FAI trajectories, is demonstrated on illustrative scenarios (Figure S2). Prospective validation would require serial audiometry in a monitored population, including extended high-frequency testing from 9 to 20 kHz, where ototoxic change appears first.
+The NHANES cycles analysed here are repeated cross-sectional surveys with no repeat audiometry on any participant, so no longitudinal audiometric sub-cohort could be constructed and the temporal tracking module, which applies fuzzy-adapted ASHA ototoxicity criteria [@asha1994] to FAI trajectories, is demonstrated on illustrative scenarios (Figure S1). Prospective validation would require serial audiometry in a monitored population, including extended high-frequency testing from 9 to 20 kHz, where ototoxic change appears first.
 
 ## Statistical Analysis and Software
 
@@ -96,13 +96,13 @@ Nearly one in five ears (18.7%) fell within ±5 dB of a boundary, where crisp cl
 
 ## Membership Function Construction
 
-The percentile-based optimization produced the Ruspini-partition functions shown in Figure 1 (parameters in Table S2), with transition bands of 13.6, 10.0, 10.0, 10.0 and 11.2 dB from normal to profound. Verification confirmed the memberships sum to 1 at every sampled threshold across the 0 to 120 dB universe, with a maximum deviation of zero. The FAI-to-label thresholds calibrated at 23.8, 48.9, 63.8, 66.4 and 95.0.
+The percentile-based optimization produced the Ruspini-partition functions shown in Figure 1 (parameters in Table S1), with transition bands of 13.6, 10.0, 10.0, 10.0 and 10.9 dB from normal to profound. Verification confirmed the memberships sum to 1 at every sampled threshold across the 0 to 120 dB universe, with a maximum deviation of zero. Adjacent memberships cross at 0.5 at 23.2, 40.4, 57.1, 71.1 and 90.5 dB (Figure 1); the calibrated FAI-to-label cut points, fitted rather than geometric, sit at 23.8, 48.9, 63.8, 66.4 and 95.0.
 
 ## Classification Agreement with the Reference Grade
 
-On the test set the FAI achieved weighted Cohen's κ = 0.946 against the Clark PTA-4 grade, with 96.9% overall agreement and a mean absolute error of 4.32 dB. Agreement 99.2% for clear cases (≥6 dB from a boundary) and 86.3% within the borderline zone (±5 dB, 18.7% of test ears). Spearman's correlation was 0.812, restricted in range because 86.9% of test ears are normal and the upper tail is compressed; kappa and MAE are therefore the more direct agreement measures.
+On the test set the FAI achieved weighted Cohen's κ = 0.946 against the Clark PTA-4 grade, with 96.9% overall agreement and a mean absolute error of 4.32 dB. Agreement 99.2% for clear cases (≥6 dB from a boundary) and 86.3% within the borderline zone (±5 dB, 17.8% of test ears). Spearman's correlation was 0.812, restricted in range because 89.1% of test ears are normal and the upper tail is compressed; kappa and MAE are therefore the more direct agreement measures.
 
-Per-class performance is given in Table 1. Sensitivity was 0.978 for normal and 0.977 for mild, fell to 0.507 for moderate and recovered to 0.885 for moderately severe; macro-averaged sensitivity was 0.891 against the 96.9% overall figure, which the normal class, 89.1% of test ears, determines. Of 122 disagreements, 101 moved upward by one grade and 21 downward, a predominantly upward error structure that increases false-positive referrals.
+Per-class performance is given in Table 1. Sensitivity was 0.978 for normal and 0.977 for mild, fell to 0.507 for moderate and recovered to 0.885 for moderately severe; macro-averaged sensitivity was 0.891 against the 96.9% overall figure, which the normal majority determines. Of 122 disagreements, 101 moved upward by one grade and 21 downward, a predominantly upward error structure that increases false-positive referrals.
 
 ## Agreement and Distance from the Severity Boundary
 
@@ -114,9 +114,6 @@ Table 2 reports the probabilistic benchmark. A proportional-odds ordinal logisti
 
 Among the models that do not saturate, the FAI membership vector returned a Brier score of 0.0482, log loss 0.0810 and expected calibration error 0.0266, against 0.0136, 0.0302 and 0.0021 for gradient boosting on the richer seven-frequency input. The ensemble was better on every metric, so the index is not competitive with it on accuracy: read on one threshold rather than seven, its arg-max recovered the reference grade at kappa 0.9453.
 
-## Validation Under the WHO 2021 Schema
-
-Under the 2021 schema the framework performed better on every metric except raw overall agreement (Table 4): kappa 0.961 against 0.946, mean absolute error 3.69 dB against 4.32, and rho 0.840 against 0.800. Borderline agreement was 90.5%, measured over the harder population, since the 2021 boundaries place 29.7% of ears within ±5 dB of one against 17.8%. Scoring the six-category system against the 2021 reference returned kappa 0.864.
 
 ## Decision-Curve Analysis
 
@@ -127,6 +124,10 @@ FAI-based referral maintained net benefit comparable to PTA-4-based referral acr
 Flooring the core gaps at 10 dB against the raw percentile gaps, which ranged from 5.7 to 13.6 dB, moved weighted kappa from 0.9437 to 0.9460 (+0.0022, 95% CI −0.0014 to +0.0058), borderline agreement from 85.9% to 86.3% and clear-case agreement from 99.0% to 99.2%. The raw gaps were therefore already behaving like a floor near 4 dB, and the deployed setting buys a small, non-significant gain over them.
 
 Sweeping the floor from 4 to 16 dB in 2 dB steps made the deployed setting the best-performing floor (Table 3): every setting except 4 dB differed significantly from 10 dB. Absolute error nevertheless fell monotonically with width, from 4.34 to 4.17 dB, so categorical and continuous agreement diverge: wider shoulders smooth the graded output while blurring the boundary.
+
+## Validation Under the WHO 2021 Schema
+
+Under the 2021 schema the framework performed better on every metric except raw overall agreement (Table 4): kappa 0.961 against 0.946, mean absolute error 3.69 dB against 4.32, and rho 0.840 against 0.800. Borderline agreement was 90.5%, measured over the harder population, since the 2021 boundaries place 29.7% of ears within ±5 dB of one against 17.8%. Scoring the six-category system against the 2021 reference returned kappa 0.864.
 
 ## Clinical Case Studies
 
@@ -146,7 +147,7 @@ What survives is discrimination among approximations. Gradient boosting, on seve
 
 ## The Classification Schema Is a Parameter
 
-The construction is not tied to the 25/40/55/70/90 boundaries, which trace to Clark rather than to WHO. The same cores, partition and calibration applied to the 2021 boundaries produced a better-calibrated system with lower absolute error, so the framework is schema-agnostic and agreement figures are interpretable only against the schema they were computed with. A change to WHO's grade table would require recalibration, not redesign. A Takagi-Sugeno-Kang system would avoid the boundary compression of centroid defuzzification and map onto decibels directly, but it replaces the linguistic consequent with a numeric one, discarding the rule trace a clinician can read and a regulator can review; that interpretability is why a Mamdani architecture was retained.
+The construction is not tied to the 25/40/55/70/90 boundaries, which trace to Clark. The same cores, partition and calibration applied to the 2021 boundaries produced a better-calibrated system with lower absolute error, so the framework is schema-agnostic and agreement figures are interpretable only against the schema they were computed with. A change to WHO's grade table would require recalibration, not redesign. A Takagi-Sugeno-Kang system would avoid the boundary compression of centroid defuzzification and map onto decibels directly, but it replaces the linguistic consequent with a numeric one, discarding the rule trace a clinician can read and a regulator can review; that interpretability is why a Mamdani architecture was retained.
 
 ## Clinical Implications
 
