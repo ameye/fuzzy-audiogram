@@ -74,11 +74,16 @@ def figure_s1(p, path):
     flagged = [int(dr["index"]) for dr in temporal.detect_fai_drift(fai)]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5))
+    # Equal spacing rather than a log axis. On a log scale matplotlib adds
+    # scientific-notation minor ticks (x10^2, x10^3) that collide with the 250, 500
+    # and 1000 labels in the crowded low-frequency end. Equal spacing is also the
+    # convention for clinical audiograms.
+    xpos = np.arange(len(freq))
     for label, _, t in course:
-        ax1.plot(freq, t, marker="o", lw=1.6, label=label)
-    ax1.set_xscale("log")
-    ax1.set_xticks(freq)
+        ax1.plot(xpos, t, marker="o", lw=1.6, label=label)
+    ax1.set_xticks(xpos)
     ax1.set_xticklabels([str(f) for f in freq])
+    ax1.set_xlim(-0.5, len(freq) - 0.5)
     ax1.set_xlabel("Frequency (Hz)")
     ax1.set_ylabel("Air-conduction threshold (dB HL)")
     ax1.set_title("(a) Serial audiograms")
