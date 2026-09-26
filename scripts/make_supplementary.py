@@ -34,8 +34,8 @@ def table_rows(p):
     rows = []
     for i, k in enumerate(ORDER):
         a, b, c, d = p[k]
-        band = "—" if i == 0 else f"{p[ORDER[i-1]][2]:.1f}–{c:.1f}"
-        width = "—" if i == 0 else f"{c - p[ORDER[i-1]][2]:.1f}"
+        band = "—" if i == 0 else f"{p[ORDER[i-1]][2]:.1f}–{p[ORDER[i-1]][3]:.1f}"
+        width = "—" if i == 0 else f"{p[ORDER[i-1]][3] - p[ORDER[i-1]][2]:.1f}"
         cross = "—" if i == 0 else f"{(p[ORDER[i-1]][2] + b) / 2:.1f}"
         cut = "—" if i == 0 else f"{CALIB[i-1]:.1f}"
         rows.append({

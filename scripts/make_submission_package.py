@@ -230,6 +230,7 @@ FILES - WORD
   02_Title_Page.docx
   03_Manuscript.docx             manuscript for submission (no embedded figures)
   04_Highlights.docx
+  05_Supplementary_Material.docx Table S1 and Figure S1
   07_Tables.docx                 all four tables, as a separate document
   08_Figure_Captions.docx        all four captions, as a separate document
 
