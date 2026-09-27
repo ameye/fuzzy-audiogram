@@ -82,6 +82,22 @@ probes = [
     ("no stale GB kappa",            "0.9177", True),
     ("no stale ablation CI",         "+0.0190", True),
     ("no stale cohort",              "19,568", True),
+    # Superseded values that survived a sweep because the probes only checked that the
+    # corrected values were present, never that the old ones were gone. Principal
+    # Findings kept the pre-correction ablation claim for two revisions this way.
+    ("no stale argmax",              "0.9564", True),
+    ("no stale clear-case",          "99.1% of clear cases", True),
+    ("no stale macro sensitivity",   "0.786", True),
+    ("no stale normal share",        "86.9%", True),
+    ("no stale borderline share",    "18.7%", True),
+    ("no stale ablation delta",      "kappa by 0.019", True),
+    ("no stale ablation points",     "5.6 points", True),
+    ("no stale ablation direction",  "intervals excluding zero", True),
+    ("no stale transition width",    "10.0 and 11.2 dB", True),
+    ("no stale WHO contrast",        "rather than to WHO", True),
+    ("no Ceriani",                   "ceriani", True),
+    ("no stale GB log loss",         "0.2771", True),
+    ("no stale distance curve",      "85.1%", True),
     ("Table 1 Wilson intervals",     "0.757"),
     ("WHO/PDH/91.1 code",            "WHO/PDH/91.1"),
     ("Suen: United States cased",    "United States"),
