@@ -204,6 +204,9 @@ def main():
     shutil.copy2(MS / "Rule_Base.pdf", SUB / "06_Rule_Base.pdf")
     made.append("06_Rule_Base.pdf")
 
+    shutil.copy2(MS / "graphical_abstract.png", SUB / "00_Graphical_Abstract.png")
+    made.append("00_Graphical_Abstract.png")
+
     # Word versions. Elsevier accepts DOCX, and the tables and captions are wanted as
     # separate files, so these are built after the PDFs rather than converted from them.
     import subprocess
@@ -216,6 +219,9 @@ def main():
     chk = f"""CMPB SUBMISSION PACKAGE
 {TITLE}
 {AUTHOR} | ORCID {ORCID} | {EMAIL}
+
+GRAPHICAL ABSTRACT
+  00_Graphical_Abstract.png      600 dpi, 3120 x 1248 px (spec 1328 x 531)
 
 FILES - PDF
   01_Cover_Letter.pdf            cover letter to the Editors-in-Chief
