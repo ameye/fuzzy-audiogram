@@ -9,9 +9,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](pyproject.toml)
 [![Status: Alpha](https://img.shields.io/badge/status-alpha-orange.svg)](https://github.com/ameye/fuzzy-audiogram)
-[![arXiv coming soon](https://img.shields.io/badge/arXiv-coming_soon-red.svg)]()
+[![SSRN Preprint](https://img.shields.io/badge/SSRN-10.2139%2Fssrn.7532157-blue.svg)](https://doi.org/10.2139/ssrn.7532157)
 
 </div>
+
+**Preprint:** *A Mamdani fuzzy inference framework for graded pure-tone audiometric
+classification: development, validation, and open-source implementation.* SSRN, 2026.
+DOI [10.2139/ssrn.7532157](https://doi.org/10.2139/ssrn.7532157)
 
 ---
 
