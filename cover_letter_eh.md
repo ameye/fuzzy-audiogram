@@ -18,5 +18,5 @@ Sincerely,
 
 Dr Sanyaolu A. Ameye, MBBS, FWACS, FMCORL
 Consultant Otorhinolaryngologist
-King Fahad Specialist Hospital, Tabuk, Saudi Arabia
+King Fahad Multispecialists Hospital, Tabuk, Saudi Arabia
 sanyaameye@hotmail.com

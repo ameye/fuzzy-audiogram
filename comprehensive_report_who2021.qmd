@@ -5,7 +5,7 @@ author:
   - name: Dr Sanyaolu Ameye
     email: sanyaameye@hotmail.com
     affiliations:
-      - King Fahad Specialist Hospital, Tabuk, Saudi Arabia
+      - King Fahad Multispecialists Hospital, Tabuk, Saudi Arabia
 date: August 2026
 format:
   pdf:

@@ -24,7 +24,7 @@ LETTER = [
     ("p", "Thank you for considering our work. We would welcome the opportunity to revise the manuscript in response to reviewer feedback."),
     ("close", "Yours sincerely,"),
     ("sign", ["Sanyaolu A. Ameye, MBBS, FWACS, FMCORL",
-              "King Fahad Specialist Hospital, Tabuk, Saudi Arabia",
+              "King Fahad Multispecialists Hospital, Tabuk, Saudi Arabia",
               "sanyaameye@hotmail.com"]),
 ]
 

@@ -5,7 +5,7 @@ author:
     corresponding: true
     email: sanyaameye@hotmail.com
 affiliations:
-  - ^1 King Fahad Specialist Hospital, Tabuk, Saudi Arabia
+  - ^1 King Fahad Multispecialists Hospital, Tabuk, Saudi Arabia
 runninghead: "Fuzzy Logic for WHO 2021 Hearing Loss Grades"
 date: August 2026
 format:
@@ -44,7 +44,7 @@ wordcount: 3850
 
 # Introduction
 
-The way we classify hearing loss from pure-tone audiometry has barely changed in over fifty years. Goodman [@goodman1965] proposed the mild–moderate–severe framework in 1965, Clark [@clark1981] refined it, and the WHO formalised a six-grade version with boundaries at 25, 40, 55, 70 and 90 dB HL. The 2021 World Report on Hearing [@who2021] revised this scheme. The normal threshold moved from 25 to 20 dB HL, every severity boundary shifted down by 5 dB, and a seventh grade, Complete hearing loss at or above 95 dB, was added. The new boundaries sit at 20, 35, 50, 65, 80 and 95 dB HL, and grades are defined on the better ear.
+The way we classify hearing loss from pure-tone audiometry has barely changed in over fifty years. Clark [@clark1981] set out the six-category framework, and the WHO formalised a six-grade version with boundaries at 25, 40, 55, 70 and 90 dB HL. The 2021 World Report on Hearing [@who2021] revised this scheme. The normal threshold moved from 25 to 20 dB HL, every severity boundary shifted down by 5 dB, and a seventh grade, Complete hearing loss at or above 95 dB, was added. The new boundaries sit at 20, 35, 50, 65, 80 and 95 dB HL, and grades are defined on the better ear.
 
 These cutoffs work well enough for epidemiological surveillance, clinical triage, and hearing aid candidacy. But they force discrete categories onto a continuous biological variable, and the WHO 2021 revision makes the tension more visible rather than less. Consider two patients under the new schema. Patient A has a PTA-4 of 20 dB HL in the better ear. That is normal. Patient B has a PTA-4 of 21 dB HL. That is mild hearing loss. One decibel separates them, well within the test–retest variability of pure-tone audiometry (±5–10 dB) [@stuart1991], and they receive categorically different labels with different implications for follow-up, hearing aid candidacy, and occupational hearing conservation.
 
@@ -398,4 +398,4 @@ $$\text{FAI} = \frac{\sum_{i=1}^{n} y_i \cdot \mu_{\text{agg}}(y_i)}{\sum_{i=1}^
 
 ---
 
-*Corresponding author: Dr Sanyaolu Ameye, King Fahad Specialist Hospital, Tabuk, Saudi Arabia. Email: sanyaameye@hotmail.com*
+*Corresponding author: Dr Sanyaolu Ameye, King Fahad Multispecialists Hospital, Tabuk, Saudi Arabia. Email: sanyaameye@hotmail.com*

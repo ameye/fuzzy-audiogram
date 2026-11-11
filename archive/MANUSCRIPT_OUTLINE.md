@@ -38,7 +38,7 @@
 
 ### 3.1 What is wrong with crisp thresholds
 
-- Historical context of audiometric classification: Goodman (1965) first proposed the mild/moderate/severe framework; Clark (1981) refined it; WHO (2021) formalised the current 25/40/55/70/90 dB cutoffs.
+- Historical context of audiometric classification: Clark (1981) set out the six-category framework; WHO (2021) formalised the current 25/40/55/70/90 dB cutoffs. Goodman (1965) is a reference-zero calibration standard and does not belong in this lineage.
 - These thresholds, while pragmatic for triage and epidemiology, impose arbitrary discontinuities on a fundamentally continuous biological variable.
 - A patient with PTA 39 dB HL in the better ear is "mild" while one with 41 dB HL is "moderate"—yet the auditory experience of these two individuals may be clinically indistinguishable.
 - Frequency-specific information is lost: a high-frequency notch with PTA 30 dB HL and a flat 30 dB HL loss receive the same classification despite vastly different functional profiles.
@@ -371,7 +371,7 @@
 ## 11. REFERENCES (All Real, Verifiable)
 
 ### Foundational audiometric classification
-1. Goodman A. Reference zero levels for pure-tone audiometers. *ASHA*. 1965;7:262–263.
+1. Goodman A. Reference zero levels for pure-tone audiometer. *ASHA*. 1965;7:262–263.
 2. Clark JG. Uses and abuses of hearing loss classification. *ASHA*. 1981;23(7):493–500.
 3. World Health Organization. *World Report on Hearing*. Geneva: WHO; 2021. ISBN: 978-92-4-002048-1.
 

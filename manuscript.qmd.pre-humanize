@@ -4,9 +4,9 @@ author:
   - name: Dr Sanyaolu Ameye^1*
     corresponding: true
     email: sanyaameye@hotmail.com
-    orcid: 0000-0000-0000-0000
+    orcid: 0000-0002-5217-7997
 affiliations:
-  - ^1 King Fahad Specialist Hospital, Tabuk, Saudi Arabia
+  - ^1 King Fahad Multispecialists Hospital, Tabuk, Saudi Arabia
 runninghead: "Fuzzy Logic for SNHL Classification"
 date: July 2026
 format:
@@ -48,7 +48,7 @@ wordcount: 7200
 
 ![Overlapping trapezoidal membership functions for six hearing loss severity categories. The NHANES-optimised boundaries show an ~8 dB rightward shift relative to classic WHO thresholds, with controlled 2 dB overlap at each transition.](figures/fig1_membership_functions.png){width=90%}
 
-The way we classify hearing loss from pure-tone audiometry has barely changed in over fifty years. Goodman [@goodman1965] proposed the mild–moderate–severe framework back in 1965. Clark [@clark1981] refined it. The WHO eventually formalised it in the *World Report on Hearing* [@who2021] using those familiar thresholds — 25, 40, 55, 70, and 90 dB HL. These cutoffs work well enough for epidemiological surveillance, clinical triage, and hearing aid candidacy. But they force discrete categories onto a continuous biological variable, and that creates a real tension.
+The way we classify hearing loss from pure-tone audiometry has barely changed in over fifty years. Clark [@clark1981] set out the six-category framework, from normal to profound, in 1981. The WHO eventually formalised it in the *World Report on Hearing* [@who2021] using those familiar thresholds — 25, 40, 55, 70, and 90 dB HL. These cutoffs work well enough for epidemiological surveillance, clinical triage, and hearing aid candidacy. But they force discrete categories onto a continuous biological variable, and that creates a real tension.
 
 Consider two patients. Patient A has a PTA-4 of 25 dB HL in the better ear — that's *normal*. Patient B has a PTA-4 of 26 dB HL — that's *mild hearing loss*. One decibel separates them. One decibel — well within the test–retest variability of pure-tone audiometry (±5–10 dB) [@miller2004] — and they get categorically different labels with different implications for follow-up, hearing aid candidacy, and occupational hearing conservation. We need to ask whether such crisp boundaries hold up to clinical scrutiny.
 
@@ -423,4 +423,4 @@ These hedges are available for future refinements but were not needed in the cur
 
 ---
 
-*Corresponding author: Dr Sanyaolu Ameye, King Fahad Specialist Hospital, Tabuk, Saudi Arabia. Email: sanyaameye@hotmail.com*
+*Corresponding author: Dr Sanyaolu Ameye, King Fahad Multispecialists Hospital, Tabuk, Saudi Arabia. Email: sanyaameye@hotmail.com*

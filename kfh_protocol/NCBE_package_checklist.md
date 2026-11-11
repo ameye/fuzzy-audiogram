@@ -26,7 +26,7 @@
 - Passport photo: `arabcic_2026_submission/photo_ameye.jpg`
 
 ## Open questions for Dr Ameye
-1. Exact official hospital name & city — draft uses "King Fahad Hospital, Riyadh" (ArabCIC CV says "King Fahad Specialist Hospital, Tabuk")
+1. ~~Exact official hospital name & city~~ Resolved on 11 November 2026: the official name is **King Fahad Multispecialists Hospital, Tabuk**, and it has replaced both earlier variants across the repository. The Riyadh site named throughout `kfh_fai_validation_protocol.qmd` still needs checking against this.
 2. Co-investigator name for the proposal (Section 2 placeholder)
 3. Mawarid: employment start date + signatory details for the admin letter
 4. Study window OK? Draft uses 1 Jan 2021 – 30 Jun 2026

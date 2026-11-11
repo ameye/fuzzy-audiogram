@@ -182,7 +182,7 @@ txt(s, 0.8, 4.55, 11.73, 0.85,
       "size": 15, "bold": True, "color": WHITE, "align": PP_ALIGN.CENTER},
      {"text": "ENT Surgeon and Data Scientist", "size": 13, "color": RGBColor(0xBF, 0xD0, 0xE0),
       "align": PP_ALIGN.CENTER, "space_after": 2},
-     {"text": "King Fahad Specialist Hospital, Tabuk, Kingdom of Saudi Arabia",
+     {"text": "King Fahad Multispecialists Hospital, Tabuk, Kingdom of Saudi Arabia",
       "size": 13, "color": RGBColor(0xBF, 0xD0, 0xE0), "align": PP_ALIGN.CENTER}])
 chip(s, 2.20, 5.80, 2.6, 1.05, "10,889", "adults 20–69 y · 3 NHANES cycles", big_size=24)
 chip(s, 5.37, 5.80, 2.6, 1.05, "48", "audiology-derived fuzzy rules", big_size=24)
@@ -231,7 +231,7 @@ txt(s, 7.05, 4.80, 5.55, 0.7,
     [{"text": "test–retest variability of pure-tone audiometry, smaller than the gaps "
                "crisp rules insist on", "size": 12, "color": INK, "line_spacing": 1.12}])
 txt(s, 6.85, 5.85, 5.95, 0.9,
-    [{"text": "Goodman (1965) → Clark (1981) → WHO World Report on Hearing (2021). "
+    [{"text": "Clark (1981) → WHO World Report on Hearing (2021). "
                "The classification has barely changed in fifty years.",
       "size": 11.5, "italic": True, "color": MUTED, "line_spacing": 1.15}])
 
@@ -581,7 +581,7 @@ txt(s, 0.8, 4.15, 11.73, 0.9,
       "size": 15, "bold": True, "color": WHITE, "align": PP_ALIGN.CENTER},
      {"text": "ENT Surgeon and Data Scientist", "size": 13, "color": RGBColor(0xBF, 0xD0, 0xE0),
       "align": PP_ALIGN.CENTER, "space_after": 3},
-     {"text": "King Fahad Specialist Hospital, Tabuk, Kingdom of Saudi Arabia",
+     {"text": "King Fahad Multispecialists Hospital, Tabuk, Kingdom of Saudi Arabia",
       "size": 13, "color": RGBColor(0xBF, 0xD0, 0xE0), "align": PP_ALIGN.CENTER}])
 txt(s, 0.8, 5.25, 11.73, 0.45,
     [{"text": "sanyaameye@hotmail.com", "size": 15, "bold": True, "color": GOLD,

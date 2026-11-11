@@ -94,7 +94,7 @@ out = new_front + "\n" + body.strip() + "\n"
 
 # ---- 9. Blinding audit ----
 identifying = ["Ameye", "ameye", "King Fahad", "Tabuk", "sanyaameye",
-               "github.com/ameye", "Dr Sanyaolu", "0000-0000-0000-0000"]
+               "github.com/ameye", "Dr Sanyaolu", "0000-0002-5217-7997"]
 leaks = [s for s in identifying if s in out]
 print(f"images removed: {n_img}, tables removed: {n_tbl}, ack removed: {n_ack}")
 print("identifying leaks:", leaks or "NONE")

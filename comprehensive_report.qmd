@@ -5,7 +5,7 @@ author:
   - name: Dr Sanyaolu Ameye
     email: sanyaameye@hotmail.com
     affiliations:
-      - King Fahad Specialist Hospital, Tabuk, Saudi Arabia
+      - King Fahad Multispecialists Hospital, Tabuk, Saudi Arabia
 date: July 2026
 format:
   pdf:
@@ -452,4 +452,4 @@ As audiology moves toward personalised, data-driven care, fuzzy logic offers a *
 
 ---
 
-*Report generated July 2026. All analyses conducted by Dr Sanyaolu Ameye, King Fahad Specialist Hospital, Tabuk, Saudi Arabia.*
+*Report generated July 2026. All analyses conducted by Dr Sanyaolu Ameye, King Fahad Multispecialists Hospital, Tabuk, Saudi Arabia.*

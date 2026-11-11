@@ -16,7 +16,7 @@ title: "A Fuzzy Logic Framework for Sensorineural Hearing Loss Classification: P
 
 # Introduction
 
-The way we classify hearing loss from pure-tone audiometry has barely changed in over fifty years. Goodman (1965) proposed the mild–moderate–severe framework back in 1965. Clark (1981) refined it. The WHO eventually formalised it in the *World Report on Hearing* (World Health Organization, 2021) using those familiar thresholds, 25, 40, 55, 70, and 90 dB HL. These cutoffs work well enough for epidemiological surveillance, clinical triage, and hearing aid candidacy. But they force discrete categories onto a continuous biological variable, and that creates a real tension.
+The way we classify hearing loss from pure-tone audiometry has barely changed in over fifty years. Clark (1981) set out the six-category framework, from normal to profound. The WHO eventually formalised it in the *World Report on Hearing* (World Health Organization, 2021) using those familiar thresholds, 25, 40, 55, 70, and 90 dB HL. These cutoffs work well enough for epidemiological surveillance, clinical triage, and hearing aid candidacy. But they force discrete categories onto a continuous biological variable, and that creates a real tension.
 
 Consider two patients. Patient A has a PTA-4 of 25 dB HL in the better ear. That is *normal*. Patient B has a PTA-4 of 26 dB HL. That is *mild hearing loss*. One decibel separates them. One decibel, well within the test–retest variability of pure-tone audiometry (±5–10 dB) (Stuart et al., 1991), and they get categorically different labels with different implications for follow-up, hearing aid candidacy, and occupational hearing conservation. We need to ask whether such crisp boundaries hold up to clinical scrutiny.
 
@@ -289,7 +289,6 @@ These hedges are available for future refinements but were not needed in the cur
 Amezquita-Sanchez, JP, Mammone, N, Morabito, FC, Adeli, H (2021) A new dispersion entropy and fuzzy logic system methodology for automated classification of dementia stages using electroencephalograms. Clinical Neurology and Neurosurgery, 201, pp. 106446. doi: 10.1016/j.clineuro.2020.106446
 Ceriani, F, Giles, J, Ingham, NJ, Jeng, JY, Lewis, MA, Steel, KP, Arvaneh, M, Marcotti, W (2025) A machine-learning-based approach to predict early hallmarks of progressive hearing loss. Hearing Research, 464, pp. 109328.
 Clark, JG (1981) Uses and abuses of hearing loss classification. ASHA, 23(7), pp. 493–500.
-Goodman, A (1965) Reference zero levels for pure-tone audiometers. ASHA, 7, pp. 262–263.
 Mamdani, EH, Assilian, S (1975) An experiment in linguistic synthesis with a fuzzy logic controller. International Journal of Man-Machine Studies, 7(1), pp. 1–13.
 Sanchez-Lopez, R, Perea Perez, J, Christensen-Dalsgaard, J, Harte, JM, Hammershøi, D, Schmidt, JH, Neher, T (2021) A flexible data-driven audiological patient stratification method for deriving auditory profiles. Frontiers in Digital Health, 3, pp. 673686.
 Stuart, A, Stenstrom, R, Tompkins, C, Vandenhoff, S (1991) Test-retest variability in audiometric threshold with supraaural and insert earphones among children and adults. Audiology, 30(2), pp. 82–90.
