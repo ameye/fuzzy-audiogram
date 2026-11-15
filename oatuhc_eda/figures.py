@@ -151,8 +151,8 @@ ax.set_title("Missingness by frequency and year — 3 kHz is absent from 2022 on
 save(fig, "fig04_missingness_by_frequency_year.png")
 
 # ---------- 5. PTA4 and boundaries  (the boundary-proximity figure) ----------
-fig, axes = plt.subplots(2, 1, figsize=(7.4, 4.6),
-                         gridspec_kw={"height_ratios": [2.2, 1]})
+fig, axes = plt.subplots(2, 1, figsize=(7.4, 5.0),
+                         gridspec_kw={"height_ratios": [2.2, 1], "hspace": 0.55})
 ax = axes[0]
 for b in CLARK:
     ax.axvspan(b - 5, b + 5, color=SAND, alpha=0.16, lw=0)
@@ -172,7 +172,7 @@ d = df.pta4.apply(lambda p: min(abs(p - c) for c in CLARK))
 ax.hist(d, bins=np.arange(0, 22, 1), color=TEAL, alpha=0.85, edgecolor="white", lw=0.4)
 ax.axvline(5, color=RUST, lw=1.2, ls="--")
 ax.set_xlim(0, 21)
-ax.text(5.5, ax.get_ylim()[1] * 0.78, "5 dB cut-off", color=RUST, fontsize=7.5)
+ax.text(5.4, ax.get_ylim()[1] * 0.97, "5 dB cut-off", color=RUST, fontsize=7.5, va="top")
 ax.set_xlabel("Distance from nearest Clark boundary (dB)")
 ax.set_ylabel("Ears")
 ax.set_title(f"Distance from the nearest boundary (median {d.median():.1f} dB; "
@@ -181,12 +181,12 @@ save(fig, "fig05_pta4_boundary_proximity.png")
 
 # ---------- 6. grade distributions by scheme ----------
 schemes = [
-    ("Clark / protocol WHO (6)", [int((df.pta4.apply(lambda p: sum(p > c for c in CLARK)) == i).sum())
+    ("Clark / WHO six-grade", [int((df.pta4.apply(lambda p: sum(p > c for c in CLARK)) == i).sum())
                                   for i in range(6)], PRETTY),
-    ("WHO 1997 (5, per repo script)",
+    ("WHO 1997 five-grade",
      [int((df.pta4.apply(lambda p: sum(p > c for c in [25, 40, 60, 80])) == i).sum()) for i in range(5)],
      ["Normal", "Mild", "Moderate", "Severe", "Profound"]),
-    ("Consultant grade (6)", [int((df.consultant_grade == g).sum()) for g in LBL6], PRETTY),
+    ("Consultant grade", [int((df.consultant_grade == g).sum()) for g in LBL6], PRETTY),
 ]
 fig, axes = plt.subplots(1, 3, figsize=(7.6, 2.9), sharey=True)
 for ax, (title, counts, labels) in zip(axes, schemes):
@@ -194,8 +194,8 @@ for ax, (title, counts, labels) in zip(axes, schemes):
     for i, c in enumerate(counts):
         ax.text(i, c + 3, str(c), ha="center", fontsize=7.5, color=INK)
     ax.set_xticks(range(len(counts)))
-    ax.set_xticklabels(labels, rotation=45, ha="right", fontsize=7.5)
-    ax.set_title(title, loc="left", fontsize=8.5, fontweight="bold")
+    ax.set_xticklabels(labels, rotation=52, ha="right", fontsize=6.9)
+    ax.set_title(title, loc="left", fontsize=8.4, fontweight="bold")
     ax.set_ylim(0, max(max(s[1]) for s in schemes) * 1.16)
 axes[0].set_ylabel("Ears")
 save(fig, "fig06_grade_distributions.png")
