@@ -222,11 +222,24 @@ def classify_values(thresholds_left: Optional[dict[int, float]] = None,
                 "interpret with caution."
             )
 
+    def _rounded(value):
+        # None means the consequent had no crisp value (see core.py), not zero:
+        # pass it through rather than inventing a score.
+        return round(value, 2) if value is not None else None
+
+    unfired = result.get("unfired_consequents", [])
+
     return {
-        "fai_score": round(result.get("fai_score", 0), 2),
+        "fai_score": _rounded(result.get("fai_score")),
         "fai_label": result.get("fai_label", "unknown"),
+        "fai_label_source": result.get("fai_label_source", "fuzzy"),
         "configuration_label": result.get("configuration_label", "unknown"),
-        "configuration_score": round(result.get("configuration_score", 0), 2),
+        "configuration_score": _rounded(result.get("configuration_score")),
+        "configuration_source": result.get("configuration_source", "fuzzy"),
+        "unfired_consequents": list(unfired),
+        "n_unfired_consequents": result.get("n_unfired_consequents", len(unfired)),
+        "output_status": {k: v.get("status") for k, v in
+                          (result.get("outputs") or {}).items()},
         "pta": round(pta, 1) if pta is not None else None,
         "crisp_label": fuzzy["crisp"](pta) if pta is not None else None,
         "ear_used": ear,

@@ -4,6 +4,51 @@ core.py — Main fuzzy inference system for audiogram classification.
 Provides the core FIS builder, feature extraction from raw thresholds,
 full classification pipeline, fuzzy-vs-crisp comparison, and
 demonstration cases.
+
+Unfired consequents
+-------------------
+scikit-fuzzy evaluates every rule, so a consequent records a membership
+value for each of its terms; when no rule has any antecedent truth for
+that consequent, every recorded value is 0.0 and the defuzzifier has no
+area to integrate. ``ControlSystemSimulation.compute`` runs in lenient
+mode and simply omits the key from ``sim.output`` rather than returning a
+number, which is why an unconditional ``sim.output['severity']`` raised
+``KeyError`` on 20 of 410 OAUTHC ears.
+
+Three states are therefore kept apart explicitly (:data:`OUTPUT_DEFUZZIFIED`,
+:data:`OUTPUT_UNFIRED`, :data:`OUTPUT_EMPTY`) instead of being collapsed
+into one missing value:
+
+* ``defuzzified``: at least one rule had support and the consequent
+  defuzzified to a finite number. Every ear that worked before the fix
+  stays on this path with an identical score and label.
+* ``unfired``: no rule targeting the consequent had any antecedent truth
+  (maximum rule support 0.0). This is a coverage gap in the rule base,
+  not a data defect.
+* ``empty_membership``: a rule had positive support but the aggregated
+  consequent membership function was empty (zero area), so no crisp value
+  exists. Kept apart from ``unfired`` because the cause and the remedy
+  differ.
+
+Policy for a consequent with no defuzzified value, recorded here and in
+``oatuhc_eda/FAI_FIX_REPORT.md``:
+
+* ``severity`` falls back to the crisp WHO/Clark grade for that ear
+  (``fai_label_source = 'crisp_who_fallback'``, ``fai_score = None``).
+  The observed severity gap is PTA-4 of exactly 120 dB HL, above the
+  support of every severity membership function, where the crisp grade is
+  unambiguous; an index that refuses to grade a 120 dB loss is not
+  deployable. The fallback is flagged so that agreement analyses can
+  report with and without it, because against a crisp reference it is
+  agreement by construction.
+* ``audiogram_shape`` returns ``configuration_label = 'Undetermined'``
+  (``configuration_score = None``, ``configuration_source =
+  'undetermined'``). The protocol defines no crisp standard for
+  configuration, so substituting one would manufacture a label.
+
+Membership functions, rule weights, thresholds and the rule base are
+unchanged: the published index is the same index, and no ear that
+previously produced a value produces a different one.
 """
 
 import warnings
@@ -336,6 +381,57 @@ def _interpret_shape_score(score):
         return 'Rising'
 
 
+# Status of one consequent after a compute. Exactly one applies per call.
+OUTPUT_DEFUZZIFIED = 'defuzzified'
+"""A rule had support and the consequent defuzzified to a finite value."""
+
+OUTPUT_UNFIRED = 'unfired'
+"""No rule targeting the consequent had any antecedent truth (support 0.0)."""
+
+OUTPUT_EMPTY = 'empty_membership'
+"""A rule had support but the aggregated membership function had zero area."""
+
+UNDETERMINED_SHAPE_LABEL = 'Undetermined'
+"""Configuration label returned when the shape consequent has no crisp value."""
+
+
+def _consequent_support(sim, consequent):
+    """Maximum antecedent truth over the rules that target ``consequent``.
+
+    scikit-fuzzy runs ``compute_rule`` for every rule, so an antecedent
+    aggregate of 0.0 is indistinguishable from "no rule" if only the
+    consequent term memberships are inspected: both leave a 0.0 behind.
+    The rule firing strength is the quantity that separates them.
+    """
+    support = 0.0
+    for rule in sim.ctrl.rules:
+        for weighted in rule.consequent:
+            if weighted.term.parent.label == consequent.label:
+                firing = rule.aggregate_firing[sim]
+                if firing is not None and float(firing) > support:
+                    support = float(firing)
+    return support
+
+
+def _consequent_status(sim, consequent):
+    """Classify one consequent after ``compute()``.
+
+    Returns
+    -------
+    tuple
+        (status, value, support) with status one of :data:`OUTPUT_DEFUZZIFIED`,
+        :data:`OUTPUT_UNFIRED`, :data:`OUTPUT_EMPTY`; value float or None.
+    """
+    support = _consequent_support(sim, consequent)
+    value = sim.output.get(consequent.label)
+    if value is not None:
+        value = float(value)
+        if np.isfinite(value):
+            return OUTPUT_DEFUZZIFIED, value, support
+    status = OUTPUT_EMPTY if support > 0.0 else OUTPUT_UNFIRED
+    return status, None, support
+
+
 def classify_audiogram(thresholds_left, thresholds_right=None):
     """Run the full fuzzy classification pipeline on an audiogram.
 
@@ -349,9 +445,18 @@ def classify_audiogram(thresholds_left, thresholds_right=None):
     Returns
     -------
     dict
-        Keys: fai_score, fai_label, configuration_score,
-        configuration_label, pt4a, threshold_memberships,
+        Keys: fai_score, fai_label, fai_label_source, configuration_score,
+        configuration_label, configuration_source, unfired_consequents,
+        n_unfired_consequents, outputs, pt4a, threshold_memberships,
         slope_memberships, features.
+
+        ``fai_score`` is None when the severity consequent has no crisp
+        value; ``fai_label`` is then the crisp WHO/Clark fallback and
+        ``fai_label_source`` says so. ``configuration_label`` is
+        ``'Undetermined'`` with ``configuration_score`` None when the
+        shape consequent has no crisp value. ``unfired_consequents``
+        lists every consequent without a defuzzified value, so a caller
+        can count how many went unfired without re-running inference.
     """
     import skfuzzy as fuzz
 
@@ -360,9 +465,18 @@ def classify_audiogram(thresholds_left, thresholds_right=None):
     # ear, compressing the FAI scale (structural fix S4). Bilateral input
     # keeps the full 48-rule base.
     single_ear = thresholds_right is None
-    (_, sim, threshold_ant, slope_ant, *_rest) = build_audiogram_fis(single_ear=single_ear)
+    (_, sim, threshold_ant, slope_ant, _notch_ant, _asym_ant,
+     severity_con, shape_con, referral_con) = build_audiogram_fis(
+        single_ear=single_ear)
 
     features = compute_audiogram_features(thresholds_left, thresholds_right)
+
+    # Clear any state left on the object before reuse. Each call builds a
+    # fresh system, so this is normally a no-op; it makes a caller-supplied
+    # or cached simulation safe, because scikit-fuzzy only clears the
+    # consequent terms of the first rule it evaluates and would otherwise
+    # carry a previous ear's membership values forward.
+    sim.reset()
 
     # Set crisp inputs
     sim.input['threshold'] = np.clip(features['threshold_primary'], 0, 120)
@@ -375,11 +489,34 @@ def classify_audiogram(thresholds_left, thresholds_right=None):
         warnings.simplefilter('ignore')
         sim.compute()
 
-    severity_score = float(sim.output['severity'])
-    shape_score = float(sim.output['audiogram_shape'])
+    # A consequent with no rule support is absent from sim.output; read each
+    # one through its status rather than indexing the dict.
+    outputs = {}
+    for consequent in (severity_con, shape_con, referral_con):
+        status, value, support = _consequent_status(sim, consequent)
+        outputs[consequent.label] = {'status': status, 'value': value,
+                                     'rule_support': round(support, 6)}
 
-    severity_label = _interpret_severity_score(severity_score)
-    shape_label = _interpret_shape_score(shape_score)
+    severity = outputs['severity']
+    if severity['status'] == OUTPUT_DEFUZZIFIED:
+        severity_label = _interpret_severity_score(severity['value'])
+        severity_source = 'fuzzy'
+    else:
+        # No rule produced a value: fall back to the crisp WHO/Clark grade.
+        from .validate import crisp_classify
+        severity_label = crisp_classify(features['pta'])
+        severity_source = 'crisp_who_fallback'
+
+    shape = outputs['audiogram_shape']
+    if shape['status'] == OUTPUT_DEFUZZIFIED:
+        shape_label = _interpret_shape_score(shape['value'])
+        shape_source = 'fuzzy'
+    else:
+        shape_label = UNDETERMINED_SHAPE_LABEL
+        shape_source = 'undetermined'
+
+    unfired = [label for label, out in outputs.items()
+               if out['status'] != OUTPUT_DEFUZZIFIED]
 
     # Get membership degrees at the input point
     threshold_memberships = {}
@@ -397,10 +534,17 @@ def classify_audiogram(thresholds_left, thresholds_right=None):
         ))
 
     return {
-        'fai_score': round(severity_score, 2),
+        'fai_score': (round(severity['value'], 2)
+                      if severity['value'] is not None else None),
         'fai_label': severity_label,
-        'configuration_score': round(shape_score, 2),
+        'fai_label_source': severity_source,
+        'configuration_score': (round(shape['value'], 2)
+                                if shape['value'] is not None else None),
         'configuration_label': shape_label,
+        'configuration_source': shape_source,
+        'unfired_consequents': unfired,
+        'n_unfired_consequents': len(unfired),
+        'outputs': outputs,
         'pt4a': round(features['pta'], 1),
         'threshold_memberships': threshold_memberships,
         'slope_memberships': slope_memberships,

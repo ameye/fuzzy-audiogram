@@ -38,7 +38,18 @@ sys.path.insert(0, str(ROOT / "webapp"))
 
 THRESH = ["th_250", "th_500", "th_1k", "th_2k", "th_3k", "th_4k", "th_6k", "th_8k"]
 CANON = [250, 500, 1000, 2000, 3000, 4000, 6000, 8000]
+
+# Five grades, WHO 1997 style. THIS IS NOT THE PROTOCOL'S REFERENCE.
+# oatuhc_protocol section 12.3 specifies six grades at 25/40/55/70/90
+# (normal / mild / moderate / moderately severe / severe / profound). The
+# five-grade scheme here has no "moderately severe" category and moves the
+# moderate and severe cuts from 55/70 to 60/80, so it cannot reproduce a
+# six-grade comparison. It is left as shipped because which reference the
+# paper reports is the author's decision, not a software default. The
+# protocol scheme is what oatuhc_eda/stage4_rerun.py computes; both are
+# reported side by side in oatuhc_eda/AGREEMENT_RERUN.md.
 WHO_BOUNDS = [25, 40, 60, 80]
+WHO_BOUNDS_PROTOCOL = [25, 40, 55, 70, 90]
 
 REQUIRED_COLS = ["study_id", "patient_id", "ear", *THRESH,
                  "diagnosis_category", "ear_included"]
@@ -238,11 +249,14 @@ def main():
     if args.report or True:
         rep = Path(args.report) if args.report else src.with_name(src.stem + "_qa.md")
         with open(rep, "w", encoding="utf-8") as f:
-            f.write(f"# OAUTHC FAI Validation — Batch QA Report\n\n")
+            f.write(f"# OAUTHC FAI Validation - Batch QA Report\n\n")
             f.write(f"- Input: `{src.name}`\n")
             f.write(f"- Records: {len(rows)}\n")
             f.write(f"- Ears classified by FAI: {n_fai}\n")
-            f.write(f"- Issues: {len(issues)}\n\n")
+            f.write(f"- Issues: {len(issues)}\n")
+            f.write(f"- who_grade column uses five grades at {WHO_BOUNDS} dB. "
+                    f"THIS IS NOT THE PROTOCOL SCHEME: protocol section 12.3 "
+                    f"specifies six grades at {WHO_BOUNDS_PROTOCOL} dB.\n\n")
             if issues:
                 f.write("| Row | study_id | Issue |\n|---|---|---|\n")
                 for iss in issues:

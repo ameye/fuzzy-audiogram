@@ -4,6 +4,11 @@
 **Protocol:** `oatuhc_protocol/oatuhc_fai_validation_protocol.qmd` v1.0 (16 Aug 2026); `data_dictionary.md` v1.0
 **Prepared:** 15 November 2026
 **Built on:** commit `f9893a9` ("Fix count of headline findings"), branch `main`
+**Status:** the unfired-consequent defect in section 1.9 is fixed in FAI 0.3.1, and the
+agreement analysis has been re-run on all 410 ears. `FAI_FIX_REPORT.md` records the fix and
+its frequency; `AGREEMENT_RERUN.md` replaces the agreement figures in sections 1.9, 6.3 and
+6.4 and sets them beside the 390-ear numbers below. This report itself still describes the
+390-ear run it was built on. Every other finding stands unchanged.
 **Scope:** data-quality audit, descriptive analysis, threshold and configuration structure, boundary examination, agreement analysis and feasibility assessment. No thresholds were altered and no records were dropped. The FAI was run with the frozen implementation present in this commit.
 
 ---
