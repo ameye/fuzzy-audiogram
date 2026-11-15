@@ -44,7 +44,7 @@ th { background: #eef1f5; border: 0.5pt solid #b9bcc4; padding: 3pt 4pt; text-al
      font-family: "DejaVu Sans", sans-serif; font-size: 8pt; }
 td { border: 0.5pt solid #c9ccd3; padding: 2.5pt 4pt; vertical-align: top; }
 tr:nth-child(even) td { background: #fafafb; }
-img { max-width: 100%; height: auto; display: block; margin: 8pt auto 2pt auto;
+img { width: 17.2cm; height: auto; display: block; margin: 8pt auto 2pt auto;
       page-break-inside: avoid; }
 p > img { page-break-inside: avoid; }
 """
@@ -66,7 +66,7 @@ def main() -> int:
     def _inline(m):
         rel = m.group(1)
         data = base64.b64encode((HERE / rel).read_bytes()).decode("ascii")
-        return f'src="data:image/png;base64,{data}"'
+        return f'width="650" src="data:image/png;base64,{data}"'
 
     body, n = re.subn(r'src="(figures/[^"]+\.png)"', _inline, body)
     print(f"inlined {n} images")
