@@ -10,3 +10,12 @@ cmbp_pack/
 cmbp_v2/          # superseded drafts; manuscript/ is the version of record
 submission/
 CMPB_Submission_Package.zip
+
+# OAUTHC EDA — patient-level clinical data must never be committed
+oatuhc_eda/raw_export.csv
+oatuhc_eda/derived/
+oatuhc_eda/stage1.json
+oatuhc_eda/stage2.json
+oatuhc_eda/stage3.json
+oatuhc_eda/stage1_out.txt
+oatuhc_eda/stage2_out.txt
