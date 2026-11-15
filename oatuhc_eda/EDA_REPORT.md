@@ -1009,7 +1009,7 @@ Nothing in the findings of the previous report has been reversed. Where a number
 
 **On the grading-scheme discrepancy.** `scripts/validate_oatuhc.py` hard-codes `WHO_BOUNDS = [25, 40, 60, 80]` and a five-grade `who_grade()`. The protocol (§12.3) specifies six grades at 25/40/55/70/90. This EDA uses the protocol definition throughout. The shipped script should be corrected before it is used, or every agreement figure it produces will be against the wrong reference.
 
-**Figure QA.** Every figure was rendered at 200 dpi and passed an automated text-collision check (bounding-box overlap of every non-tick text artist, threshold 25% of the smaller box) before being written. The four series palette is chosen to survive greyscale, and each series carries a marker, a line style or a hatch in addition to its colour.
+**Figure QA.** Every figure is 200 dpi at 7.2 to 7.8 in wide. The twenty-five new figures pass an automated text-collision check at render time (bounding-box overlap of every non-tick text artist, threshold 25% of the smaller box), which is part of `figures_extended.py`; the original ten were reviewed visually and two layout collisions were corrected in `figures.py` (the `fig05` panel titles and the `fig06` grade labels). The palette is chosen to survive greyscale, and each series carries a marker, a line style or a hatch in addition to its colour.
 
 ---
 
