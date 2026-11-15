@@ -9,7 +9,7 @@
 
 ## Headline
 
-The dataset is large enough, well spread across grades, and unusually rich in boundary cases — on the three questions the validation actually depends on, it is in good shape. It is also **not clean**, and two of the defects are serious enough to change what the paper can claim:
+The dataset is large enough, well spread across grades, and unusually rich in boundary cases — on the three questions the validation actually depends on, it is in good shape. It is also **not clean**, and three of the defects are serious enough to change what the paper can claim:
 
 1. **The frozen FAI cannot classify 20 of 410 ears (4.9%).** `classify_audiogram()` raises `KeyError` on 16 ears because no `audiogram_shape` rule fires and on 4 because no `severity` rule fires. The failure is reproducible on the pinned stack (NumPy 2.4.6 / SciPy 1.18.0 / scikit-fuzzy 0.5.0). This is an implementation defect, not a data defect, and it must be resolved before the primary analysis is run.
 2. **`consultant_grade` is populated for 100% of ears.** The protocol says this field is recorded "only where explicitly documented; blank otherwise". A 100% fill rate from chart review is not credible on its face, and the variable behaves like a derived measure rather than an independent human read (Section 1.3). This is the reference standard for Objective 2; it needs verification before any agreement statistic against it is reported.
