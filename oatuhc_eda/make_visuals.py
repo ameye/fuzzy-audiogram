@@ -50,6 +50,7 @@ FONT = "DejaVu Sans"
 SERIF = "DejaVu Serif"
 S = 300 / 72.0            # px per pt at 300 dpi
 W = 2031                  # 17.2 cm at 300 dpi
+PAD = 28                  # inner margin: text never starts on the canvas edge
 
 _FP = {
     ("sans", False): "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
@@ -229,8 +230,8 @@ class Canvas:
 
 # =====================================================================
 def p01_summary():
-    cw = (W - 80) / 3
     gapx = 40
+    cw = (W - 2 * PAD - 2 * gapx) / 3
     m = Canvas(10)
 
     row1 = [
@@ -282,14 +283,14 @@ def p01_summary():
     total = int(foot_y + 28 + len(flines) * lh(9.0, 1.45) + 30)
 
     c = Canvas(total)
-    c.tracked(0, top, "the whole study, in six numbers", 7.2, PROB, True, 0.22)
+    c.tracked(PAD, top, "the whole study, in six numbers", 7.2, PROB, True, 0.22)
 
     for i, (n, l, t, col, tint) in enumerate(row1):
-        c.card(i * (cw + gapx), h1y, cw, h1, n, l, t, col, tint)
+        c.card(PAD + i * (cw + gapx), h1y, cw, h1, n, l, t, col, tint)
 
-    c.tracked(0, h1y + h1 + 38, "and the three defects standing in the way", 7.2, PROB, True, 0.22)
+    c.tracked(PAD, h1y + h1 + 38, "and the three defects standing in the way", 7.2, PROB, True, 0.22)
     for i, (n, l, t, col, tint) in enumerate(row2):
-        c.card(i * (cw + gapx), h2y, cw, h2, n, l, t, col, tint)
+        c.card(PAD + i * (cw + gapx), h2y, cw, h2, n, l, t, col, tint)
 
     c.line(0, strip_y, W, strip_y, RULE, 2)
     chips = [
@@ -299,9 +300,9 @@ def p01_summary():
         ("2023", "0 ears", "a year missing"),
         ("diagnosis", "44.1%", "rest residual"),
     ]
-    xw = W / len(chips)
+    xw = (W - 2 * PAD) / len(chips)
     for i, (lab, val, sub) in enumerate(chips):
-        cx = i * xw
+        cx = PAD + i * xw
         if i:
             c.line(cx - 30, strip_y + 28, cx - 30, strip_y + strip_h - 34, RULE, 2)
         c.tracked(cx, strip_y + 30, lab, 6.4, MUTED, True, 0.16)
@@ -315,15 +316,15 @@ def p01_summary():
     c.para(44, vy + 70, verdict, 14.0, W - 130, BODY, 1.50, False, "serif")
 
     c.line(0, foot_y, W, foot_y, RULE, 2)
-    c.para(0, foot_y + 26, foot, 9.0, W, MUTED, 1.45)
+    c.para(PAD, foot_y + 26, foot, 9.0, W - 2 * PAD, MUTED, 1.45)
     c._max_y = total - 24
     return c.save("p01_summary", trim=False)
 
 
 # =====================================================================
 def p02_pipeline():
-    bw, gp = 400, 76
-    xs = [0, bw + gp, 2 * (bw + gp), 3 * (bw + gp)]
+    bw, gp = (W - 2 * PAD - 3 * 76) / 4, 76
+    xs = [PAD + k * (bw + gp) for k in range(4)]
 
     def box_h(subs, big=None, tsize=10.2, bigsize=30):
         h = 26
@@ -341,7 +342,7 @@ def p02_pipeline():
     y2 = y1 + h1 + 46
 
     c = Canvas(int(y2 + h2 + 190))
-    c.tracked(0, 18, "from export to agreement table", 7.2, MUTED, True, 0.22)
+    c.tracked(PAD, 18, "from export to agreement table", 7.2, MUTED, True, 0.22)
 
     c.box(xs[0], y1, bw, h1, "ear records", ("raw_export.csv",), INK, PAPER, 2, 10.2, big="410")
     c.box(xs[1], y1, bw, h1, "frozen index", ("FAI 0.3.0", "rule base as shipped"),
@@ -364,13 +365,13 @@ def p02_pipeline():
     c.rect(xs[2], y2, bw, h2, fill=FIX_T, stroke=FIX, sw=2, dash="12 8")
     c.text_top(xs[2] + 22, y2 + 26, "410 graded", 12.4, FIX, True)
     c.text_top(xs[2] + 22, y2 + 26 + lh(12.4, 1.2) + 8,
-               "FAI 0.3.1, all 410 ears", 8.0, MUTED)
-    c.text_top(xs[2] + 22, y2 + 26 + lh(12.4, 1.2) + lh(8.0, 1.3) + 8,
-               "not the run described here", 8.0, MUTED)
+               "FAI 0.3.1, all 410 ears", 7.7, MUTED)
+    c.text_top(xs[2] + 22, y2 + 26 + lh(12.4, 1.2) + lh(7.7, 1.3) + 8,
+               "not the run described here", 7.7, MUTED)
 
     ry_ = y2 + h2 + 34
     c.line(0, ry_, W, ry_, RULE, 2)
-    end = c.para(0, ry_ + 26,
+    end = c.para(PAD, ry_ + 26,
                  "The frozen index raises on 20 ears because no rule fires for an optional "
                  "consequent and the key is then read unconditionally. That is an implementation "
                  "defect, not a data defect. This report takes the honest route: 410 ears for "
@@ -447,10 +448,10 @@ def p03_schemes():
 
     by = top + hgt + 56
     c.line(0, by - 28, W, by - 28, RULE, 2)
-    c.text(0, by + cap(34), "79", 34, PROB, True)
-    c.text_top(232, by + 6, "ears sit in the band the five-grade scheme does not define.",
+    c.text(PAD, by + cap(34), "79", 34, PROB, True)
+    c.text_top(PAD + 232, by + 6, "ears sit in the band the five-grade scheme does not define.",
                11.6, INK, True)
-    end = c.para(0, by + cap(34) + 18,
+    end = c.para(PAD, by + cap(34) + 18,
                  "Of those, 25 fall to moderate and 54 to severe. A further 15 ears that Clark "
                  "calls severe move up to profound. 94 ears, 22.9% of the sample, change grade "
                  "on a definitional choice alone. Nothing clinical separates the two columns: "
@@ -482,16 +483,17 @@ def p04_calendar():
             first.setdefault(r, (yr, m))
 
     c = Canvas(900)
-    c.tracked(0, 14, "78 months in the window, 40 with a record", 7.2, MUTED, True, 0.22)
+    c.tracked(PAD, 14, "78 months in the window, 40 with a record", 7.2, MUTED, True, 0.22)
 
     for m, name in enumerate(["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"]):
         c.text(left + m * (cw + gap) + cw / 2, top - 12, name, 7.2, MUTED, True, "middle")
 
     for yr in range(2020, 2027):
         y = top + (yr - 2020) * (ch + rgap)
-        c.text(0, y + ch / 2 + 5, str(yr), 9.8, INK if yr != 2023 else PROB, True)
+        c.text(left - 24, y + ch / 2 + 5, str(yr), 9.8,
+               INK if yr != 2023 else PROB, True, "end")
         if yr == 2023:
-            c.text(0, y + ch / 2 + 26, "empty", 7.4, PROB)
+            c.text(left - 24, y + ch / 2 + 26, "empty", 7.4, PROB, False, "end")
         for m in range(1, 13):
             x = left + (m - 1) * (cw + gap)
             if yr == 2023:
@@ -530,9 +532,9 @@ def p04_calendar():
 
     ry_ = ly + 34
     c.line(0, ry_, W, ry_, RULE, 2)
-    c.text(0, ry_ + 46 + cap(24), "11", 24, INK, True)
-    c.text_top(128, ry_ + 38, "contiguous runs, not one consecutive series.", 10.0, INK, True)
-    end = c.para(0, ry_ + 46 + cap(24) + 14,
+    c.text(PAD, ry_ + 46 + cap(24), "11", 24, INK, True)
+    c.text_top(PAD + 160, ry_ + 38, "contiguous runs, not one consecutive series.", 10.0, INK, True)
+    end = c.para(PAD, ry_ + 46 + cap(24) + 14,
                  "Run sizes range from 2 to 94 ears (SD 32) and five months sit at exactly 22. "
                  "40 of 78 months carry records (51.3%). This is batch extraction to a target, "
                  "and the protocol's claim of consecutive sampling does not survive it.",
@@ -601,7 +603,7 @@ def p05_triage():
     ]
 
     gapx = 30
-    colw = (W - gapx * 3) / 4
+    colw = (W - 2 * PAD - gapx * 3) / 4
     TS, NS, CS = 8.6, 7.7, 9.4       # title, note, count
 
     def ch(name, note):
@@ -616,11 +618,11 @@ def p05_triage():
     body_h = max(sum(ch(n, t) + 8 for n, _, t in c[6]) for c in cols)
 
     c = Canvas(int(70 + head_h + body_h + 40 + 170))
-    c.tracked(0, 4, "every defect, once, by what has to happen to it", 7.2, MUTED, True, 0.22)
+    c.tracked(PAD, 4, "every defect, once, by what has to happen to it", 7.2, MUTED, True, 0.22)
 
     y0 = 62
     for ci, (title, sub, colour, tint, glyph, footnote, items) in enumerate(cols):
-        x = ci * (colw + gapx)
+        x = PAD + ci * (colw + gapx)
         c.tracked(x, y0, title, 7.6, colour, True, 0.2)
         c.para(x, y0 + 26, sub, 7.8, colw - 10, MUTED, 1.28)
         y = y0 + head_h
@@ -644,10 +646,10 @@ def p05_triage():
 
     fy = y0 + head_h + body_h + 34
     c.line(0, fy, W, fy, RULE, 2)
-    c.text(0, fy + 34 + cap(28), "18", 28, INK, True)
-    c.text_top(190, fy + 28, "findings in the audit, and three of them block a submission.",
+    c.text(PAD, fy + 34 + cap(28), "18", 28, INK, True)
+    c.text_top(PAD + 190, fy + 28, "findings in the audit, and three of them block a submission.",
                11.2, INK, True)
-    end = c.para(0, fy + 34 + cap(28) + 14,
+    end = c.para(PAD, fy + 34 + cap(28) + 14,
                  "Query and fixable are different futures: a query may change a number, a fix "
                  "changes only its spelling. Nothing here was corrected silently, and no record "
                  "was dropped.", 9.0, W - 20, MUTED, 1.45)

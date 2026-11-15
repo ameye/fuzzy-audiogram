@@ -96,12 +96,14 @@ for k, (ear, off, col) in enumerate([("left", -w / 2, BLUE), ("right", w / 2, TE
         p.set_alpha(0.22)
 ax.set_xticks(pos); ax.set_xticklabels(FREQLAB)
 ax.invert_yaxis()
+ax.set_yticks([0, 20, 40, 60, 80, 100, 120])
+ax.set_ylim(128, -24)          # headroom above the 0 dB whiskers for the legend
 ax.set_xlabel("Frequency (Hz, air conduction)")
 ax.set_ylabel("dB HL")
 ax.legend(handles=[Patch(facecolor=BLUE, alpha=.35, label="Left ear"),
                    Patch(facecolor=TEAL, alpha=.35, label="Right ear")], frameon=False, fontsize=8,
-          loc="upper right", bbox_to_anchor=(1.0, 0.86))
-ax.set_title("Air-conduction thresholds by frequency and ear (box = IQR, line = median)",
+          loc="upper right", bbox_to_anchor=(1.0, 1.0))
+ax.set_title("Air-conduction thresholds by frequency and ear\n(box = IQR, line = median)",
              loc="left", fontsize=10, fontweight="bold")
 save(fig, "fig02_thresholds_by_frequency.png")
 
@@ -161,7 +163,7 @@ for b in CLARK:
 ax.hist(df.pta4, bins=np.arange(0, 125, 2.5), color=BLUE, alpha=0.8, edgecolor="white", lw=0.4)
 ax.set_ylabel("Ears")
 n_b = int((df.pta4.apply(lambda p: any(abs(p - c) <= 5 for c in CLARK))).sum())
-ax.set_title(f"PTA-4 against the Clark boundaries — {n_b} of {len(df)} ears "
+ax.set_title(f"PTA-4 against the Clark boundaries —\n{n_b} of {len(df)} ears "
              f"({100*n_b/len(df):.1f}%) lie within ±5 dB of a boundary",
              loc="left", fontsize=10, fontweight="bold")
 ax.legend(handles=[Patch(facecolor=SAND, alpha=.35, label="±5 dB boundary zone")],
@@ -172,7 +174,8 @@ d = df.pta4.apply(lambda p: min(abs(p - c) for c in CLARK))
 ax.hist(d, bins=np.arange(0, 22, 1), color=TEAL, alpha=0.85, edgecolor="white", lw=0.4)
 ax.axvline(5, color=RUST, lw=1.2, ls="--")
 ax.set_xlim(0, 21)
-ax.text(5.4, ax.get_ylim()[1] * 0.97, "5 dB cut-off", color=RUST, fontsize=7.5, va="top")
+ax.set_ylim(0, 70)          # headroom so the cut-off label clears the bars
+ax.text(5.45, 66, "5 dB cut-off", color=RUST, fontsize=7.5, va="top", ha="left")
 ax.set_xlabel("Distance from nearest Clark boundary (dB)")
 ax.set_ylabel("Ears")
 ax.set_title(f"Distance from the nearest boundary (median {d.median():.1f} dB; "
@@ -213,7 +216,7 @@ for i, (bc, ac) in enumerate(zip(BC, BC_AC)):
     ax.plot(i, med, "o", color="white", ms=4, mec=BLUE, mew=1.2)
 ax.axhline(0, color=INK, lw=1)
 ax.axhline(10, color=RUST, lw=1, ls="--")
-ax.text(0.015, 11.2, "protocol tolerance (+10 dB)", ha="left", fontsize=7.5, color=RUST,
+ax.text(0.015, 13.6, "protocol tolerance (+10 dB)", ha="left", fontsize=7.5, color=RUST,
         transform=ax.get_yaxis_transform())
 ax.set_xticks(pos); ax.set_xticklabels(BCLAB)
 ax.set_xlabel("Frequency (Hz)")
@@ -246,7 +249,8 @@ ax.set_title(f"{(n>0).sum()} ears carry at least one 120", loc="left", fontsize=
 save(fig, "fig08_120_pattern.png")
 
 # ---------- 9. FAI agreement ----------
-fig, axes = plt.subplots(1, 2, figsize=(7.6, 3.3), gridspec_kw={"width_ratios": [1, 1.15]})
+fig, axes = plt.subplots(1, 2, figsize=(7.6, 3.3),
+                         gridspec_kw={"width_ratios": [1, 1.15], "wspace": 0.32})
 ax = axes[0]
 sub = df[df.fai_label.isin(LBL6)]
 ct = pd.crosstab(sub.who_clark, sub.fai_label).reindex(index=LBL6, columns=LBL6).fillna(0)
@@ -286,8 +290,9 @@ ks = [0.6, 0.7, 0.8, 0.9]
 w = [kp[str(k)]["width"] for k in ks]
 ax.plot(ks, w, "o-", color=BLUE, lw=1.6, ms=5)
 for k, ww in zip(ks, w):
-    ax.annotate(f"{ww:.3f}", (k, ww), textcoords="offset points", xytext=(0, 7),
-                ha="center", fontsize=7.5)
+    ax.annotate(f"{ww:.3f}", (k, ww), textcoords="offset points", xytext=(7, 3),
+                ha="left", va="bottom", fontsize=7.5)
+ax.set_xlim(0.575, 0.945)
 ax.set_xlabel("True quadratic-weighted kappa")
 ax.set_ylabel("Expected 95% CI width")
 ax.set_title("Precision at n = 410 ears", loc="left", fontsize=9.5, fontweight="bold")
@@ -298,7 +303,7 @@ ns = [int(k) for k in kp["n_vs_width"]]
 ws = [kp["n_vs_width"][k] for k in kp["n_vs_width"]]
 ax.plot(ns, ws, "o-", color=TEAL, lw=1.6, ms=5)
 ax.axvline(410, color=RUST, lw=1, ls="--")
-ax.text(410, max(ws) * 0.80, " this study", fontsize=7.5, color=RUST, ha="left")
+ax.text(405, max(ws) * 0.80, " this study", fontsize=7.5, color=RUST, ha="right")
 ax.set_xscale("log")
 ax.set_xticks(ns); ax.set_xticklabels([str(n) for n in ns])
 ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())

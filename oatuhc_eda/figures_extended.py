@@ -148,10 +148,9 @@ ax.set_ylabel("Age at test (years)")
 ax.set_ylim(10, 108)
 ax.set_xlabel("Male (M) / Female (F), left (L) / right (R) ear")
 F.title(ax, "Age by sex and ear", "box = IQR, whiskers = 1.5 x IQR, points = ears")
-ax.text(0.02, 0.06, f"sex: U={a['test_sex']['U']:.0f}, {pfmt(a['test_sex']['p'])}, "
-        f"r$_{{rb}}$={a['test_sex']['rank_biserial']:+.03f}\near: U={a['test_ear']['U']:.0f}, "
-        f"{pfmt(a['test_ear']['p'])}", transform=ax.transAxes, fontsize=6.8, color=F.MUTED,
-        va="bottom")
+note11 = (f"sex: U={a['test_sex']['U']:.0f}, {pfmt(a['test_sex']['p'])}, "
+          f"r$_{{rb}}$={a['test_sex']['rank_biserial']:+.03f}\near: U={a['test_ear']['U']:.0f}, "
+          f"{pfmt(a['test_ear']['p'])}")
 
 ax = axes[1]
 for sx, lab, c, ls, mk in [(1, "Male", F.BLUE, "-", "o"), (2, "Female", F.ORANGE, "--", "s")]:
@@ -164,6 +163,8 @@ ax.set_ylabel("Cumulative proportion of ears")
 ax.legend(loc="lower right")
 F.title(ax, "Age distribution, cumulative", "markers: group medians (61 vs 59 years)")
 ax.set_xlim(15, 100)
+fig.subplots_adjust(bottom=0.30, top=0.86)
+fig.text(0.012, 0.02, note11, fontsize=6.8, color=F.MUTED, ha="left", va="bottom")
 save(fig, "fig11_age_by_ear_sex.png")
 
 # ============================================================== 12. age by grade
@@ -187,7 +188,7 @@ for ax, (key, lab) in zip(axes, [("by_grade_clark", "Clark / protocol WHO grade"
             boxstyle="round,pad=0.3", alpha=0.92))
     F.title(ax, lab, "bold figure = median age")
 axes[0].set_ylabel("Age at test (years)")
-axes[0].set_ylim(10, 108)
+axes[0].set_ylim(-8, 108)
 fig.suptitle("Age rises with grade to 'moderately severe' and then falls: profound ears are "
              "younger\n(Spearman rho against ordered grade = "
              f"{a['trend_grade_clark']['rho']:+.2f}, {pfmt(a['trend_grade_clark']['p'])})",
@@ -205,12 +206,12 @@ rng = np.random.default_rng(4)
 for i, (k, v) in enumerate(zip(order, groups)):
     ax.plot(i + rng.normal(0, 0.06, len(v)), v, F.MARKERS[i % len(F.MARKERS)], ms=1.8,
             color=cols[i], alpha=0.35, mec="none")
-    ax.text(i, 104, f"{np.median(v):.0f}", ha="center", fontsize=7, fontweight="bold")
-    ax.text(i, 99, f"n={len(v)}", ha="center", fontsize=6.2, color=F.MUTED)
+    ax.text(i, 107, f"{np.median(v):.0f}", ha="center", fontsize=7, fontweight="bold")
+    ax.text(i, 102.5, f"n={len(v)}", ha="center", fontsize=6.2, color=F.MUTED)
 ax.set_xticks(range(len(order)))
 ax.set_xticklabels([DIAG_PRETTY[k] for k in order], rotation=30, ha="right")
 ax.set_ylabel("Age at test (years)")
-ax.set_ylim(10, 110)
+ax.set_ylim(10, 114)
 t = a["test_diagnosis"]
 ax.text(0.0, -0.30, f"Kruskal-Wallis H({t['df']})={t['H']:.1f}, {pfmt(t['p'])}, "
         f"$\\epsilon^2$={t['epsilon_squared']:.2f}; orange categories are the residual "
@@ -250,8 +251,9 @@ for g, lab in [(1, "Male"), (2, "Female")]:
     pass
 ax.set_xlabel("Age at test (years)")
 ax.set_ylabel("PTA-4 (dB HL)")
-ax.set_ylim(-8, 128)
-ax.legend(loc="upper left", ncol=1)
+ax.set_ylim(-34, 152)
+ax.legend(loc="upper left", ncol=2, frameon=False, columnspacing=1.6,
+          handletextpad=0.6)
 sp = J["age"]["age_vs_pta"]
 ax.text(0.985, 0.03, f"Spearman rho = {sp['spearman']:+.3f} "
         f"(95% CI {sp['spearman_ci'][0]:+.2f} to {sp['spearman_ci'][1]:+.2f})\n"
@@ -281,16 +283,17 @@ for i in range(len(dec)):
             fontweight="bold")
     ax.text(101.5, i, f"n={int(tot[i])}", va="center", fontsize=6.6, color=F.MUTED)
 ax.axvline(38.5, color=F.INK, lw=1, ls=":")
-ax.text(37.0, (len(dec) - 1) / 2, "overall 38.5% male", fontsize=6.6, color=F.INK, ha="center",
-        va="center", rotation=90, bbox=dict(facecolor="white", edgecolor="none", pad=1.2))
+ax.text(0.995, 1.012, "overall 38.5% male", fontsize=6.6, color=F.INK, ha="right",
+        va="bottom", transform=ax.transAxes)
 ax.set_yticks(ypos); ax.set_yticklabels(dec)
 ax.set_xlim(0, 120); ax.set_xlabel("Share of ears in the decade (%)")
 ax.legend(handles=[Patch(facecolor=F.BLUE, label="Male"),
                    Patch(facecolor=F.ORANGE, hatch="//", label="Female")],
-          loc="lower center", ncol=2, bbox_to_anchor=(0.5, -0.30))
+          loc="upper right", ncol=2, bbox_to_anchor=(1.0, -0.20))
 t = J["sex"]["decade_test"]
-ax.text(0.015, 0.03, f"chi-square({t['df']})={t['chi2']:.1f}, {pfmt(t['p'])}, "
-        f"Cramer's V={t['cramers_v']:.2f}", transform=ax.transAxes, fontsize=7, color=F.MUTED)
+ax.text(0.0, -0.25, f"chi-square({t['df']})={t['chi2']:.1f}, {pfmt(t['p'])}, "
+        f"Cramer's V={t['cramers_v']:.2f}", transform=ax.transAxes, fontsize=7, color=F.MUTED,
+        va="top")
 F.title(ax, "Sex composition by decade of age",
         "female preponderance is concentrated between 30 and 59 years")
 save(fig, "fig15_sex_by_decade.png")
@@ -308,7 +311,7 @@ ax.hist(diff, bins=bins, color=F.BLUE, alpha=0.8, edgecolor="white", lw=0.5)
 for x0 in (-15, 15):
     ax.axvline(x0, color=F.ORANGE, lw=1.2, ls="--")
 ax.axvline(0, color=F.INK, lw=1)
-ax.text(17.5, ax.get_ylim()[1] * 0.55, "|difference|\n≥ 15 dB", color=F.ORANGE,
+ax.text(19.0, ax.get_ylim()[1] * 0.55, "|difference|\n≥ 15 dB", color=F.ORANGE,
         fontsize=7, fontweight="bold", va="top", ha="left")
 ax.set_xlabel("Right minus left PTA-4 (dB)")
 ax.set_ylabel("Patients")
@@ -479,15 +482,16 @@ for b in bounds[:-1]:
     ax.axvline(b - 0.5, color=F.INK, lw=1.2)
 for j in range(C["k"]):
     mid = (bounds[j] - C["n"][str(j)] / 2) / len(order)
-    ax.text(mid, 1.015, f"C{j+1}  n={C['n'][str(j)]}", transform=ax.transAxes,
-            ha="center", va="bottom", fontsize=7.0, fontweight="bold", color=F.INK)
+    ax.text(mid, 1.015 if j % 2 == 0 else 1.075, f"C{j+1}  n={C['n'][str(j)]}",
+            transform=ax.transAxes, ha="center", va="bottom", fontsize=7.0,
+            fontweight="bold", color=F.INK)
 ax.set_yticks(range(7)); ax.set_yticklabels(["250", "500", "1k", "2k", "4k", "6k", "8k"])
 ax.set_xticks([])
 ax.set_xlabel("410 ears sorted by cluster, then by 4 kHz threshold within cluster")
 ax.grid(False)
 cb = fig.colorbar(im, ax=ax, fraction=0.035, pad=0.015)
 cb.set_label("dB from ear mean", fontsize=6.5)
-ax.set_title("Ear profiles, level removed", loc="left", fontsize=9, fontweight="bold", pad=24)
+ax.set_title("Ear profiles, level removed", loc="left", fontsize=9, fontweight="bold", pad=46)
 
 ax = axes[1]
 xx = np.arange(7)
@@ -523,8 +527,10 @@ for key, lab, col, ls, mk in [("pta3", "PTA-3 (0.5/1/2 kHz)", F.BLUE, "-", "o"),
     ax.axvline(pv[key]["median"], color=col, lw=1, ls=ls)
 ax.set_xlabel("Average threshold (dB HL)")
 ax.set_ylabel("Ears")
-ax.legend(loc="upper right", fontsize=7, frameon=True, facecolor="white", edgecolor=F.GRID)
+ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.19), ncol=1, fontsize=7,
+          frameon=False)
 ax.set_xlim(0, 125)
+ax.set_ylim(0, 54)          # headroom so the legend clears the curve peaks
 F.title(ax, "Three ways to average the audiogram", "overlaid, shared 5 dB bins")
 
 ax = axes[1]
@@ -565,7 +571,8 @@ ax.plot([5, 125], [-15, 105], color=F.GREY, lw=0.9, ls="--")
 ax.set_xlabel("Air-conduction threshold (dB HL)")
 ax.set_ylabel("Bone-conduction threshold (dB HL)")
 ax.set_xlim(-12, 128); ax.set_ylim(-12, 128)
-ax.legend(loc="lower right", ncol=2, title="frequency", title_fontsize=7)
+ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.21), ncol=4, title="frequency",
+          title_fontsize=7, fontsize=7.2, frameon=False, columnspacing=1.4)
 F.title(ax, "Air against bone conduction, all four BC frequencies",
         "dotted = identity; dashed bands = ±10 dB protocol tolerance (n = 1,603 pairs)")
 
@@ -601,7 +608,7 @@ ax.set_xticks(range(len(order)))
 ax.set_xticklabels([f"{DIAG_PRETTY[k]} ({len(g)})" for k, g in zip(order, groups)],
                    rotation=35, ha="right", fontsize=6.8)
 ax.set_ylabel("Mean air-bone gap, BC - AC (dB)")
-ax.set_ylim(-72, 26)
+ax.set_ylim(-72, 44)
 t = J["abg"]["test_diagnosis"]
 ax.text(0.02, 0.97, f"Kruskal-Wallis H({t['df']})={t['H']:.1f}, {pfmt(t['p'])}\n"
         f"$\\epsilon^2$={t['epsilon_squared']:.2f}",
@@ -616,7 +623,7 @@ for lb in ax.get_xticklabels():
     lb.set_rotation(30); lb.set_ha("right")
 ax.axhline(0, color=F.INK, lw=0.9)
 ax.set_ylabel("Mean air-bone gap, BC - AC (dB)")
-ax.set_ylim(-72, 26)
+ax.set_ylim(-72, 44)
 t = J["abg"]["test_consult"]
 ax.text(0.02, 0.97, f"Kruskal-Wallis H({t['df']})={t['H']:.1f}, {pfmt(t['p'])}\n"
         f"$\\epsilon^2$={t['epsilon_squared']:.2f}",
@@ -645,11 +652,11 @@ for i, (e, p) in enumerate(zip(ears, pats)):
             color=F.INK)
 ax.set_yticks(y); ax.set_yticklabels([DIAG_PRETTY[k] for k in order], fontsize=7.4)
 ax.set_xlabel("Ears")
-ax.set_xlim(0, 275)
+ax.set_xlim(0, 315)
 ax.legend(handles=[Patch(facecolor=F.BLUE, label="Named diagnosis"),
                    Patch(facecolor=F.ORANGE, hatch="//", label="'other' (undefined residual)"),
                    Patch(facecolor=F.ORANGE, hatch="xx", label="not documented")],
-          loc="lower right", bbox_to_anchor=(1.0, 0.0))
+          loc="upper right", bbox_to_anchor=(1.0, -0.16), ncol=1, frameon=False)
 F.title(ax, "Aetiology after case and spelling normalisation",
         "csoM folded into csom (15 ears); percentages are unweighted ear-level")
 
@@ -665,8 +672,9 @@ ax.text(0, named + (100 - named) / 2, f"{100-named:.1f}%\nresidual or\nnot docum
 ax.set_xlim(-0.6, 0.6); ax.set_ylim(0, 100)
 ax.set_xticks([]); ax.set_ylabel("Share of ears (%)")
 t = J["diagnosis"]["pta_test"]
-ax.text(-0.48, 0.97, f"PTA-4 differs across categories:\nH({t['df']})={t['H']:.1f}, {pfmt(t['p'])},\n"
-        f"$\\epsilon^2$={t['epsilon_squared']:.2f}", fontsize=6.5, color=F.MUTED, ha="left", va="top")
+ax.text(0.0, -0.03, f"PTA-4 differs across categories:\nH({t['df']})={t['H']:.1f}, {pfmt(t['p'])},\n"
+        f"$\\epsilon^2$={t['epsilon_squared']:.2f}", fontsize=6.5, color=F.MUTED, ha="left", va="top",
+        transform=ax.transAxes)
 F.title(ax, "How much aetiology is actually known", "55.9% of ears carry no usable label")
 save(fig, "fig25_diagnosis_counts.png")
 
@@ -687,7 +695,7 @@ ax.set_yticks(range(4)); ax.set_yticklabels(["Flat", "Sloping", "Rising", "Notch
 ax.set_xlabel("Configuration computed by the FAI")
 ax.set_ylabel("Documented shape")
 ax.grid(False)
-ax.set_title(f"Documented vs FAI: {100*SH['fai_exact']:.1f}% exact (n={SH['fai_n']}), "
+ax.set_title(f"Documented vs FAI:\n{100*SH['fai_exact']:.1f}% exact (n={SH['fai_n']}), "
              f"kappa {SH['fai_kappa']:.2f}", loc="left", fontsize=8.4, fontweight="bold")
 
 ax = axes[1]
@@ -708,7 +716,7 @@ ax.set_xticklabels(["Flat", "Sloping", "Rising", "Notched", "Undet."], rotation=
 ax.set_yticks(range(4)); ax.set_yticklabels(["Flat", "Sloping", "Rising", "Notched"], fontsize=7.4)
 ax.set_xlabel("Configuration from a transparent threshold rule")
 ax.grid(False)
-ax.set_title(f"Documented vs threshold rule: {100*SH['derived_exact']:.1f}% exact", loc="left",
+ax.set_title(f"Documented vs threshold rule:\n{100*SH['derived_exact']:.1f}% exact", loc="left",
              fontsize=8.4, fontweight="bold")
 fig.text(0.01, -0.24, "Two independent automatic schemes agree with the documented label at almost the "
          "same rate (42.7% and 42.3%). The documented shapes are therefore not recoverable from the "
@@ -771,15 +779,16 @@ for (key, col, ls, mk), lab in zip([("clark", F.BLUE, "-", "o"), ("who5", F.TEAL
     ax.plot(xs, [100 * v for v in ys], marker=mk, ls=ls, color=col, ms=4, label=lab)
 for x0, lab in [(2, "±2 dB"), (5, "±5 dB"), (10, "±10 dB")]:
     ax.axvline(x0, color=F.GREY, lw=0.8, ls=":")
-    ax.text(x0, 4, lab, fontsize=6.6, color=F.MUTED, ha="center")
+    ax.text(x0 + 0.28, 101.5, lab, fontsize=6.6, color=F.MUTED, ha="left", va="top")
 d = J["boundary"]
-_off = {"clark": -10, "who5": -22, "who21": 6}
-for key, col, off in [(k, c, _off[k]) for k, c in [("clark", F.BLUE), ("who5", F.TEAL),
-                                                   ("who21", F.ORANGE)]]:
+# each label sits clear of its own line: above for the upper two series, below for the middle one
+_lab = {"clark": (-3, 4, "bottom"), "who5": (2, -4, "top"), "who21": (2, 5, "bottom")}
+for key, col in [("clark", F.BLUE), ("who5", F.TEAL), ("who21", F.ORANGE)]:
     dd = d[key]
+    dx, dy, va = _lab[key]
     ax.annotate(f"{100*dd['pct_within_5']:.1f}%", (5, 100 * dd["pct_within_5"]),
-                textcoords="offset points", xytext=(7, off), fontsize=6.8, color=col)
-    off += 11
+                textcoords="offset points", xytext=(dx, dy),
+                ha="right" if dx < 0 else "left", va=va, fontsize=6.8, color=col)
 ax.set_xlabel("Distance from the nearest grade boundary (dB)")
 ax.set_ylabel("Ears within that distance (%)")
 ax.set_xlim(0, 16); ax.set_ylim(0, 105)
@@ -901,7 +910,7 @@ ax.bar(x, ex, color=[F.PALETTE[g] for g in LBL6], width=0.62, edgecolor=F.MUTED,
 ax.errorbar(x, ex, yerr=[lo, hi], fmt="none", ecolor=F.INK, elinewidth=1, capsize=3)
 for i, (g, v) in enumerate(zip(LBL6, ex)):
     ax.text(i, 3, f"n={AG[g]['n']}", ha="center", fontsize=6.4, color="white" if v > 30 else F.INK)
-    ax.text(i, v + 3, f"{v:.0f}%", ha="center", fontsize=7, fontweight="bold")
+    ax.text(i, v + hi[i] + 3.0, f"{v:.0f}%", ha="center", fontsize=7, fontweight="bold")
 ax.set_xticks(x); ax.set_xticklabels(PRETTY_SHORT, rotation=30, ha="right")
 ax.set_ylabel("Exact agreement (%)")
 ax.set_ylim(0, 112)
