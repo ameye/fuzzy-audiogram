@@ -13,17 +13,26 @@ import sys, json, pickle, hashlib, warnings
 from pathlib import Path
 
 warnings.filterwarnings("ignore")
-ROOT = Path("/opt/data/fuzzy-audiogram")
+ROOT = Path(__file__).resolve().parents[1]
+BASELINE = ROOT / "archive/predictions_PRE_asymmetry_refactor.pkl"
+if not BASELINE.is_file():
+    print("SKIP: asymmetry refactor check requires external baseline and NHANES files")
+    raise SystemExit(0)
+
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import numpy as np
 from fuzzy_audiogram.combined_data import (
-    load_combined_nhanes, extract_combined_audiometry, clean_ears)
+    CYCLES, load_combined_nhanes, extract_combined_audiometry, clean_ears)
 from fuzzy_audiogram import core
 
-BASELINE = ROOT / "archive/predictions_PRE_asymmetry_refactor.pkl"
 EXPECTED_MD5 = "7e75859bc305053884a3841dd6a4dfca"
+
+data_files = [Path(path) for _, *paths in CYCLES for path in paths]
+if any(not path.is_file() for path in data_files):
+    print("SKIP: asymmetry refactor check requires external baseline and NHANES files")
+    raise SystemExit(0)
 
 base = pickle.load(open(BASELINE, "rb"))
 fai_base = np.asarray(base["fai"], float)
