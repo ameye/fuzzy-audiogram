@@ -185,7 +185,7 @@ txt(s, 0.8, 4.55, 11.73, 0.85,
      {"text": "King Fahad Multispecialists Hospital, Tabuk, Kingdom of Saudi Arabia",
       "size": 13, "color": RGBColor(0xBF, 0xD0, 0xE0), "align": PP_ALIGN.CENTER}])
 chip(s, 2.20, 5.80, 2.6, 1.05, "10,889", "adults 20–69 y · 3 NHANES cycles", big_size=24)
-chip(s, 5.37, 5.80, 2.6, 1.05, "48", "audiology-derived fuzzy rules", big_size=24)
+chip(s, 5.37, 5.80, 2.6, 1.05, "42", "audiology-derived fuzzy rules", big_size=24)
 chip(s, 8.54, 5.80, 2.6, 1.05, "0–100", "continuous FAI scale", big_size=24)
 
 # ================================================================ SLIDE 2 — PROBLEM (light)
@@ -220,7 +220,7 @@ txt(s, 0.98, 4.62, 5.2, 1.9,
 # right stats
 c1 = rect(s, 6.85, 1.25, 5.95, 2.35, CARD, line=BORDER, rounded=True, radius=0.06)
 txt(s, 7.05, 1.45, 5.55, 1.0,
-    [{"text": "39.2%", "size": 44, "bold": True, "color": NAVY, "font": HDR}])
+    [{"text": "18%", "size": 44, "bold": True, "color": NAVY, "font": HDR}])
 txt(s, 7.05, 2.45, 5.55, 1.05,
     [{"text": "of ears fall within ±5 dB of a WHO severity boundary, the zone where "
                "crisp labels are most fragile", "size": 13, "color": INK, "line_spacing": 1.15}])
@@ -306,7 +306,7 @@ txt(s, 0.78, 4.70, 5.14, 1.96,
       "size": 10, "italic": True, "color": WHITE, "line_spacing": 1.1}], anchor=MSO_ANCHOR.MIDDLE)
 img, iw, ih = pic(s, f"{FIG}/fig2_fis_architecture.png", 6.45, 1.60, w=6.35)
 txt(s, 6.45, 1.60 + ih + 0.12, 6.35, 0.7,
-    [{"text": "Mamdani FIS with 7 frequency thresholds → fuzzification → 48 rules → "
+    [{"text": "Mamdani FIS with 7 frequency thresholds → fuzzification → 42 rules → "
                "centroid defuzzification → FAI", "size": 11.5, "italic": True, "color": MUTED,
       "align": PP_ALIGN.CENTER, "line_spacing": 1.1}])
 
@@ -325,7 +325,7 @@ txt(s, 0.75, 5.45, 6.1, 1.3,
       "color": INK, "space_before": 4, "line_spacing": 1.12}])
 # param table
 data = [["Category", "a", "b", "c", "d"],
-        ["Normal", "0.0", "6.4", "16.4", "27.8"],
+        ["Normal", "0.0", "0.0", "16.4", "27.8"],
         ["Mild", "25.8", "26.3", "36.4", "43.5"],
         ["Moderate", "41.5", "42.0", "54.3", "58.5"],
         ["Moderately Severe", "56.5", "57.0", "67.9", "73.5"],
@@ -349,7 +349,7 @@ txt(s, 7.50, 5.10, 5.1, 1.6,
 
 # ================================================================ SLIDE 6 — RULE BASE (light)
 s = add_slide(LIGHT)
-title_bar(s, "48 audiology-derived rules in four groups", 6)
+title_bar(s, "42 audiology-derived rules in four groups", 6)
 groups = [
     ("SEVERITY · 12 RULES", "Map thresholds to severity output, with blended rules for "
      "transitional zones.", "IF threshold is Mild AND slope is Flat\nTHEN severity is Mild", NAVY),
@@ -357,7 +357,7 @@ groups = [
      "IF slope is Steeply Sloping AND notch is Deep\nTHEN configuration is Notched", TEAL),
     ("ASYMMETRY · 12 RULES", "Score inter-aural differences and adjust severity.",
      "IF inter-aural difference > 30 dB at 3+ frequencies\nTHEN asymmetry is Severely Asymmetric", NAVY),
-    ("MIXED-LOSS · 10 RULES", "Handle complex presentations combining all dimensions.",
+    ("MIXED-LOSS · 4 RULES", "Handle complex presentations combining all dimensions.",
      "IF asymmetric AND notched\nTHEN flag mixed aetiology", TEAL),
 ]
 pos = [(0.55, 1.35), (6.85, 1.35), (0.55, 3.85), (6.85, 3.85)]
@@ -568,8 +568,8 @@ txt(s, 1.30, 5.95, 10.73, 0.9,
 
 # ================================================================ SLIDE 15 — THANK YOU (dark)
 s = add_slide(NAVY)
-waveform(s, 0, 7.28, 13.333, color=GOLD, max_h=0.55)
-waveform(s, 0, 7.28, 13.333, color=TEAL, max_h=0.3)
+waveform(s, 0, 7.28, 13.333, color=GOLD, max_h=0.42)
+waveform(s, 0, 7.28, 13.333, color=TEAL, max_h=0.22)
 txt(s, 0.8, 1.9, 11.73, 1.0,
     [{"text": "Thank you", "size": 48, "bold": True, "color": WHITE, "font": HDR,
       "align": PP_ALIGN.CENTER}])
@@ -586,10 +586,10 @@ txt(s, 0.8, 4.15, 11.73, 0.9,
 txt(s, 0.8, 5.25, 11.73, 0.45,
     [{"text": "sanyaameye@hotmail.com", "size": 15, "bold": True, "color": GOLD,
       "align": PP_ALIGN.CENTER}])
-txt(s, 0.8, 5.78, 11.73, 0.5,
+txt(s, 0.8, 5.62, 11.73, 0.5,
     [{"text": "Preprint · SSRN 2026 · DOI 10.2139/ssrn.7532157", "size": 15,
       "bold": True, "color": GOLD, "align": PP_ALIGN.CENTER}])
-txt(s, 0.8, 6.35, 11.73, 0.4,
+txt(s, 0.8, 6.18, 11.73, 0.4,
     [{"text": "Code and data · github.com/ameye/fuzzy-audiogram", "size": 12,
       "color": RGBColor(0x9A, 0xB0, 0xC6), "align": PP_ALIGN.CENTER}])
 
@@ -604,7 +604,7 @@ NOTES = [
     "Here is the problem, and it is clinical rather than abstract. Patient A has a "
     "four-frequencyaverage of 25 decibels and is called normal. Patient B has 26 and is called mild "
     "hearing loss.One decibel separates them, inside audiometry's own five to ten decibel "
-    "test-retest error, yetthe label changes follow-up and candidacy. In our sample 39.2 per cent "
+    "test-retest error, yetthe label changes follow-up and candidacy. In our sample 18 per cent "
     "of ears sit within fivedecibels of a WHO boundary. And one average also discards shape, so a "
     "four kilohertz notch anda flat thirty decibel loss can carry the same grade. That is an "
     "argument for changing how we grade, not for moving where we cut.",
@@ -630,13 +630,13 @@ NOTES = [
     "trapezoidsbecause these distributions have flat cores and asymmetric shoulders. The grey "
     "overlay is the actual NHANES distribution, so you can see where the boundaries fall relative "
     "to real ears.",
-    "The rule base has 48 rules in four groups. Twelve map thresholds to severity and blend "
+    "The rule base has 42 rules in four groups. Twelve map thresholds to severity and blend "
     "acrosstransitional zones. Fourteen type the audiogram from slope and notch, which is how we "
     "catch anoise notch hidden behind a normal average. Twelve score inter-aural difference and "
-    "adjustseverity for asymmetry. Ten handle mixed presentations where several dimensions fire "
+    "adjustseverity for asymmetry. Four handle mixed presentations where several dimensions fire "
     "together.Inference is Mamdani min-max composition with centroid defuzzification, which is a "
     "standard,well-understood route that returns an interpretable surface rather than a black box. "
-    "Nothinghere needs a graphics card. Four groups, 48 rules, and every rule fits on one printed "
+    "Nothinghere needs a graphics card. Four groups, 42 rules, and every rule fits on one printed "
     "line. The rule base is the part of this work I would most like you to audit.",
     "Against the WHO reference the index reaches weighted kappa 0.93, with Spearman 0.81 and a "
     "meanabsolute error of five decibels on 3,912 held-out ears. In clear cases, more than "

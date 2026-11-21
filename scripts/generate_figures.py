@@ -171,7 +171,7 @@ def fig2_fis_architecture():
 
     # Rule Engine box (right side)
     draw_box(9.5, row2_y, 5.5, 0.9,
-             'Mamdani Fuzzy Inference Engine\n48 Expert-Derived Rules',
+             'Mamdani Fuzzy Inference Engine\n42 Expert-Derived Rules',
              c_rules, subtext='Min–max inference • Implication: minimum')
 
     # Downward arrows from row 2 to row 3

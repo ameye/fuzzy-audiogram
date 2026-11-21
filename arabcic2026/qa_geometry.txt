@@ -1,18 +1,18 @@
 FILE arabcic2026_fuzzy_audiogram.pptx
 slides=15 text_frames=143 overflow=0 tight=0 offslide=0 unbreakable=0 cells_over=0 lowdpi=0
-words on slide=1466 notes=1461 talk=11.24 min @130wpm
+words on slide=1463 notes=1461 talk=11.24 min @130wpm
 ----------------------------------------------------------------------------------------------------
 OK p 1 words= 69 notes= 73 frames=11 bad= 0 cells_over=0 
-OK p 2 words=147 notes=102 frames=13 bad= 0 cells_over=0 
+OK p 2 words=144 notes=102 frames=13 bad= 0 cells_over=0 
 OK p 3 words=106 notes=103 frames= 8 bad= 0 cells_over=0 
-OK p 4 words=117 notes=104 frames= 7 bad= 0 cells_over=0 4170px/6.35in=657dpi
-OK p 5 words=112 notes=103 frames= 7 bad= 0 cells_over=0 3007px/6.5in=463dpi
+OK p 4 words=117 notes=104 frames= 7 bad= 0 cells_over=0 4161px/6.35in=655dpi
+OK p 5 words=112 notes=103 frames= 7 bad= 0 cells_over=0 5924px/6.5in=911dpi
 OK p 6 words=122 notes=110 frames=16 bad= 0 cells_over=0 
-OK p 7 words=114 notes=107 frames=10 bad= 0 cells_over=0 2511px/4.35in=577dpi
-OK p 8 words=122 notes=108 frames= 5 bad= 0 cells_over=0 2661px/5.55in=479dpi
-OK p 9 words= 94 notes=104 frames= 8 bad= 0 cells_over=0 4150px/6.05in=686dpi
+OK p 7 words=114 notes=107 frames=10 bad= 0 cells_over=0 4724px/4.35in=1086dpi
+OK p 8 words=122 notes=108 frames= 5 bad= 0 cells_over=0 4726px/5.55in=852dpi
+OK p 9 words= 94 notes=104 frames= 8 bad= 0 cells_over=0 8302px/6.05in=1372dpi
 OK p10 words= 80 notes=104 frames=12 bad= 0 cells_over=0 2661px/4.9in=543dpi
-OK p11 words= 62 notes= 98 frames=10 bad= 0 cells_over=0 4117px/12.25in=336dpi
+OK p11 words= 62 notes= 98 frames=10 bad= 0 cells_over=0 8235px/12.25in=672dpi
 OK p12 words= 91 notes=100 frames=15 bad= 0 cells_over=0 
 OK p13 words=121 notes=102 frames= 7 bad= 0 cells_over=0 
 OK p14 words= 69 notes=104 frames= 8 bad= 0 cells_over=0 
