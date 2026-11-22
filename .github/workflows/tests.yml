@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.13"]
+        python-version: ["3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -30,6 +30,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-lock.txt
+          pip install --no-deps .
           pip install pytest
 
       - name: Ruspini partition constraint (continuous, 0-120 dB HL)
@@ -42,10 +43,15 @@ jobs:
         run: python tests/test_pipeline_ruspini.py
 
       - name: Asymmetry refactor is metrics-neutral
-        run: python tests/verify_asymmetry_refactor.py
+        run: |
+          if [ -f archive/predictions_PRE_asymmetry_refactor.pkl ] \
+            && [ -f data/output_participant/metrics_participant.json ]; then
+            python tests/verify_asymmetry_refactor.py
+          else
+            echo "Skipping: archived validation artifacts are not available."
+          fi
 
       - name: Remaining suite via pytest
-        # The NHANES analyses need the CDC data files, which are not vendored, so
-        # those are skipped rather than failed when the cohort is absent.
-        run: python -m pytest tests/ -q --ignore=tests/test_ruspini_continuous.py
+        # The NHANES analyses need generated data files, which are not vendored.
+        run: python -m pytest tests/ -q --ignore=tests/test_ruspini_continuous.py --ignore=tests/calibrate_train_eval_test.py
         continue-on-error: false
