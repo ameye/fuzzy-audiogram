@@ -28,7 +28,8 @@ python-docx==1.2.0
 pytz==2026.3.post1
 scikit-fuzzy==0.5.0
 scikit-learn==1.9.0
-scipy==1.18.0
+scipy==1.17.1; python_version < "3.12"
+scipy==1.18.0; python_version >= "3.12"
 seaborn==0.13.2
 six==1.17.0
 statsmodels==0.14.6
