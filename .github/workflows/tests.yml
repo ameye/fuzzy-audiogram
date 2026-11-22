@@ -45,7 +45,6 @@ jobs:
         run: python tests/verify_asymmetry_refactor.py
 
       - name: Remaining suite via pytest
-        # The NHANES analyses need the CDC data files, which are not vendored, so
-        # those are skipped rather than failed when the cohort is absent.
-        run: python -m pytest tests/ -q --ignore=tests/test_ruspini_continuous.py
+        # This standalone analysis script matches pytest's *_test.py pattern.
+        run: python -m pytest tests/ -q --ignore=tests/test_ruspini_continuous.py --ignore=tests/calibrate_train_eval_test.py
         continue-on-error: false
