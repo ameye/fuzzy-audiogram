@@ -104,9 +104,14 @@ def fig1_membership_functions():
 # =====================================================================
 # FIGURE 2: FIS Architecture Schematic
 # =====================================================================
-def fig2_fis_architecture():
+def fig2_fis_architecture(n_rules=42, outdir=None, stem='fig2_fis_architecture'):
     """Schematic block diagram of the Mamdani FIS architecture.
-    Left-to-right flow with 3 rows of boxes."""
+    Left-to-right flow with 3 rows of boxes.
+
+    ``n_rules`` and the output location are parameters because the ArabCIC deck
+    needs the same schematic labelled with the rule count in the manuscript it
+    accompanies; the manuscript figure keeps the default.
+    """
 
     fig, ax = plt.subplots(figsize=(14, 7))
     ax.set_xlim(0, 14)
@@ -171,7 +176,7 @@ def fig2_fis_architecture():
 
     # Rule Engine box (right side)
     draw_box(9.5, row2_y, 5.5, 0.9,
-             'Mamdani Fuzzy Inference Engine\n42 Expert-Derived Rules',
+             f'Mamdani Fuzzy Inference Engine\n{n_rules} Expert-Derived Rules',
              c_rules, subtext='Min–max inference • Implication: minimum')
 
     # Downward arrows from row 2 to row 3
@@ -216,12 +221,13 @@ def fig2_fis_architecture():
 
     plt.tight_layout()
     # Save PNG
-    path_png = FIGS_DIR / 'fig2_fis_architecture.png'
+    out_dir = Path(outdir) if outdir is not None else FIGS_DIR
+    path_png = out_dir / f'{stem}.png'
     plt.savefig(path_png, dpi=300, bbox_inches='tight')
     print(f"  Saved: {path_png}")
 
     # Save SVG
-    path_svg = FIGS_DIR / 'fig2_fis_architecture.svg'
+    path_svg = out_dir / f'{stem}.svg'
     plt.savefig(path_svg, dpi=300, bbox_inches='tight')
     print(f"  Saved: {path_svg}")
 

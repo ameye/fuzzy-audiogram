@@ -185,7 +185,7 @@ txt(s, 0.8, 4.55, 11.73, 0.85,
      {"text": "King Fahad Multispecialists Hospital, Tabuk, Kingdom of Saudi Arabia",
       "size": 13, "color": RGBColor(0xBF, 0xD0, 0xE0), "align": PP_ALIGN.CENTER}])
 chip(s, 2.20, 5.80, 2.6, 1.05, "10,889", "adults 20–69 y · 3 NHANES cycles", big_size=24)
-chip(s, 5.37, 5.80, 2.6, 1.05, "42", "audiology-derived fuzzy rules", big_size=24)
+chip(s, 5.37, 5.80, 2.6, 1.05, "48", "audiology-derived fuzzy rules", big_size=24)
 chip(s, 8.54, 5.80, 2.6, 1.05, "0–100", "continuous FAI scale", big_size=24)
 
 # ================================================================ SLIDE 2 — PROBLEM (light)
@@ -304,9 +304,9 @@ txt(s, 0.78, 4.70, 5.14, 1.96,
      {"text": "A Mamdani fuzzy inference framework for graded pure-tone audiometric "
                "classification: development, validation, and open-source implementation",
       "size": 10, "italic": True, "color": WHITE, "line_spacing": 1.1}], anchor=MSO_ANCHOR.MIDDLE)
-img, iw, ih = pic(s, f"{FIG}/fig2_fis_architecture.png", 6.45, 1.60, w=6.35)
+img, iw, ih = pic(s, f"{HERE}/fig2_fis_architecture_48.png", 6.45, 1.60, w=6.35)
 txt(s, 6.45, 1.60 + ih + 0.12, 6.35, 0.7,
-    [{"text": "Mamdani FIS with 7 frequency thresholds → fuzzification → 42 rules → "
+    [{"text": "Mamdani FIS with 7 frequency thresholds → fuzzification → 48 rules → "
                "centroid defuzzification → FAI", "size": 11.5, "italic": True, "color": MUTED,
       "align": PP_ALIGN.CENTER, "line_spacing": 1.1}])
 
@@ -326,11 +326,11 @@ txt(s, 0.75, 5.45, 6.1, 1.3,
 # param table
 data = [["Category", "a", "b", "c", "d"],
         ["Normal", "0.0", "0.0", "16.4", "27.8"],
-        ["Mild", "25.8", "26.3", "36.4", "43.5"],
+        ["Mild", "25.8", "26.3", "35.7", "43.5"],
         ["Moderate", "41.5", "42.0", "54.3", "58.5"],
-        ["Moderately Severe", "56.5", "57.0", "67.9", "73.5"],
-        ["Severe", "71.5", "72.0", "83.7", "93.0"],
-        ["Profound", "91.0", "91.5", "104.6", "120.0"]]
+        ["Moderately Severe", "56.5", "57.0", "67.1", "73.5"],
+        ["Severe", "71.5", "72.0", "83.6", "93.0"],
+        ["Profound", "91.0", "91.5", "106.7", "120.0"]]
 make_table(s, 7.30, 1.35, 5.5, data, [2.35, 0.79, 0.79, 0.79, 0.79], row_h=0.42,
            body_size=10.5, header_size=11)
 txt(s, 7.30, 4.50, 5.5, 0.35,
@@ -349,7 +349,7 @@ txt(s, 7.50, 5.10, 5.1, 1.6,
 
 # ================================================================ SLIDE 6 — RULE BASE (light)
 s = add_slide(LIGHT)
-title_bar(s, "42 audiology-derived rules in four groups", 6)
+title_bar(s, "48 audiology-derived rules in four groups", 6)
 groups = [
     ("SEVERITY · 12 RULES", "Map thresholds to severity output, with blended rules for "
      "transitional zones.", "IF threshold is Mild AND slope is Flat\nTHEN severity is Mild", NAVY),
@@ -357,7 +357,7 @@ groups = [
      "IF slope is Steeply Sloping AND notch is Deep\nTHEN configuration is Notched", TEAL),
     ("ASYMMETRY · 12 RULES", "Score inter-aural differences and adjust severity.",
      "IF inter-aural difference > 30 dB at 3+ frequencies\nTHEN asymmetry is Severely Asymmetric", NAVY),
-    ("MIXED-LOSS · 4 RULES", "Handle complex presentations combining all dimensions.",
+    ("MIXED-LOSS · 10 RULES", "Handle complex presentations combining all dimensions.",
      "IF asymmetric AND notched\nTHEN flag mixed aetiology", TEAL),
 ]
 pos = [(0.55, 1.35), (6.85, 1.35), (0.55, 3.85), (6.85, 3.85)]
@@ -399,7 +399,7 @@ txt(s, 8.45, 1.35 + ih + 0.08, 4.35, 0.35,
       "color": MUTED, "align": PP_ALIGN.CENTER}])
 chip(s, 8.45, 5.05, 4.35, 0.95, "κ = 0.93", "vs WHO PTA-4 reference, 20–69 y test", big_size=20,
      small_size=10, fill=NAVY, big_color=GOLD)
-chip(s, 8.45, 6.10, 4.35, 0.85, "ρ = 0.81 · MAE 5.0 dB", "FAI vs PTA-4, n = 3,912 test ears",
+chip(s, 8.45, 6.10, 4.35, 0.85, "ρ = 0.80 · MAE 6.1 dB", "FAI vs PTA-4, n = 3,912 test ears",
      big_size=15, small_size=10, fill=NAVY2, big_color=WHITE)
 
 # ================================================================ SLIDE 8 — 25/26 dB (light)
@@ -407,17 +407,18 @@ s = add_slide(LIGHT)
 title_bar(s, "The 25/26 dB boundary is graded, not binary", 8)
 data = [["PTA-4", "Crisp label", "Fuzzy label", "FAI", "Normal μ", "Mild μ"],
         ["24 dB", "Normal", "Normal", "11.3", "0.33", "0.00"],
-        ["25 dB", "Normal", "Normal", "11.6", "0.25", "0.00"],
         ["26 dB", "Mild", "Mild", "25.7", "0.16", "0.40"],
+        ["27 dB", "Mild", "Mild", "28.9", "0.07", "1.00"],
+        ["28 dB", "Mild", "Mild", "30.0", "0.00", "1.00"],
         ["30 dB", "Mild", "Mild", "30.0", "0.00", "1.00"]]
-make_table(s, 0.55, 1.35, 6.4, data, [1.05, 1.05, 1.05, 0.85, 1.2, 1.2], row_h=0.46,
-           body_size=11, header_size=11, highlight_rows={3})
+make_table(s, 0.55, 1.35, 6.4, data, [1.05, 1.05, 1.05, 0.85, 1.2, 1.2], row_h=0.42,
+           body_size=11, header_size=11, highlight_rows={2})
 rect(s, 0.55, 4.60, 6.4, 2.05, CARD, line=BORDER, rounded=True, radius=0.06)
 txt(s, 0.75, 4.75, 6.0, 1.8,
     [{"text": "A patient with PTA 26 dB is simultaneously 16% normal and 40% mild, and "
                "the crisp label hides this ambiguity.", "size": 12.5, "color": INK,
       "space_after": 8, "line_spacing": 1.2},
-     {"text": "FAI rises smoothly from 11.3 at 24 dB to 30.0 at 30 dB, while crisp rules impose a step at 26 dB.",
+     {"text": "FAI rises smoothly from 11.3 at 24 dB to 30.0 by 28 dB, while crisp rules impose a step at 26 dB.",
       "size": 12.5, "color": INK, "line_spacing": 1.2}])
 img, iw, ih = pic(s, f"{FIG}/fig5_borderline_analysis.png", 7.25, 1.35, w=5.55)
 txt(s, 7.25, 1.35 + ih + 0.08, 5.55, 0.6,
@@ -427,7 +428,7 @@ txt(s, 7.25, 1.35 + ih + 0.08, 5.55, 0.6,
 
 # ================================================================ SLIDE 9 — CASES (light)
 s = add_slide(LIGHT)
-title_bar(s, "Clinical case studies from NHANES", 9)
+title_bar(s, "Clinical case studies: four archetypes", 9)
 img, iw, ih = pic(s, f"{FIG}/fig4_clinical_cases.png", 0.55, 1.30, w=6.05)
 txt(s, 0.55, 1.30 + ih + 0.06, 6.05, 0.3,
     [{"text": "Four representative audiograms with membership bar charts", "size": 9.5,
@@ -497,7 +498,7 @@ imp = [
      "PTA crosses a boundary"),
     ("Noise surveillance", "Notch detection flags early noise damage despite a normal PTA "
      "(Case B)"),
-    ("Low-resource settings", "Runs on mobile audiometry (hearWHO, Mimi), interpretable "
+    ("Low-resource settings", "Could run on mobile audiometry (hearWHO, Mimi), interpretable "
      "and computationally light"),
     ("Research endpoints", "Continuous outcome for hearing-preservation and "
      "rehabilitation trials"),
@@ -519,7 +520,7 @@ txt(s, 0.80, 1.95, 5.5, 4.7,
       "size": 12, "color": INK, "space_after": 7, "line_spacing": 1.12},
      {"text": "•  Rule base expert-derived, not yet through formal Delphi consensus",
       "size": 12, "color": INK, "space_after": 7, "line_spacing": 1.12},
-     {"text": "•  NHANES skews toward mild–moderate age-related loss", "size": 12, "color": INK,
+     {"text": "•  Cohort limited to adults 20–69 y, so children and adults aged 70+ are not covered", "size": 12, "color": INK,
       "space_after": 7, "line_spacing": 1.12},
      {"text": "•  No extended high-frequency audiometry (10–16 kHz)", "size": 12, "color": INK,
       "space_after": 7, "line_spacing": 1.12},
@@ -597,111 +598,111 @@ txt(s, 0.8, 6.18, 11.73, 0.4,
 # ---------------------------------------------------------------- speaker notes
 NOTES = [
     "Good morning. I am Sanyaolu Ameye, an ENT surgeon in Tabuk. In the next ten minutes I want "
-    "toshow you why a pure-tone average is a blunt way to describe hearing, and what a fuzzy "
-    "logicframework does differently. This work is on SSRN as a preprint, and the DOI is on the "
-    "methodsslide. The claim is deliberately narrow. The classifier preserves gradation, and it "
+    "to show you why a pure-tone average is a blunt way to describe hearing, and what a fuzzy "
+    "logic framework does differently. This work is on SSRN as a preprint, and the DOI is on the "
+    "methods slide. The claim is deliberately narrow. The classifier preserves gradation, and it "
     "does so transparently enough for a clinician to audit.",
     "Here is the problem, and it is clinical rather than abstract. Patient A has a "
-    "four-frequencyaverage of 25 decibels and is called normal. Patient B has 26 and is called mild "
-    "hearing loss.One decibel separates them, inside audiometry's own five to ten decibel "
-    "test-retest error, yetthe label changes follow-up and candidacy. In our sample 18 per cent "
-    "of ears sit within fivedecibels of a WHO boundary. And one average also discards shape, so a "
-    "four kilohertz notch anda flat thirty decibel loss can carry the same grade. That is an "
+    "four-frequency average of 25 decibels and is called normal. Patient B has 26 and is called mild "
+    "hearing loss. One decibel separates them, inside audiometry's own five to ten decibel "
+    "test-retest error, yet the label changes follow-up and candidacy. In our sample 18 per cent "
+    "of ears sit within five decibels of a WHO boundary. And one average also discards shape, so a "
+    "four kilohertz notch and a flat thirty decibel loss can carry the same grade. That is an "
     "argument for changing how we grade, not for moving where we cut.",
     "Fuzzy set theory lets a measurement belong partly to several categories at once. Instead "
-    "ofasking whether 26 decibels is normal or mild, we ask how much it is normal and how much it "
-    "ismild. Membership functions overlap at every boundary, and the rule base reasons over "
-    "thosepartial memberships. The output is a continuous index from 0 to 100, plus a "
-    "configurationvector and an asymmetry index. The important property for a clinician is that "
-    "everything staysinspectable. You can find the rule that fired and argue with it. That is the "
+    "of asking whether 26 decibels is normal or mild, we ask how much it is normal and how much it "
+    "is mild. Membership functions overlap at every boundary, and the rule base reasons over "
+    "those partial memberships. The output is a continuous index from 0 to 100, plus a "
+    "configuration vector and an asymmetry index. The important property for a clinician is that "
+    "everything stays inspectable. You can find the rule that fired and argue with it. That is the "
     "difference between a score you can inspect and a score you have to trust.",
     "The data are three NHANES cycles that tested adults aged 20 to 69, giving 10,889 "
-    "participantsand 19,568 clean ears. The split is by participant, 80 to 20, so both ears of one "
-    "person stayon the same side and no bilateral leakage can flatter agreement. Membership "
-    "functions andrules were fitted on training data only, and every number that follows comes from "
-    "the held-outset. Comparators are the WHO PTA-4 rules, XGBoost and a random forest. The "
-    "framework is opensource, and the preprint is on SSRN with DOI 10.2139 slash ssrn.7532157. Both "
+    "participants and 19,568 clean ears. The split is by participant, 80 to 20, so both ears of one "
+    "person stay on the same side and no bilateral leakage can flatter agreement. Membership "
+    "functions and rules were fitted on training data only, and every number that follows comes from "
+    "the held-out set. Comparators are the WHO PTA-4 rules, XGBoost and a random forest. The "
+    "framework is open source, and the preprint is on SSRN with DOI 10.2139 slash ssrn.7532157. Both "
     "ears are analysed, so a unilateral loss is not diluted by averaging across the pair.",
     "Each frequency band carries six overlapping trapezoidal functions. The parameters "
-    "wereoptimised on the training distribution, not copied from WHO cutoffs, and they sit a "
-    "fewdecibels right of the classic boundaries with two decibels of overlap. The consequence is "
-    "onthe right. At 26 decibels a patient is 16 per cent normal and 40 per cent mild at the "
-    "sametime. At 30 they are fully mild. The transition is a slope, not a cliff. We chose "
-    "trapezoidsbecause these distributions have flat cores and asymmetric shoulders. The grey "
+    "were optimised on the training distribution, not copied from WHO cutoffs, and they sit a "
+    "few decibels right of the classic boundaries with two decibels of overlap. The consequence is "
+    "on the right. At 26 decibels a patient is 16 per cent normal and 40 per cent mild at the "
+    "same time. At 30 they are fully mild. The transition is a slope, not a cliff. We chose "
+    "trapezoids because these distributions have flat cores and asymmetric shoulders. The grey "
     "overlay is the actual NHANES distribution, so you can see where the boundaries fall relative "
     "to real ears.",
-    "The rule base has 42 rules in four groups. Twelve map thresholds to severity and blend "
-    "acrosstransitional zones. Fourteen type the audiogram from slope and notch, which is how we "
-    "catch anoise notch hidden behind a normal average. Twelve score inter-aural difference and "
-    "adjustseverity for asymmetry. Four handle mixed presentations where several dimensions fire "
-    "together.Inference is Mamdani min-max composition with centroid defuzzification, which is a "
-    "standard,well-understood route that returns an interpretable surface rather than a black box. "
-    "Nothinghere needs a graphics card. Four groups, 42 rules, and every rule fits on one printed "
+    "The rule base has 48 rules in four groups. Twelve map thresholds to severity and blend "
+    "across transitional zones. Fourteen type the audiogram from slope and notch, which is how we "
+    "catch a noise notch hidden behind a normal average. Twelve score inter-aural difference and "
+    "adjust severity for asymmetry. Ten handle mixed presentations where several dimensions fire "
+    "together. Inference is Mamdani min-max composition with centroid defuzzification, which is a "
+    "standard, well-understood route that returns an interpretable surface rather than a black box. "
+    "Nothing here needs a graphics card. Four groups, 48 rules, and every rule fits on one printed "
     "line. The rule base is the part of this work I would most like you to audit.",
-    "Against the WHO reference the index reaches weighted kappa 0.93, with Spearman 0.81 and a "
-    "meanabsolute error of five decibels on 3,912 held-out ears. In clear cases, more than "
-    "fivedecibels from any boundary, it agrees with the crisp grade 98.1 per cent of the time. In "
-    "theborderline band agreement falls to 79.8 per cent, and that disagreement is the point. Note "
-    "thecomparators. XGBoost and random forest look excellent because they are trained to "
-    "reproducePTA-4 itself. They are the reference in disguise, not independent benchmarks. Kappa "
+    "Against the WHO reference the index reaches weighted kappa 0.93, with Spearman 0.80 and a "
+    "mean absolute error of 6.1 decibels on 3,912 held-out ears. In clear cases, more than "
+    "five decibels from any boundary, it agrees with the crisp grade 98.1 per cent of the time. In "
+    "the borderline band agreement falls to 79.8 per cent, and that disagreement is the point. Note "
+    "the comparators. XGBoost and random forest look excellent because they are trained to "
+    "reproduce PTA-4 itself. They are the reference in disguise, not independent benchmarks. Kappa "
     "was weighted and quadratic, across the six WHO severity categories. The correlation is "
     "attenuated because most of this cohort has normal hearing.",
     "This slide is the one I would show a trainee. Walk the average up one decibel at a time. At "
-    "24the index is 11.3 and the ear is essentially normal. At 25 it is 11.6. At 26 the crisp "
-    "rulejumps to mild, while the fuzzy system reports 25.7 with membership split 16 per cent "
-    "normaland 40 per cent mild. By 30 decibels both agree again. We are not abolishing categories. "
-    "Weare refusing to pretend that a threshold has no width. For a patient monitored over "
-    "years,that continuous score is more informative than a label that flips. The step is an "
+    "24 the index is 11.3 and the ear is essentially normal. At 26 the crisp rule jumps to mild, "
+    "while the fuzzy system reports 25.7, with membership split 16 per cent normal and 40 per "
+    "cent mild; at 27 it is 28.9, and by 28 decibels both agree again. We are not abolishing categories. "
+    "We are refusing to pretend that a threshold has no width. For a patient monitored over "
+    "years, that continuous score is more informative than a label that flips. The step is an "
     "artefact of the rule, not of the ear.",
     "Four cases show what this buys. Case A sits at 27.5 decibels, formally mild, with an index "
-    "of29.4, so grade and score agree in a graded way. Case B has a normal average of 23 decibels "
-    "buta 25 decibel notch at four kilohertz, which the shape rules catch at 0.78 membership. "
-    "Theaverage missed it. Case C is presbycusis, where the sloping configuration survives instead "
-    "offlattening into one number. Case D is asymmetric loss, right 53.8 and left 28.8, where "
-    "thecomposite score of 54.5 quantifies impact the average hides. That is the honest reading of "
+    "of 29.4, so grade and score agree in a graded way. Case B has a normal average of 23 decibels "
+    "but a 25 decibel notch at four kilohertz, which the shape rules catch at 0.78 membership. "
+    "The average missed it. Case C is presbycusis, where the sloping configuration survives instead "
+    "of flattening into one number. Case D is asymmetric loss, right 53.8 and left 28.8, where "
+    "the composite score of 54.5 quantifies impact the average hides. That is the honest reading of "
     "the model, and it changes where the clinical effort goes.",
-    "Configuration typing is presented as exploratory. In the combined adult cohort 56.7 per centof "
-    "ears are flat and 18 per cent gently sloping, which reflects our age range. Steeplysloping, "
-    "precipitous and rising shapes are less common, and their accuracy table is notreproducible "
-    "across cycles, so I do not claim it. What the fuzzy layer adds is a six-shapemembership vector "
-    "per ear, so a mixed shape is not forced into one bucket. Asymmetry affects5.1 per cent of "
-    "participants at the fifteen decibel threshold, and it feeds the severityestimate. I would "
+    "Configuration typing is presented as exploratory. In the combined adult cohort 56.7 per cent of "
+    "ears are flat and 18 per cent gently sloping, which reflects our age range. Steeply sloping, "
+    "precipitous and rising shapes are less common, and their accuracy table is not reproducible "
+    "across cycles, so I do not claim it. What the fuzzy layer adds is a six-shape membership vector "
+    "per ear, so a mixed shape is not forced into one bucket. Asymmetry affects 5.1 per cent of "
+    "participants at the fifteen decibel threshold, and it feeds the severity estimate. I would "
     "treat the shape output as a research tool rather than a clinical one for now.",
-    "The longitudinal sub-cohort is small, 120 participants over four to eight years, so treatthese "
-    "as hypothesis-generating. Within it the index moves about 1.7 points a year inage-related "
-    "loss, while the PTA grade steps once every 4.2 years. Twenty-eight per cent ofparticipants "
-    "changed by five points or more without ever crossing a PTA boundary. Some of thatis "
+    "The longitudinal sub-cohort is small, 120 participants over four to eight years, so treat these "
+    "as hypothesis-generating. Within it the index moves about 1.7 points a year in age-related "
+    "loss, while the PTA grade steps once every 4.2 years. Twenty-eight per cent of participants "
+    "changed by five points or more without ever crossing a PTA boundary. Some of that is "
     "ototoxicity, some is recovery after acute noise exposure. A categorical endpoint would "
-    "haverecorded those patients as unchanged, and that is exactly the signal a hearing "
-    "preservationtrial wants. Age-related change dominates this subgroup, which is what a cohort "
+    "have recorded those patients as unchanged, and that is exactly the signal a hearing "
+    "preservation trial wants. Age-related change dominates this subgroup, which is what a cohort "
     "sampled this way should show.",
     "Where does this go in practice. Triage first, so a patient straddling a boundary is "
-    "monitoredrather than relabelled. Then amplification, where a continuous index maps onto gain "
-    "and theconfiguration vector guides frequency-specific fitting. Then ototoxicity monitoring, "
-    "where afive point shift appears long before a PTA crosses a boundary, which matters for "
-    "cisplatin andaminoglycoside protocols. Then noise surveillance, since notch detection finds "
-    "early damagebehind a normal average. Then low resource settings, because this runs on mobile "
-    "audiometrywith no server. And trials that need a continuous endpoint. None of this needs a new "
+    "monitored rather than relabelled. Then amplification, where a continuous index maps onto gain "
+    "and the configuration vector guides frequency-specific fitting. Then ototoxicity monitoring, "
+    "where a five point shift appears long before a PTA crosses a boundary, which matters for "
+    "cisplatin and aminoglycoside protocols. Then noise surveillance, since notch detection finds "
+    "early damage behind a normal average. Then low resource settings, because this could run on mobile "
+    "audiometry with no server. And trials that need a continuous endpoint. None of this needs a new "
     "device, only a different summary statistic on the report.",
-    "The limitations are real. We have air conduction only, so mixed loss needs bone conduction.The "
+    "The limitations are real. We have air conduction only, so mixed loss needs bone conduction. The "
     "rule base is expert-derived and has not been through formal Delphi consensus, which is "
-    "theobvious next methodological step. NHANES skews toward mild and moderate age-related loss, "
-    "sothe profound end is thinly represented. There is no extended high frequency audiometry. "
-    "Andthe reference standard carries the same boundary problem I am criticising, which is a "
-    "fairobjection. Next steps are multi-site validation, mobile integration, a web calculator with "
-    "anAPI, and learned rule parameters. The full rule base is published with the preprint, so "
+    "the obvious next methodological step. The cohort is adults aged 20 to 69 only, so nothing "
+    "here speaks to children or to adults over 70. There is no extended high frequency audiometry. "
+    "And the reference standard carries the same boundary problem I am criticising, which is a "
+    "fair objection. Next steps are multi-site validation, mobile integration, a web calculator with "
+    "an API, and learned rule parameters. The full rule base is published with the preprint, so "
     "anyone in this room can audit it.",
-    "Three take-home messages. A continuous, frequency-resolved index preserves gradation thatcrisp "
+    "Three take-home messages. A continuous, frequency-resolved index preserves gradation that crisp "
     "thresholds discard. Agreement with the WHO reference is substantial at kappa 0.93, "
-    "withdeliberate disagreement in the borderline zone. And the method is interpretable "
-    "byconstruction, because the rule base is something a clinician can read and change. For "
-    "cochlearimplant services the implication is practical. Candidacy sits on exactly these "
-    "boundaries, anda graded score makes the reasoning visible to the team, to the patient and to "
-    "anyone whoreviews the decision. The DOI is on the closing slide and the repository is public. "
-    "That matters because implant candidacy is where these labels carry the most clinical weight.",
+    "with deliberate disagreement in the borderline zone. And the method is interpretable "
+    "by construction, because the rule base is something a clinician can read and change. For a "
+    "cochlear implant service the point is narrower than it sounds. A graded score makes the "
+    "reasoning visible to the team and to the patient. We have not tested whether the index "
+    "predicts implant candidacy; that is a study we still have to run. The DOI is on the closing "
+    "slide and the repository is public, so anyone can check the rule base against the claim.",
     "Thank you. The preprint is on SSRN with the DOI on screen, the code is on GitHub, and I "
-    "amhappy to take questions on the rule base, the validation or how this would sit inside "
-    "acochlear implant candidacy pathway.",
+    "am happy to take questions on the rule base, the validation or how this would sit inside "
+    "a cochlear implant candidacy pathway.",
 ]
 
 for _i, _sld in enumerate(prs.slides):
