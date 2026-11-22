@@ -23,11 +23,15 @@ if not BASELINE.is_file():
     raise SystemExit(0)
 
 import numpy as np
-from fuzzy_audiogram.combined_data import (
-    CYCLES, load_combined_nhanes, extract_combined_audiometry, clean_ears)
-from fuzzy_audiogram import core
+from fuzzy_audiogram import combined_data, core
 
-missing = [Path(path) for _, aux, demo in CYCLES for path in (aux, demo)
+def data_path(path):
+    path = Path(path)
+    return path if path.is_file() else ROOT / path.name
+
+combined_data.CYCLES = [(tag, data_path(aux), data_path(demo))
+                        for tag, aux, demo in combined_data.CYCLES]
+missing = [path for _, aux, demo in combined_data.CYCLES for path in (aux, demo)
            if not Path(path).is_file()]
 if missing:
     print("  SKIP asymmetry verification: NHANES files not found: "
@@ -42,8 +46,8 @@ md5_base = hashlib.md5(fai_base.tobytes()).hexdigest()
 print(f"  baseline FAI n={len(fai_base):,} md5={md5_base}")
 
 # rebuild the same test split
-raw = load_combined_nhanes()
-ear_rows = clean_ears(extract_combined_audiometry(raw))
+raw = combined_data.load_combined_nhanes()
+ear_rows = combined_data.clean_ears(combined_data.extract_combined_audiometry(raw))
 participants = sorted(set(s for s, _, _, _ in ear_rows))
 perm = np.random.RandomState(42).permutation(len(participants))
 n_test = int(round(0.2 * len(participants)))

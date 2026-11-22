@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -47,6 +48,7 @@ def test_missing_cohort_is_reported(tmp_path, monkeypatch, capsys):
 
 @pytest.mark.parametrize("scores, expected_md5, succeeds", [
     ([1.0], None, False),
+    ([2.0], "baseline", False),
     ([1.0, 2.0], "baseline", False),
     ([1.0], "baseline", True),
 ])
@@ -61,8 +63,17 @@ def test_comparison_enforces_baseline(tmp_path, monkeypatch, scores, expected_md
     metrics.parent.mkdir(parents=True)
     metrics.write_text(json.dumps({"mf_params": {}, "label_thresholds": []}))
 
-    monkeypatch.setattr(combined_data, "CYCLES", [])
-    monkeypatch.setattr(combined_data, "load_combined_nhanes", lambda: None)
+    aux = tmp_path / "aux.xpt"
+    demo = tmp_path / "demo.xpt"
+    aux.touch()
+    demo.touch()
+    monkeypatch.setattr(combined_data, "CYCLES", [("test", "/nonexistent/aux.xpt", "/nonexistent/demo.xpt")])
+
+    def load():
+        assert combined_data.CYCLES == [("test", aux, demo)]
+        return None
+
+    monkeypatch.setattr(combined_data, "load_combined_nhanes", load)
     monkeypatch.setattr(combined_data, "extract_combined_audiometry", lambda raw: None)
     monkeypatch.setattr(combined_data, "clean_ears", lambda audio: [(i, "", "", []) for i in range(5)])
     monkeypatch.setattr(core, "SEVERITY_MF_PARAMS", core.SEVERITY_MF_PARAMS)
@@ -76,8 +87,11 @@ def test_comparison_enforces_baseline(tmp_path, monkeypatch, scores, expected_md
     monkeypatch.setitem(sys.modules, "pipeline_participant", pipeline)
     monkeypatch.setattr(sys, "path", list(sys.path))
     if expected_md5:
-        monkeypatch.setattr(hashlib, "md5", lambda data: SimpleNamespace(
-            hexdigest=lambda: "7e75859bc305053884a3841dd6a4dfca"))
+        original_md5 = hashlib.md5
+        baseline_hash = original_md5(np.asarray([1.0], float).tobytes()).hexdigest()
+        monkeypatch.setattr(hashlib, "md5", lambda data: SimpleNamespace(hexdigest=lambda:
+            "7e75859bc305053884a3841dd6a4dfca"
+            if original_md5(data).hexdigest() == baseline_hash else "different"))
 
     if succeeds:
         runpy.run_path(str(script), run_name="__main__")
