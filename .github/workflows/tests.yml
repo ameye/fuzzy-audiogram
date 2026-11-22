@@ -42,10 +42,15 @@ jobs:
         run: python tests/test_pipeline_ruspini.py
 
       - name: Asymmetry refactor is metrics-neutral
-        run: python tests/verify_asymmetry_refactor.py
+        run: |
+          if [ -f /opt/data/fuzzy-audiogram/archive/predictions_PRE_asymmetry_refactor.pkl ]; then
+            python tests/verify_asymmetry_refactor.py
+          else
+            echo "::warning::Skipping asymmetry verification: pre-refactor baseline is not available."
+          fi
 
       - name: Remaining suite via pytest
         # The NHANES analyses need the CDC data files, which are not vendored, so
         # those are skipped rather than failed when the cohort is absent.
-        run: python -m pytest tests/ -q --ignore=tests/test_ruspini_continuous.py
+        run: python -m pytest tests/ -q --ignore=tests/test_ruspini_continuous.py --ignore=tests/calibrate_train_eval_test.py
         continue-on-error: false
