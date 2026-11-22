@@ -1,4 +1,6 @@
 # runtime logs and large run archives
+__pycache__/
+*.py[cod]
 *.log
 ablation_driver.log
 archive/

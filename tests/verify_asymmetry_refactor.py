@@ -13,25 +13,41 @@ import sys, json, pickle, hashlib, warnings
 from pathlib import Path
 
 warnings.filterwarnings("ignore")
-ROOT = Path("/opt/data/fuzzy-audiogram")
+ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-import numpy as np
-from fuzzy_audiogram.combined_data import (
-    load_combined_nhanes, extract_combined_audiometry, clean_ears)
-from fuzzy_audiogram import core
-
 BASELINE = ROOT / "archive/predictions_PRE_asymmetry_refactor.pkl"
+if not BASELINE.is_file():
+    print(f"  SKIP asymmetry verification: baseline not found: {BASELINE}")
+    raise SystemExit(0)
+
+import numpy as np
+from fuzzy_audiogram import combined_data, core
+
+def data_path(path):
+    path = Path(path)
+    return path if path.is_file() else ROOT / path.name
+
+combined_data.CYCLES = [(tag, data_path(aux), data_path(demo))
+                        for tag, aux, demo in combined_data.CYCLES]
+missing = [path for _, aux, demo in combined_data.CYCLES for path in (aux, demo)
+           if not Path(path).is_file()]
+if missing:
+    print("  SKIP asymmetry verification: NHANES files not found: "
+          + ", ".join(map(str, missing)))
+    raise SystemExit(0)
+
 EXPECTED_MD5 = "7e75859bc305053884a3841dd6a4dfca"
 
 base = pickle.load(open(BASELINE, "rb"))
 fai_base = np.asarray(base["fai"], float)
-print(f"  baseline FAI n={len(fai_base):,} md5={hashlib.md5(fai_base.tobytes()).hexdigest()}")
+md5_base = hashlib.md5(fai_base.tobytes()).hexdigest()
+print(f"  baseline FAI n={len(fai_base):,} md5={md5_base}")
 
 # rebuild the same test split
-raw = load_combined_nhanes()
-ear_rows = clean_ears(extract_combined_audiometry(raw))
+raw = combined_data.load_combined_nhanes()
+ear_rows = combined_data.clean_ears(combined_data.extract_combined_audiometry(raw))
 participants = sorted(set(s for s, _, _, _ in ear_rows))
 perm = np.random.RandomState(42).permutation(len(participants))
 n_test = int(round(0.2 * len(participants)))
@@ -56,11 +72,13 @@ fai_new = np.array([r["fai_score"] for r in res], float)
 md5_new = hashlib.md5(fai_new.tobytes()).hexdigest()
 
 print(f"\n  refactored FAI n={len(fai_new):,} md5={md5_new}")
-identical = (len(fai_new) == len(fai_base)) and (md5_new == EXPECTED_MD5)
+identical = (len(fai_new) == len(fai_base)) and (md5_new == md5_base == EXPECTED_MD5)
 print(f"  vector identical to baseline: {identical}")
 if not identical:
-    d = np.abs(fai_new - fai_base)
-    print(f"  max abs difference: {d.max():.6f}   n differing: {(d > 1e-9).sum()}")
+    if len(fai_new) == len(fai_base) and len(fai_new):
+        d = np.abs(fai_new - fai_base)
+        print(f"  max abs difference: {d.max():.6f}   n differing: {(d > 1e-9).sum()}")
+    raise SystemExit("  FAIL: asymmetry verification does not match the baseline")
 
 # simulate a bilateral case so the referral output is actually exercised
 BILATERAL = [
