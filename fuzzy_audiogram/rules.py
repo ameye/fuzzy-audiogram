@@ -6,8 +6,10 @@ for severity, configuration, asymmetry, and mixed-loss presentations.
 Each function returns a list of skfuzzy.control.Rule objects ready
 to be added to a ControlSystem.
 
-Rule count target: ~48 rules (12 severity, 14 configuration,
-12 asymmetry, 10 mixed-loss).
+Rule base: 42 rules in four groups (12 severity, 14 configuration,
+12 referral, 4 contour). The asymmetry group drives the separate ``referral``
+consequent, not severity, so the count does not change between single-ear and
+bilateral use.
 """
 
 from skfuzzy import control as ctrl
@@ -289,7 +291,7 @@ def get_all_rules(threshold, slope, notch, asymmetry, severity, audiogram_shape,
         honest configuration for single-ear validation.
     single_ear : bool
         Retained for call compatibility. Asymmetry no longer reaches severity,
-        so no rule needs omitting on its account.
+        so no rule needs omitting on its account; the count is 42 either way.
 
     Returns
     -------

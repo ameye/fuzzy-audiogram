@@ -1,0 +1,52 @@
+{
+  "cohort": "NHANES 20-69 y (AUX1 1999-2000, AUX_G 2011-2012, AUX_I 2015-2016)",
+  "participants_all": 10889,
+  "ears_all": 19623,
+  "participants_with_complete_ears": 9843,
+  "train": {
+    "ears": 15710,
+    "participants": 7881,
+    "age_mean": 44.1,
+    "age_sd": 14.4,
+    "age_median": 44.0,
+    "age_q1": 31.0,
+    "age_q3": 57.0,
+    "female_pct": 50.8,
+    "pta_mean": 13.6,
+    "pta_sd": 12.0,
+    "grades": {
+      "Normal": 87.6,
+      "Mild": 8.9,
+      "Moderate": 2.4,
+      "Moderately Severe": 0.7,
+      "Severe": 0.4,
+      "Profound": 0.1
+    }
+  },
+  "test": {
+    "ears": 3913,
+    "participants": 1962,
+    "age_mean": 43.2,
+    "age_sd": 14.4,
+    "age_median": 42.0,
+    "age_q1": 31.0,
+    "age_q3": 56.0,
+    "female_pct": 51.8,
+    "pta_mean": 13.1,
+    "pta_sd": 11.8,
+    "grades": {
+      "Normal": 89.1,
+      "Mild": 7.9,
+      "Moderate": 1.9,
+      "Moderately Severe": 0.7,
+      "Severe": 0.3,
+      "Profound": 0.2
+    }
+  },
+  "asymmetry": {
+    "n_participants": 9780,
+    "mean_db": 17.2,
+    "median_db": 15.0,
+    "pct_gt_15db": 34.0
+  }
+}

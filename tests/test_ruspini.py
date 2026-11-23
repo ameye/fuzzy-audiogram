@@ -21,25 +21,29 @@ from fuzzy_audiogram.ruspini import (  # noqa: E402
     verify,
 )
 
-# Cores implied by the parameters the previous pipeline wrote to
-# data/output_participant/metrics_participant.json.
+# Cores implied by the deployed parameters in fuzzy_audiogram/core.py (and by
+# data/output_participant/metrics_participant.json). The earlier revision of
+# this test carried stale cores from an intermediate refit, which meant it was
+# checking a partition that the package did not ship.
 CORES = {
     "normal": (0.0, 16.4),
-    "mild": (26.3, 35.7),
-    "moderate": (42.0, 54.3),
-    "moderately_severe": (57.0, 67.1),
-    "severe": (72.0, 83.6),
-    "profound": (91.5, 120.0),
+    "mild": (30.0, 35.4),
+    "moderate": (45.4, 52.1),
+    "moderately_severe": (62.1, 66.1),
+    "severe": (76.1, 85.0),
+    "profound": (95.9, 120.0),
 }
 
-# The parameters that pipeline actually wrote, for the regression comparison.
+# The superseded published set (data/output/params_combined.json): each
+# trapezoid's feet fitted independently at P5-2 / P95+2, so the memberships do
+# not sum to 1 between one category's core and the next category's foot.
 LEGACY = {
     "normal": [0.0, 0.0, 16.4, 27.8],
-    "mild": [25.8, 26.3, 35.7, 43.5],
+    "mild": [25.8, 26.3, 36.4, 43.5],
     "moderate": [41.5, 42.0, 54.3, 58.5],
-    "moderately_severe": [56.5, 57.0, 67.1, 73.5],
-    "severe": [71.5, 72.0, 83.6, 93.0],
-    "profound": [91.0, 91.5, 106.7, 120.0],
+    "moderately_severe": [56.5, 57.0, 67.9, 73.5],
+    "severe": [71.5, 72.0, 83.7, 93.0],
+    "profound": [91.0, 91.5, 104.6, 120.0],
 }
 
 

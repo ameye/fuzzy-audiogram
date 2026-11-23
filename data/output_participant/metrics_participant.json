@@ -63,5 +63,51 @@
       120.0,
       120.5
     ]
+  },
+  "comparators": {
+    "XGBoost": {
+      "kappa": 0.982,
+      "overall": 0.9898,
+      "borderline": 0.9424,
+      "clear": 1.0,
+      "mae": 0.22,
+      "n_test": 3913,
+      "reference": "PTA-4 WHO grade"
+    },
+    "Random Forest": {
+      "kappa": 0.981,
+      "overall": 0.9895,
+      "borderline": 0.9424,
+      "clear": 0.9997,
+      "mae": 0.52,
+      "n_test": 3913,
+      "reference": "PTA-4 WHO grade"
+    }
+  },
+  "config_distribution": {
+    "Flat": {
+      "n": 1630,
+      "share": 0.4166
+    },
+    "Sloping": {
+      "n": 960,
+      "share": 0.2453
+    },
+    "Rising": {
+      "n": 616,
+      "share": 0.1574
+    },
+    "Precipitous": {
+      "n": 509,
+      "share": 0.1301
+    },
+    "Undetermined": {
+      "n": 125,
+      "share": 0.0319
+    },
+    "Notched": {
+      "n": 73,
+      "share": 0.0187
+    }
   }
 }

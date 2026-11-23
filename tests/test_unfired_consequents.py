@@ -55,28 +55,34 @@ def test_all_consequents_fire():
         assert status['status'] == OUTPUT_DEFUZZIFIED
 
 
-def test_no_rule_fires_on_severity_at_the_ceiling():
-    """PTA 120 sits past the support of every severity member function.
+def test_ceiling_ear_is_covered_by_the_partition():
+    """PTA 120 used to sit past the support of every severity function.
 
-    All six severity memberships are zero there, so the severity consequent
-    has no crisp value. It must report that, return the crisp WHO grade as a
-    flagged fallback, and leave the configuration path untouched.
+    Under the independently fitted feet the profound trapezoid closed at
+    120 dB, so all six memberships were zero there and the severity consequent
+    went unfired, falling back to the crisp grade. The Ruspini partition pads
+    the outer feet 0.5 dB beyond the universe, so the ceiling is covered and
+    the fallback is no longer reachable on that path.
+
+    The fallback machinery is still exercised by
+    ``test_status_separates_unfired_from_empty_membership`` and by the shape
+    consequent; this test pins the coverage gain rather than the old gap.
     """
     result = classify_audiogram(CEILING_EAR)
 
-    assert result['unfired_consequents'] == ['severity']
-    assert result['n_unfired_consequents'] == 1
-    assert result['outputs']['severity']['status'] == OUTPUT_UNFIRED
-    assert result['outputs']['severity']['rule_support'] == 0.0
+    assert result['unfired_consequents'] == []
+    assert result['outputs']['severity']['status'] == OUTPUT_DEFUZZIFIED
+    assert result['outputs']['severity']['rule_support'] == pytest.approx(1.0)
 
-    # No fabricated fuzzy score: the score is genuinely absent.
-    assert result['fai_score'] is None
+    # A real fuzzy score, not a fallback.
+    assert result['fai_score'] == pytest.approx(95.51, abs=0.01)
     assert result['fai_label'] == 'Profound'
-    assert result['fai_label_source'] == 'crisp_who_fallback'
+    assert result['fai_label_source'] == 'fuzzy'
 
-    # The other consequents are unaffected.
-    assert result['outputs']['audiogram_shape']['status'] == OUTPUT_DEFUZZIFIED
-    assert result['configuration_label'] != core.UNDETERMINED_SHAPE_LABEL
+    # And the memberships still sum to one at that threshold.
+    memberships = result['threshold_memberships']
+    assert sum(memberships.values()) == pytest.approx(1.0, abs=1e-9)
+    assert memberships['profound'] == pytest.approx(1.0, abs=1e-9)
 
 
 def test_some_consequents_unfired():
@@ -89,11 +95,11 @@ def test_some_consequents_unfired():
     assert result['outputs']['audiogram_shape']['rule_support'] == 0.0
 
     assert result['fai_label_source'] == 'fuzzy'
-    # 54.09 is what the published parameter set produces for this contour; the
-    # previous 51.29 was computed with the undeployed third parameter set and
-    # was pinned here by accident while testing consequent status.
-    assert result['fai_score'] == pytest.approx(54.09, abs=0.01)
-    assert result['fai_label'] == 'Moderately Severe'
+    # 55.55 is what the Ruspini configuration produces for this contour. The
+    # label is Moderate because the calibrated cut point for moderately severe
+    # sits at 57.3, above this score.
+    assert result['fai_score'] == pytest.approx(55.55, abs=0.01)
+    assert result['fai_label'] == 'Moderate'
 
     assert result['configuration_label'] == core.UNDETERMINED_SHAPE_LABEL
     assert result['configuration_score'] is None
@@ -157,10 +163,13 @@ def test_reused_simulation_does_not_leak_between_ears():
         core.build_audiogram_fis = original
 
     assert first['fai_label'] == 'Normal'
-    assert second['outputs']['severity']['status'] == OUTPUT_UNFIRED
-    assert second['fai_score'] is None
+    # The ceiling ear is covered by the partition, so it now defuzzifies. The
+    # point of the test is that it returns its own score, not the normal ear's.
+    assert second['outputs']['severity']['status'] == OUTPUT_DEFUZZIFIED
+    assert second['fai_score'] == pytest.approx(95.51, abs=0.01)
+    assert second['fai_score'] != first['fai_score']
     assert second['fai_label'] == 'Profound'
-    assert second['unfired_consequents'] == ['severity']
+    assert second['unfired_consequents'] == []
 
 
 SYNTHETIC_CASES = [

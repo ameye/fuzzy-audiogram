@@ -5,6 +5,24 @@ Provides the core FIS builder, feature extraction from raw thresholds,
 full classification pipeline, fuzzy-vs-crisp comparison, and
 demonstration cases.
 
+Severity membership functions
+-----------------------------
+The six severity memberships are a Ruspini partition: at every threshold in
+0-120 dB HL their sum is exactly 1.0, so no threshold is unclassified and none
+is double counted (``tests/test_ruspini_continuous.py`` sweeps the axis and
+``tests/test_published_classifier.py`` checks the deployed constants against
+it). The parameters in :data:`SEVERITY_MF_PARAMS` are the ones the participant
+level pipeline fitted on the combined NHANES training set and wrote to
+``data/output_participant/metrics_participant.json``; every number in the
+manuscript comes from that run.
+
+The set previously deployed here --- ``data/output/params_combined.json`` ---
+fitted each trapezoid's feet independently (``P5 - 2`` to ``P95 + 2``) and was
+therefore *not* a partition: six memberships summed to 0.558 at 26 dB HL, to
+0.175 at the worst point, and to zero at both universe endpoints. It is
+retained in ``data/output/params_combined.json`` only as the superseded
+configuration, and no reported metric is derived from it.
+
 Unfired consequents
 -------------------
 scikit-fuzzy evaluates every rule, so a consequent records a membership
@@ -82,33 +100,40 @@ CONFIG_LABELS_HUMAN = ['Normal', 'Flat', 'Sloping', 'Notched',
 
 # Membership function parameters (trapezoidal [a, b, c, d]).
 #
-# These are the optimised training-set parameters reported in the manuscript
-# (Table 5; the same values are committed to data/output/params_combined.json).
-# They are the parameters behind every published table: at 26 dB HL they give
-# Normal mu = 0.158 and Mild mu = 0.400 and an FAI of 25.72, which is the
-# Table 4 row the package must reproduce.
+# These are the Ruspini-partition parameters fitted on the combined NHANES
+# training set by scripts/pipeline_participant.py and committed to
+# data/output_participant/metrics_participant.json (mf_params). They are the
+# parameters behind every published table: at 26 dB HL they give Normal
+# mu = 0.294, Mild mu = 0.706 and an FAI of 24.99.
 #
-# These are not a Ruspini partition. The feet were fitted independently
-# (P5 - 2, P95 + 2), so the six memberships sum to 1 in each core but fall
-# below 1 between a shoulder and the next category's foot (at 26 dB they sum
-# to 0.558, and the worst band reaches 0.175 at 25.8 dB). The Ruspini refit in
-# data/output_participant/ is a different classifier: it changes the published
-# FAI (26 dB -> 24.99) and was never the basis of the reported tables. See
-# tests/test_ruspini.py, which pins the non-partition property of this set.
+# Construction (fuzzy_audiogram.ruspini): each trapezoid's feet are tied to its
+# neighbours' cores (a_i = c_{i-1}, d_i = b_{i+1}), so adjacent shoulders are
+# complementary ramps. The six memberships therefore sum to exactly 1.0 at every
+# point of 0-120 dB HL, including both endpoints: the bottom left foot and the
+# top right foot are padded 0.5 dB beyond the universe so the trapezoid is still
+# non-zero at 0 and 120. The minimum transition width was set to 10 dB, so every
+# graded band is at least twice the +/-5 dB test-retest variability of pure-tone
+# audiometry rather than the 2 dB the superseded independent fit produced.
+#
+# This is deliberately NOT the same classifier as the superseded set in
+# data/output/params_combined.json (independent P5-2/P95+2 feet, six
+# memberships summing to 0.558 at 26 dB, 0.175 at the worst point, zero at both
+# endpoints). That set reproduced the old Table 4 but was not a partition.
 SEVERITY_MF_PARAMS = {
-    'normal':            [0.0, 0.0, 16.4, 27.8],
-    'mild':              [25.8, 26.3, 35.7, 43.5],
-    'moderate':          [41.5, 42.0, 54.3, 58.5],
-    'moderately_severe': [56.5, 57.0, 67.1, 73.5],
-    'severe':            [71.5, 72.0, 83.6, 93.0],
-    'profound':          [91.0, 91.5, 106.7, 120.0],
+    'normal':            [-0.5, 0.0, 16.4, 30.0],
+    'mild':              [16.4, 30.0, 35.4, 45.4],
+    'moderate':          [35.4, 45.4, 52.1, 62.1],
+    'moderately_severe': [52.1, 62.1, 66.1, 76.1],
+    'severe':            [66.1, 76.1, 85.0, 95.9],
+    'profound':          [85.0, 95.9, 120.0, 120.5],
 }
 
-# FAI-to-label cut points calibrated on the training set by maximising
-# quadratic-weighted kappa. These are the published cut points quoted in the
-# manuscript's Limitations section; they replace the uncalibrated
-# [20, 35, 50, 65, 85] that the package used to ship.
-SEVERITY_LABEL_THRESHOLDS = [21.9, 34.6, 52.5, 70.6, 74.1]
+# FAI-to-label cut points, calibrated on the training set by maximising
+# quadratic-weighted kappa against the WHO PTA-4 grade. From the same run
+# (metrics_participant.json, label_thresholds). The search starts from these
+# values, so the deployed constants and the pipeline's fallback are one
+# definition rather than two copies.
+SEVERITY_LABEL_THRESHOLDS = [24.6, 48.2, 57.3, 74.0, 85.8]
 
 SLOPE_MF_PARAMS = {
     'rising':           [-40, -40, -15, -3],
@@ -475,9 +500,10 @@ def classify_audiogram(thresholds_left, thresholds_right=None):
     import skfuzzy as fuzz
 
     # Single-ear mode: when only one ear is provided, the asymmetry input is
-    # 0.0 and the symmetric-anchor rule would fire at full strength for every
-    # ear, compressing the FAI scale (structural fix S4). Bilateral input
-    # keeps the full 48-rule base.
+    # 0.0. Asymmetry feeds the referral consequent only, so the severity and
+    # shape outputs are identical either way and the rule count is 42 in both
+    # modes. The flag is kept so callers stay explicit about which mode they
+    # are in.
     single_ear = thresholds_right is None
     (_, sim, threshold_ant, slope_ant, _notch_ant, _asym_ant,
      severity_con, shape_con, referral_con) = build_audiogram_fis(

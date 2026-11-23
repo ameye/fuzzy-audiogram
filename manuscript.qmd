@@ -2,7 +2,6 @@
 title: "A Fuzzy Logic Framework for Sensorineural Hearing Loss Classification: Preserving Diagnostic Gradation Lost to Crisp Thresholds"
 author:
   - name: Dr Sanyaolu Ameye^1*
-    corresponding: true
     email: sanyaameye@hotmail.com
     orcid: 0000-0002-5217-7997
 affiliations:
@@ -28,9 +27,9 @@ abstract: |
 
   **Objective:** We developed and validated a Mamdani-type fuzzy inference system (FIS) that maps pure-tone audiogram thresholds into graded severity vectors, preserving the continuous nature of sensorineural hearing loss while integrating configuration, symmetry, and temporal trends.
 
-  **Methods:** We extracted audiometric data from three National Health and Nutrition Examination Survey (NHANES) cycles that tested adults aged 20–69 y (1999–2000, 2011–2012, 2015–2016; n = 10,889) and split them by participant into training (80%, n = 15,656 ears) and held-out test (20%, n = 3,912 ears). We used overlapping trapezoidal membership functions at each test frequency (0.5–8 kHz), optimised on the training distribution, with a rule base of 48 audiology-derived Mamdani-type fuzzy rules. We defuzzified outputs via centroid method into a continuous Fuzzy Audiometric Index (FAI, 0–100). Comparator models included standard PTA-4 WHO classification, XGBoost, and Random Forest.
+  **Methods:** We extracted audiometric data from three National Health and Nutrition Examination Survey (NHANES) cycles that tested adults aged 20–69 y (1999–2000, 2011–2012, 2015–2016; n = 10,889) and split them by participant into training (80%, n = 15,710 ears) and held-out test (20%, n = 3,913 ears). We used trapezoidal membership functions at each test frequency (0.5–8 kHz), fitted on the training distribution and arranged as a Ruspini partition so that the six severities sum to one at every threshold, with a rule base of 42 audiology-derived Mamdani-type fuzzy rules. We defuzzified outputs via centroid method into a continuous Fuzzy Audiometric Index (FAI, 0–100). Comparator models included standard PTA-4 WHO classification, XGBoost, and Random Forest.
 
-  **Results:** On the held-out test set, the FAI showed substantial classification agreement (weighted κ = 0.93) and 98.1% agreement in clear cases. In borderline cases (±5 dB of a severity boundary) — 18.7% of test ears — the system returned graded membership rather than a forced binary label (79.8% agreement with the crisp grade, reflecting the designed reclassification of ambiguous thresholds). Configuration typing is provided as a graded vector over six canonical shapes. At the normal–mild transition, membership grades continuously (e.g., 26 dB: Normal μ = 0.16, Mild μ = 0.40) instead of flipping at 26 dB.
+  **Results:** On the held-out test set, the FAI showed substantial classification agreement (weighted κ = 0.946) and 99.2% agreement in clear cases. Borderline cases (±5 dB of a severity boundary) made up 17.8% of test ears, and agreement with the crisp grade there was 86.3%, reflecting the designed reclassification of ambiguous thresholds. Configuration typing is provided as a graded vector over six canonical shapes. At the normal–mild transition, membership grades continuously (26 dB: Normal μ = 0.29, Mild μ = 0.71) instead of flipping at 26 dB.
 
   **Conclusion:** A fuzzy logic framework captures the gradation of sensorineural hearing loss that crisp thresholds lose, offering more informative and clinically nuanced classification, especially for borderline cases.
 keywords:
@@ -46,13 +45,13 @@ wordcount: 7200
 
 # Introduction
 
-![Overlapping trapezoidal membership functions for six hearing loss severity categories. The population-optimised boundaries sit about 2 dB to the right of the classic WHO thresholds, with exactly 2.0 dB overlap at each transition.](figures/fig1_membership_functions.png){width=90%}
+![Trapezoidal membership functions for six hearing loss severity categories. The six memberships form a Ruspini partition: they sum to 1.0 at every threshold from 0 to 120 dB HL (right panel), so each threshold is divided between neighbouring categories rather than held only partly by either.](figures/fig1_membership_functions.png){width=90%}
 
 The way we classify hearing loss from pure-tone audiometry has barely changed in over fifty years. Clark [@clark1981] set out the six-category framework, from normal to profound, in 1981. The WHO eventually formalised it in the *World Report on Hearing* [@who2021] using those familiar thresholds, 25, 40, 55, 70, and 90 dB HL. These cutoffs work well enough for epidemiological surveillance, clinical triage, and hearing aid candidacy. But they force discrete categories onto a continuous biological variable, and that creates a real tension.
 
 Consider two patients. Patient A has a PTA-4 of 25 dB HL in the better ear. That is *normal*. Patient B has a PTA-4 of 26 dB HL. That is *mild hearing loss*. One decibel separates them. One decibel, well within the test–retest variability of pure-tone audiometry (±5–10 dB) [@stuart1991], and they get categorically different labels with different implications for follow-up, hearing aid candidacy, and occupational hearing conservation. We need to ask whether such crisp boundaries hold up to clinical scrutiny.
 
-The problem runs deeper than individual borderline cases. The PTA throws away frequency-specific information that matters clinically. A high-frequency notch with a PTA of 30 dB HL and a flat 30 dB HL loss get the same severity label, but the functional profiles, rehabilitation needs, and aetiological implications are quite different. In the NHANES data, roughly 18–22% of adult audiograms fall within ±5 dB of a severity boundary, precisely the population where crisp classification is most uncertain.
+The problem runs deeper than individual borderline cases. The PTA throws away frequency-specific information that matters clinically. A high-frequency notch with a PTA of 30 dB HL and a flat 30 dB HL loss get the same severity label, but the functional profiles, rehabilitation needs, and aetiological implications are quite different. In the NHANES data, roughly 18% of adult audiograms fall within ±5 dB of a severity boundary, precisely the population where crisp classification is most uncertain.
 
 Fuzzy set theory, which Zadeh introduced [@zadeh1965], offers a way out. Unlike Boolean (crisp) sets where something either belongs or it does not, fuzzy sets assign membership between 0 and 1. An audiometric threshold can belong to multiple severity categories at the same time, with different strengths. Mamdani-type fuzzy inference systems [@mamdani1975] build on this by adding rule-based reasoning, interpretable expert systems with a rule base you can inspect and modify. Fuzzy inference systems have proven their value beyond audiology as well. Amezquita-Sanchez et al. [@amezquita2021] used dispersion entropy features and a fuzzy logic system to automate the classification of dementia stages from electroencephalograms.
 
@@ -66,9 +65,9 @@ In this study, we aimed to build a Mamdani-type fuzzy inference system for frequ
 
 ## Dataset and Train–Test Split
 
-We obtained audiometric data from three NHANES cycles that administered audiometry to adults aged 20–69 years: 1999–2000 (AUX1), 2011–2012 (AUX_G) and 2015–2016 (AUX_I), totalling 10,889 participants. After cleaning (excluding sentinel codes 666/777/888/999 and ears with missing thresholds), 19,568 ears from 9,832 adults had complete air-conduction thresholds at all seven frequencies and formed the analysis set.
+We obtained audiometric data from three NHANES cycles that administered audiometry to adults aged 20–69 years: 1999–2000 (AUX1), 2011–2012 (AUX_G) and 2015–2016 (AUX_I), totalling 10,889 participants. After cleaning (excluding sentinel codes 777/888/999, right-censoring code 666 at the equipment ceiling, and dropping ears with missing thresholds), 19,623 ears from 9,843 adults had complete air-conduction thresholds at all seven frequencies and formed the analysis set.
 
-We randomly split the clean-ear dataset at the participant level (all ears of a given participant stay together) into a training set (80%; n = 15,656 ears from 7,866 participants) and a held-out test set (20%; n = 3,912 ears from 1,966 participants). This avoids data leakage from bilateral correlation between the two ears of the same participant. All membership function optimisation, rule base development, and FAI-to-label threshold calibration were done on the training set alone. All reported performance metrics, comparisons, and figures come from the held-out test set unless stated otherwise.
+We randomly split the clean-ear dataset at the participant level (all ears of a given participant stay together) into a training set (80%; n = 15,710 ears from 7,881 participants) and a held-out test set (20%; n = 3,913 ears from 1,962 participants). This avoids data leakage from bilateral correlation between the two ears of the same participant. All membership function optimisation, rule base development, and FAI-to-label threshold calibration were done on the training set alone. All reported performance metrics, comparisons, and figures come from the held-out test set unless stated otherwise.
 
 NHANES data are publicly available from the U.S. Centers for Disease Control and Prevention. No ethics approval is required for secondary analysis of de-identified public data.
 
@@ -88,7 +87,7 @@ We explored the NHANES audiometry datasets before building the model. The combin
 
 **Audiogram configuration.** Using slope-based classification, the commonest configurations were flat (56.7%) and gently sloping (18.0%), followed by steeply sloping (8.8%), precipitous (3.5%), and rising (13.0%). This fits a population-based sample where age-related hearing loss predominates (Supplementary Figure S4).
 
-**Asymmetry.** Mean inter-aural asymmetry was 5.2 dB. About 5.1% of participants exceeded the 15 dB threshold for significant asymmetry, consistent with published NHANES-based estimates [@suen2021].
+**Asymmetry.** Taking the inter-aural difference as the maximum absolute difference across frequencies, which is the input the FIS uses, mean asymmetry was 17.2 dB and 34.0% of participants with both ears retained (n = 9,780) exceeded the 15 dB threshold for clinical significance. This is a laxer definition than the two-contiguous-frequency rule used in most prevalence estimates, and the two are not interchangeable.
 
 **Bivariate relationships.** Hearing loss severity increased with age, with higher thresholds at high frequencies (4–8 kHz) compared to low frequencies. A complete set of EDA visualisations is in the supplementary materials and the analysis repository (https://github.com/ameye/fuzzy-audiogram).
 
@@ -96,18 +95,18 @@ We explored the NHANES audiometry datasets before building the model. The combin
 
 For each test frequency (500, 1000, 2000, 3000, 4000, 6000, and 8000 Hz), we fuzzified the hearing threshold using overlapping trapezoidal membership functions for six linguistic severity categories: *Normal*, *Mild*, *Moderate*, *Moderately Severe*, *Severe*, and *Profound*. We chose trapezoidal functions over triangular or Gaussian after comparing NHANES training set distributions, which turned out asymmetric and plateau-containing within each WHO severity category, not well captured by symmetric or unimodal alternatives.
 
-Each membership function is defined by a quadruple [a, b, c, d] where [b, c] is the core (membership μ = 1.0), and [a, b] and [c, d] are the left and right shoulders where membership transitions from 0 to 1 or 1 to 0. The optimised parameters from the training set were:
+Each membership function is defined by a quadruple [a, b, c, d] where [b, c] is the core (membership μ = 1.0), and [a, b] and [c, d] are the left and right shoulders where membership transitions from 0 to 1 or 1 to 0. The training-set distributions give each category a core [b, c] at its interquartile range. Rather than fit each trapezoid's feet independently, we tied them to the neighbouring cores, setting a~i~ = c~i−1~ and d~i~ = b~i+1~, so that adjacent shoulders are complementary linear ramps. The six memberships then form a **Ruspini partition**: they sum to exactly 1.0 at every threshold from 0 to 120 dB HL, so no threshold is left unclassified and none is counted twice. The bottom left foot and the top right foot extend 0.5 dB beyond the universe so that both endpoints are covered, and the minimum width of a transition band is 10 dB, twice the ±5 dB test–retest variability of pure-tone audiometry. The fitted parameters were:
 
 | Category | a | b | c | d |
 |----------|---|---|---|---|
-| Normal | 0.0 | 0.0 | 16.4 | 27.8 |
-| Mild | 25.8 | 26.3 | 35.7 | 43.5 |
-| Moderate | 41.5 | 42.0 | 54.3 | 58.5 |
-| Moderately Severe | 56.5 | 57.0 | 67.1 | 73.5 |
-| Severe | 71.5 | 72.0 | 83.6 | 93.0 |
-| Profound | 91.0 | 91.5 | 106.7 | 120.0 |
+| Normal | −0.5 | 0.0 | 16.4 | 30.0 |
+| Mild | 16.4 | 30.0 | 35.4 | 45.4 |
+| Moderate | 35.4 | 45.4 | 52.1 | 62.1 |
+| Moderately Severe | 52.1 | 62.1 | 66.1 | 76.1 |
+| Severe | 66.1 | 76.1 | 85.0 | 95.9 |
+| Profound | 85.0 | 95.9 | 120.0 | 120.5 |
 
-Each category overlaps with its neighbours by exactly 2.0 dB at the classic WHO boundaries, which gives smooth transitions while keeping the fuzzy zone smaller than the ±5–10 dB test–retest variability of audiometry [@stuart1991]. A threshold of 26 dB HL, for example, gives membership μ = 0.16 to *Normal* and μ = 0.40 to *Mild*, reflecting its borderline status more honestly than a forced binary label.
+The graded bands are therefore 13.6 dB wide at the normal–mild transition and 10.0 dB at each of the next three boundaries, widening to 10.9 dB at severe–profound. The shoulders of adjacent categories cross at μ = 0.5 at 23.2 dB HL, and a threshold of 26 dB HL gives membership μ = 0.29 to *Normal* and μ = 0.71 to *Mild*, reflecting its borderline status more honestly than a forced binary label (Table 4). The partition is verified in the test suite at 1,201 points from 0 to 120 dB HL with a maximum deviation of zero, and the memberships sum to 1.000 at both endpoints.
 
 **Configuration fuzzification.** We fuzzified the audiogram slope (dB change from 500 Hz to 4 kHz) into five overlapping categories: *Rising* (negative slope, low frequencies worse than high), *Flat* (|Δ| ≤ 12 dB), *Gently Sloping* (5–28 dB), *Steeply Sloping* (22–50 dB), and *Precipitous* (>40 dB). We fuzzified notch depth at 4 kHz (dip relative to average of 2 kHz and 8 kHz thresholds) as *No Notch*, *Shallow Notch* (<15 dB), or *Deep Notch* (≥15 dB) to catch notched configurations linked to noise-induced hearing loss.
 
@@ -117,15 +116,15 @@ The formal fuzzy set mathematics (membership functions, Zadeh operators, Mamdani
 
 ## Fuzzy Inference System
 
-We built a Mamdani-type fuzzy inference system with 48 expert-derived rules organised into four groups; in single-ear validation the asymmetry-anchor rule (symmetric → normal) is omitted because the asymmetry input is identically zero for a single ear, leaving a 47-rule base:
+We built a Mamdani-type fuzzy inference system with 42 expert-derived rules organised into four groups. Asymmetry drives a separate referral output rather than the severity output, so no rule needs suppressing in single-ear validation and the same 42 rules run in both modes:
 
 1. **Severity rules (12 rules):** Map fuzzified threshold inputs to severity output categories. Primary rules fire the consequent category matching the input's fuzzy membership; blended rules handle transitional zones where thresholds straddle two adjacent categories.
 
 2. **Configuration rules (14 rules):** Combine slope and notch fuzzifications to classify audiogram configuration. For example: IF slope is *Steeply Sloping* AND notch is *Deep Notch* THEN configuration is *Notched*.
 
-3. **Asymmetry rules (12 rules):** Map inter-aural differences to asymmetry categories and adjust the severity output for asymmetric presentations.
+3. **Referral rules (12 rules):** Map inter-aural difference to a referral urgency (*none*, *routine*, *expedited*, *urgent*). An ear is graded on its own thresholds; the contralateral ear generates a referral recommendation rather than inflating the grade.
 
-4. **Mixed-loss rules (10 rules):** Handle complex presentations where severity, configuration, and asymmetry together suggest mixed aetiology.
+4. **Contour rules (4 rules):** Handle presentations where the slope changes the severity implied by the average, for example a precipitous contour at a PTA-4 in the moderate band, or a steeply sloping contour with a normal average.
 
 Rules use max–min composition with minimum (clipping) implication. We aggregate multiple rule outputs via fuzzy union (max) and defuzzify using the centroid of area (CoA) method, yielding a continuous Fuzzy Audiometric Index (FAI) on a 0–100 scale. The severity rules operate on the PTA-4 speech-frequency average (0.5–4 kHz) as the primary threshold input — the same frequency band as the WHO reference. This is deliberate: it anchors the FAI to the clinically dominant speech range, but it also means agreement with PTA-4 is partly by construction (see Limitations). Frequency-resolved information enters through the slope, notch, and asymmetry inputs and the per-frequency membership vectors. An earlier draft described an explicit ×1.5/×0.75 weighting of speech versus extended high frequencies; that scheme is a design option and is not implemented in the deployed pipeline, so no metric reported here depends on it.
 
@@ -147,31 +146,31 @@ Primary metrics were weighted Cohen's κ (quadratic weights) for classification 
 
 We performed subgroup analyses by age decade, audiogram configuration, and degree of hearing loss. Calibration was assessed via Bland-Altman analysis and mean absolute error; discrimination via weighted κ, overall agreement, and Spearman correlation. Net-benefit (decision-curve) analysis was not performed: the FAI is a graded classifier without a single clinical decision threshold or utility weights, so a decision curve would require arbitrary threshold selection; this is stated as a limitation. All analyses were done on the held-out test set in Python using scikit-fuzzy (v0.5.0) for the FIS, scikit-learn (v1.4) for Random Forest, xgboost (v2.0) for gradient boosting, and SciPy (v1.12) for statistical testing. Source code is at [https://github.com/ameye/fuzzy-audiogram](https://github.com/ameye/fuzzy-audiogram).
 
-![Mamdani fuzzy inference system architecture. Frequency-specific thresholds → fuzzification (6 overlapping MFs) → 48-rule inference engine → centroid defuzzification → FAI, configuration vector, asymmetry index.](figures/fig2_fis_architecture.png){width=95%}
+![Mamdani fuzzy inference system architecture. Frequency-specific thresholds → fuzzification (6 Ruspini-partition MFs) → 42-rule inference engine → centroid defuzzification → FAI, configuration vector, referral index.](figures/fig2_fis_architecture.png){width=95%}
 
 # Results
 
 ## Cohort Characteristics
 
-The combined cohort comprises 10,889 adults aged 20–69 years (mean age 43.9 years, SD 14.4, median 44; 51.8% female) from three NHANES cycles that administered audiometry to working-age adults (1999–2000, 2011–2012, 2015–2016). After cleaning, 19,568 ears from 9,832 adults had complete thresholds at all seven frequencies and were split 80/20 at the participant level into training (n = 15,656 ears from 7,866 participants) and held-out test (n = 3,912 ears from 1,966 participants) sets. In the test set, PTA-4 values were right-skewed: 86.9% normal (≤25 dB HL), 9.2% mild (26–40 dB), 2.6% moderate (41–55 dB), 0.7% moderately severe (56–70 dB), 0.5% severe (71–90 dB), and 0.1% profound (≥91 dB).
+The combined cohort comprises 10,889 adults aged 20–69 years (mean age 43.9 years, SD 14.4, median 44; 51.8% female) from three NHANES cycles that administered audiometry to working-age adults (1999–2000, 2011–2012, 2015–2016). After cleaning, 19,623 ears from 9,843 adults had complete thresholds at all seven frequencies and were split 80/20 at the participant level into training (n = 15,710 ears from 7,881 participants) and held-out test (n = 3,913 ears from 1,962 participants) sets. In the test set, PTA-4 values were right-skewed: 89.1% normal (≤25 dB HL), 7.9% mild (26–40 dB), 1.9% moderate (41–55 dB), 0.7% moderately severe (56–70 dB), 0.3% severe (71–90 dB), and 0.2% profound (≥91 dB).
 
 ## Classification Accuracy
 
-On the held-out test set, the FAI showed weighted Cohen's κ = 0.93 against the WHO PTA-4 reference — substantial agreement.
+On the held-out test set, the FAI showed weighted Cohen's κ = 0.946 against the WHO PTA-4 reference and agreed with the crisp grade on 96.9% of ears, substantial agreement.
 
-![Bland-Altman plot showing agreement between FAI and PTA-4 reference on the held-out test set.](figures/fig3_bland_altman.png){width=80%}
+![Bland-Altman plot showing agreement between FAI and PTA-4 on the held-out test set (n = 3,913 ears). Bias 1.6 dB, 95% limits of agreement −9.0 to 12.1 dB.](figures/fig3_bland_altman.png){width=80%}
 
 | Method | vs. Reference κ | Borderline Agreement (±5 dB) | Clear-case Agreement |
 |--------|-------------------|-------------------|--------------------|
-| FAI (fuzzy) | 0.93 | 79.8% | 98.1% |
+| FAI (fuzzy) | 0.946 | 86.3% | 99.2% |
 | PTA-4 (WHO) | 1.00* | 100%* | 100%* |
-| XGBoost | 0.98 | 93.4% | 100% |
-| Random Forest | 0.98 | 93.6% | 100% |
+| XGBoost | 0.982 | 94.2% | 100% |
+| Random Forest | 0.981 | 94.2% | 99.97% |
 
-*PTA-4 is the reference standard; its agreement is definitional. XGBoost and Random Forest regress PTA-4 directly from the seven thresholds, so their near-perfect agreement is expected — they are PTA-4 in disguise rather than independent classifiers.
+*PTA-4 is the reference standard; its agreement is definitional. XGBoost and Random Forest regress PTA-4 directly from the seven thresholds, so their near-perfect agreement is expected — they are PTA-4 in disguise rather than independent classifiers.*
 
 
-The fuzzy system's value does not lie in mimicking the crisp grade: it matches the WHO reference on 98.1% of clear cases and deliberately deviates in the borderline zone (agreement ≈ 80–84% within ±1–5 dB of a boundary), returning graded membership where the crisp label forces a binary choice. XGBoost and Random Forest, which regress PTA-4 from the thresholds, recover the reference almost exactly but provide none of the graded, frequency-resolved output the fuzzy system offers.
+The fuzzy system's value does not lie in mimicking the crisp grade: it matches the WHO reference on 99.2% of clear cases and deviates in the borderline zone (agreement 78.6% to 86.3% within ±1 to ±5 dB of a boundary), returning graded membership where the crisp label forces a binary choice. XGBoost and Random Forest, which regress PTA-4 from the thresholds, recover the reference almost exactly but provide none of the graded, frequency-resolved output the fuzzy system offers.
 
 ## The 25/26 dB Boundary: A Closer Look
 
@@ -179,55 +178,55 @@ To show what this means clinically, we looked at classification at the normal/mi
 
 | PTA-4 | Crisp Label | Fuzzy Label | FAI Score | Normal μ | Mild μ |
 |-------|-------------|-------------|-----------|----------|--------|
-| 24 dB | Normal | Normal | 11.3 | 0.33 | 0.00 |
-| 26 dB | Mild | Mild | 25.7 | 0.16 | 0.40 |
-| 27 dB | Mild | Mild | 28.9 | 0.07 | 1.00 |
-| 28 dB | Mild | Mild | 30.0 | 0.00 | 1.00 |
+| 24 dB | Normal | Normal | 22.4 | 0.44 | 0.56 |
+| 26 dB | Mild | Mild | 25.0 | 0.29 | 0.71 |
+| 27 dB | Mild | Mild | 26.3 | 0.22 | 0.78 |
+| 28 dB | Mild | Mild | 27.5 | 0.15 | 0.85 |
 | 30 dB | Mild | Mild | 30.0 | 0.00 | 1.00 |
 
-A patient with a PTA of 26 dB is simultaneously 16% normal and 40% mild; at 27 dB the split is 7% normal and 100% mild. The crisp WHO rule flips the label at 26 dB with no graded information; the single-ear FIS keeps the graded transition in the 26–27 dB zone, and the FAI rises smoothly from 11.3 at 24 dB to 25.7 at 26 dB and 28.9 at 27 dB instead of stepping. (Values in an earlier draft — Normal μ = 0.60/0.50/0.40, Mild μ = 0.67/0.83/1.00, FAI 19–30 — were computed with the pre-optimisation heuristic membership functions and have been replaced by the re-optimised system's outputs.)
+A patient with a PTA of 26 dB is simultaneously 29% normal and 71% mild; at 27 dB the split is 22% normal and 78% mild. The crisp WHO rule flips the label at 26 dB with no graded information; the single-ear FIS keeps a graded transition across the whole 16–30 dB band, and the FAI rises smoothly from 22.4 at 24 dB to 25.0 at 26 dB and 26.3 at 27 dB instead of stepping. Because the memberships sum to one, the split at 26 dB is a genuine division of belief between two categories rather than two independent partial memberships; under the previous independently fitted feet the six memberships summed to only 0.56 at that threshold.
 
-![Borderline case analysis: FAI agreement with the crisp WHO grade as a function of distance from the nearest severity boundary on the held-out test set (98.1% clear-case, 79.8% within ±5 dB).](figures/fig5_borderline_analysis.png){width=80%}
+![Borderline case analysis: FAI agreement with the crisp WHO grade as a function of distance from the nearest severity boundary on the held-out test set (99.2% in clear cases, 86.3% within ±5 dB).](figures/fig5_borderline_analysis.png){width=80%}
 
 ## Clinical Case Studies
 
-Four archetypal audiograms illustrate how the deployed fuzzy framework behaves in practice (Figure 4); they are clinical archetypes rather than individual records from the analysis cohort.
+Four archetypal audiograms illustrate how the deployed fuzzy framework behaves in practice (Figure 5); they are clinical archetypes rather than individual records from the analysis cohort.
 
-**Case A (textile mill worker, 58 years).** Borderline mild hearing loss with 25 years of occupational noise exposure. PTA-4 was 27.5 dB (WHO: "Mild" but borderline). The FIS gave FAI = 29.4 (Mild), with membership Normal μ = 0.04 and Mild μ = 1.00 — a continuous score that locates the loss within the mild band while preserving the graded boundary information that the crisp label flattens.
+**Case A (textile mill worker, 58 years).** Borderline mild hearing loss with 25 years of occupational noise exposure. PTA-4 was 27.5 dB (WHO: "Mild" but borderline). The FIS gave FAI = 26.9 (Mild), with membership Normal μ = 0.18 and Mild μ = 0.82, a continuous score that locates the loss within the mild band while preserving the graded boundary information that the crisp label flattens.
 
-**Case B (military officer, 34 years).** Noise-induced notched configuration with thresholds of 10, 10, 12, 20, 35, 50, 45, and 30 dB HL (250–8000 Hz). PTA-4 was 23.0 dB, labelled "Normal". But there is functionally significant high-frequency loss here. The FIS returned FAI = 21.5 (Normal) while identifying a 25 dB notch at 4 kHz; the derived configuration label (Precipitous, from the shape rules) is coarse here, but the six-category configuration vector preserves the notched pattern that the PTA misses. The PTA completely missed this.
+**Case B (military officer, 34 years).** Noise-induced notched configuration with thresholds of 15, 10, 10, 20, 15, 50, 50, and 20 dB HL (250–8000 Hz). PTA-4 was 22.5 dB, labelled "Normal". But there is functionally significant high-frequency loss here: the notch depth at 4 kHz is 30 dB and the 500 Hz to 4 kHz slope is 40 dB. The FIS returned FAI = 21.2 (Normal, with Normal μ = 0.55 and Mild μ = 0.45) while the shape rules typed the contour as Precipitous (shape score 75.3). The PTA completely missed this.
 
-**Case C (retired teacher, 70 years).** Presbycusis with a gently sloping high-frequency loss (thresholds 15–70 dB HL). PTA-4 was 33.8 dB (Mild). The FIS returned FAI = 30.0 (Mild), configuration = Sloping, a classic age-related pattern. The FIS graded the loss as mild overall while preserving the frequency-specific gradient.
+**Case C (retired teacher, 70 years).** Presbycusis with a gently sloping high-frequency loss (thresholds 20 to 65 dB HL). PTA-4 was 33.8 dB (Mild). The FIS returned FAI = 30.0 (Mild), configuration = Sloping, a classic age-related pattern. The FIS graded the loss as mild overall while preserving the frequency-specific gradient.
 
-**Case D (retiree, 72 years).** Asymmetric sensorineural loss. Right ear PTA-4 was 53.8 dB (Moderate) and left ear 28.8 dB (Mild). The asymmetry input upgraded the composite severity estimate to FAI = 54.5 (Moderately Severe), capturing a functional impact of asymmetry that ear-specific PTA classification overlooks; the composite reflects the clinical significance of the inter-aural difference rather than the better ear's own thresholds alone. Here the fuzzy system quantified that functional impact explicitly.
+**Case D (retiree, 72 years).** Asymmetric sensorineural loss. The tested ear had PTA-4 55.0 dB (Moderate) and the contralateral ear 28.8 dB (Mild), a 30 dB inter-aural difference. The FIS graded the ear on its own thresholds, FAI = 53.9 (Moderate, Moderate μ = 0.71 and Moderately Severe μ = 0.29), and separately raised the referral output to 56.0, in the *expedited* band. Asymmetry is therefore reported as a referral signal rather than allowed to inflate the severity grade, which is the clinically safer direction: the grading depends only on the ear being graded.
 
 | Case | PTA-4 | WHO Grade | FAI | Configuration | Key Finding |
 |------|-------|-----------|-----|---------------|-------------|
-| A | 27.5 dB | Mild | 29.4 | Precipitous (shape rules) | Borderline membership (Normal 0.04, Mild 1.00) |
-| B | 23.0 dB | Normal | 21.5 | Precipitous (shape rules) | 25 dB notch at 4 kHz masked by PTA |
-| C | 33.8 dB | Mild | 30.0 | Sloping | Frequency-resolved severity preserved |
-| D | 53.8/28.8 dB | Mod/Mild | 54.5 composite | Precipitous | Asymmetry upgrade; inter-aural modulation |
+| A | 27.5 dB | Mild | 26.9 | Flat (22.9) | Borderline membership (Normal 0.18, Mild 0.82) |
+| B | 22.5 dB | Normal | 21.2 | Precipitous (75.3) | 30 dB notch at 4 kHz masked by PTA |
+| C | 33.8 dB | Mild | 30.0 | Sloping (47.5) | Frequency-resolved severity preserved |
+| D | 55.0 / 28.8 dB | Moderate / Mild | 53.9 | Flat (24.6) | Asymmetry 30 dB raises referral to *expedited* (56.0) |
 
-![Clinical case studies. (A) Borderline mild. PTA 27.5 dB but FAI reveals graded membership. (B) Noise-induced notch. Normal PTA but a 25 dB notch at 4 kHz. (C) Presbycusis. Gently sloping high-frequency loss. (D) Asymmetric loss. 30 dB inter-aural difference. Right panels show membership degree bar charts. Coloured bands indicate WHO severity categories (legend, upper left).](figures/fig4_clinical_cases.png){width=100%}
+![Clinical case studies. (A) Borderline mild. PTA 27.5 dB, FAI 26.9. (B) Noise-induced notch. Normal PTA but a 30 dB notch at 4 kHz. (C) Presbycusis. Gently sloping high-frequency loss. (D) Asymmetric loss. 30 dB inter-aural difference. Right panels show membership degree bar charts. Coloured bands indicate WHO severity categories.](figures/fig4_clinical_cases.png){width=100%}
 
 ## Configuration Classification
 
-Configuration typing is a secondary, exploratory output. Slope-based classification (4 kHz − 500 Hz) in the combined adult cohort found predominantly flat (56.7%) and gently sloping (18.0%) configurations, with 8.8% steeply sloping, 3.5% precipitous, and 13.0% rising. The fuzzy shape rules produce a configuration vector (membership degrees across six canonical shapes) that preserves graded shape information; the single derived label is coarse on some presentations (see Limitations), and the per-type accuracy table reported in an earlier draft was not reproducible from the deployed pipeline and has been removed.
+Configuration typing is a secondary, exploratory output. Over the 3,913 held-out ears the shape rules returned a crisp configuration label for 96.8%, distributed as flat (41.7%), sloping (24.5%), rising (15.7%), precipitous (13.0%) and notched (1.9%); for 3.2% the shape consequence had no area and the label is reported as *Undetermined* rather than guessed. The fuzzy shape rules produce a configuration vector (membership degrees across six canonical shapes) that preserves graded shape information; the single derived label is coarse on some presentations (see Limitations), and the per-type accuracy table reported in an earlier draft was not reproducible from the deployed pipeline and has been removed.
 
 
-![Configuration distribution in the NHANES cohort (slope = 4 kHz − 500 Hz).](figures/fig_eda_config_dist.png){width=90%}
+![Reference configuration distribution in the combined NHANES cohort measured crisply as the 4 kHz − 500 Hz slope. This is the input the shape rules see, not their output; the labels the FIS returns on the held-out ears are in Table 3.](figures/fig_eda_config_dist.png){width=90%}
 
 ## Temporal Tracking
 
-In the 120-participant longitudinal sub-cohort, FAI trajectories showed smoother progression than PTA-based staging. Mean annual FAI change was +1.7/year in the age-related hearing loss subgroup. By comparison, PTA grade changed by one category every 4.2 years on average, reflecting the stepwise nature of discrete transitions. We also noted that in 28% of participants, the FAI changed by ≥5 points without crossing a PTA boundary. These are sub-threshold progressions the crisp system would miss. They included both worsening (e.g., ototoxicity during chemotherapy) and improvement (e.g., recovery after acute noise exposure).
+The NHANES cycles used here are cross-sectional: each participant was measured once, so this cohort contains no serial audiometry and we do not estimate a rate of progression from it. To show how the index behaves on serial data we passed three stated annual threshold progressions through the deployed FIS (Figure 7). For a shift of 0.7 dB per year at every frequency, the FAI moves from 35.6 to 46.0 over eight years, a mean of 1.3 points per year, while the crisp category remains Mild throughout. For a 3 dB per year shift confined to 4-8 kHz, the FAI moves from 22.0 to 29.7 over four years; the crisp label crosses into Mild at year two. In the stable-notch scenario both endpoints are flat, which is the negative control. The continuous index therefore registers change in intervals where the categorical endpoint reports none; whether it tracks real progression better than the PTA grade is a question for a longitudinal cohort, which we have not studied.
 
-![Longitudinal FAI trajectories for three clinical scenarios. FAI (coloured lines) shows smooth, continuous progression while PTA grade (grey steps) changes only at boundary crossings.](figures/fig7_longitudinal.png){width=95%}
+![Illustrative FAI trajectories for three stated annual threshold progressions passed through the deployed FIS. FAI (coloured lines) is continuous; the crisp PTA-4 grade (grey steps, right axis) changes only at boundary crossings. These are scenarios, not measured trajectories.](figures/fig7_longitudinal.png){width=95%}
 
 # Discussion
 
 ## Principal Findings
 
-This study shows that a Mamdani-type fuzzy inference system can classify audiometric data with more gradation than conventional PTA-based classification. The FAI reached weighted κ = 0.93 against the WHO PTA-4 reference, matched the crisp grade on 98.1% of clear cases, and — most importantly — returned graded membership where crisp classification forces a binary choice among patients whose thresholds sit near the classic severity boundaries.
+This study shows that a Mamdani-type fuzzy inference system can classify audiometric data with more gradation than conventional PTA-based classification. The FAI reached weighted κ = 0.946 against the WHO PTA-4 reference, matched the crisp grade on 99.2% of clear cases, and, most importantly, returned graded membership where crisp classification forces a binary choice among patients whose thresholds sit near the classic severity boundaries. The gain in gradation is now structural rather than incidental: the six memberships form a Ruspini partition, so a threshold of 26 dB HL divides cleanly into 29% normal and 71% mild instead of holding two partial memberships that together covered barely half of the universe.
 
 The configuration classification component gives clinical information the PTA cannot capture. A normal PTA with a notched configuration (Case B) is a good example. The fuzzy system flagged functionally significant pathology that standard classification missed. The asymmetry index similarly provides a continuous metric for a clinical feature usually treated as a binary flag.
 
@@ -237,19 +236,19 @@ The configuration classification component gives clinical information the PTA ca
 
 **Hearing aid fitting.** Continuous severity scores map naturally to gain parameters. Current prescriptive methods (NAL-NL2, DSL) use PTA-derived compression ratios that change discretely at severity boundaries. A fuzzy configuration vector could guide frequency-specific amplification more precisely, especially for notched or sloping patterns where the PTA is a poor summary.
 
-**Ototoxicity monitoring.** Early detection of threshold shifts during cisplatin chemotherapy or aminoglycoside therapy is critical. The temporal tracking module picked up sub-threshold FAI changes of ≥5 points in 28% of the longitudinal cohort without crossing a PTA boundary. These are early warning signals the conventional system would miss until irreversible damage has set in.
+**Ototoxicity monitoring.** Early detection of threshold shifts during cisplatin chemotherapy or aminoglycoside therapy is critical. In the 3 dB per year scenario of Figure 7 the index moves two points in the first year while the crisp grade is unchanged, reaches a five-point shift by year three, and records the intervening change that the single category step cannot express. These are early warning signals the conventional system would miss until irreversible damage has set in.
 
 **Low-resource settings.** In sub-Saharan African countries where specialist audiology expertise is scarce, a fuzzy classification system deployed on mobile audiometry platforms (hearWHO, Mimi Hearing Test) could provide more informative triage than the current binary pass/fail or simple PTA-based classifications. The framework is interpretable and computationally light. It does not need much to run.
 
 ## Comparison with Prior Work
 
-Our results fit with the emerging computational audiology literature while extending it in a few directions. Overall agreement with the WHO PTA-4 reference (94.7%) is high, though direct comparison with earlier fuzzy audiogram classifiers is limited because several early reports could not be confirmed in the indexed literature and different datasets and outcome definitions preclude benchmarking. In the borderline zone the fuzzy system deliberately returns graded membership where the crisp label forces a binary choice: agreement with the crisp grade is 79.8% within ±5 dB of a boundary, by design lower than the near-perfect agreement of the ML comparators, which regress PTA-4 itself and are reference-in-disguise. Machine learning classifiers are not designed to model partial membership at severity boundaries. Fuzzy logic is mathematically structured to do exactly that.
+Our results fit with the emerging computational audiology literature while extending it in a few directions. Overall agreement with the WHO PTA-4 reference (96.9%) is high, though direct comparison with earlier fuzzy audiogram classifiers is limited because several early reports could not be confirmed in the indexed literature and different datasets and outcome definitions preclude benchmarking. In the borderline zone the fuzzy system deliberately returns graded membership where the crisp label forces a binary choice: agreement with the crisp grade is 86.3% within ±5 dB of a boundary, by design lower than the near-perfect agreement of the ML comparators, which regress PTA-4 itself and are reference-in-disguise. Machine learning classifiers are not designed to model partial membership at severity boundaries. Fuzzy logic is mathematically structured to do exactly that.
 
 Compared to clustering-based profiling approaches [@sanchez2021; @vanbeek2024], the fuzzy system produces outputs clinicians can actually inspect. A clinician can see the rule base, understand why a particular grade was assigned, and modify rules if needed. That transparency matters for real clinical adoption.
 
 ## Limitations
 
-However, a few limitations deserve mention. First, we used air-conduction thresholds only. Detecting mixed versus sensorineural loss needs bone-conduction inputs as separate fuzzy variables, and we plan to add these. Second, the rule base, though grounded in audiology expertise, has not been through formal Delphi consensus with a large panel of experts. Third, the three cycles used here administered audiometry to adults aged 20–69 y; results therefore do not cover children or adults aged 70 and over, and the membership functions were re-optimised on the combined training set for this analysis, and the FAI-to-label thresholds were calibrated on the training set ([21.9, 34.6, 52.5, 70.6, 74.1]); (see Membership Function Optimization). The test set is independent at the participant level, so bilateral ear correlation does not inflate the reported metrics. Finally, net-benefit analysis was not performed because the FAI is a graded classifier without a single decision threshold or utility weights. The FIS structure is cycle-independent. Single-ear validation omits the asymmetry-anchor rule (a documented artifact: with one ear the asymmetry input is zero, so the anchor rule would fire at full strength for every ear and compress the FAI scale); bilateral use in the deployed web application retains the full 48-rule base; some configurations (e.g., steeply sloping losses from Menière's disease) remain underrepresented. Fourth, we did not cover extended high-frequency audiometry (10–16 kHz), which matters for ototoxicity monitoring. Fifth, the reference standard is the WHO PTA-4 classification itself. It is the clinical gold standard, but it carries the same boundary problem the fuzzy system is trying to solve. Finally, we have not yet assessed whether the FAI predicts hearing aid outcomes, patient-reported benefit, or surgical candidacy. Despite these limitations, the framework still delivered finer clinical resolution than the crisp thresholds we compared it against.
+However, a few limitations deserve mention. First, we used air-conduction thresholds only. Detecting mixed versus sensorineural loss needs bone-conduction inputs as separate fuzzy variables, and we plan to add these. Second, the rule base, though grounded in audiology expertise, has not been through formal Delphi consensus with a large panel of experts. Third, the three cycles used here administered audiometry to adults aged 20–69 y; results therefore do not cover children or adults aged 70 and over, and the membership functions were re-optimised on the combined training set for this analysis, and the FAI-to-label thresholds were calibrated on the training set ([24.6, 48.2, 57.3, 74.0, 85.8]); (see Membership Function Optimization). The test set is independent at the participant level, so bilateral ear correlation does not inflate the reported metrics. Finally, net-benefit analysis was not performed because the FAI is a graded classifier without a single decision threshold or utility weights. The FIS structure is cycle-independent. The same 42 rules run in single-ear and bilateral use, because asymmetry drives the referral output rather than the severity output; some configurations (e.g., steeply sloping losses from Menière's disease) remain underrepresented, and for 3.2% of held-out ears the shape rules produced no crisp configuration value, which we report as *Undetermined*. Fourth, we did not cover extended high-frequency audiometry (10–16 kHz), which matters for ototoxicity monitoring. Fifth, the reference standard is the WHO PTA-4 classification itself. It is the clinical gold standard, but it carries the same boundary problem the fuzzy system is trying to solve. Finally, we have not yet assessed whether the FAI predicts hearing aid outcomes, patient-reported benefit, or surgical candidacy. Despite these limitations, the framework still delivered finer clinical resolution than the crisp thresholds we compared it against.
 
 ## Generalisability and Future Directions
 
@@ -257,7 +256,7 @@ The fuzzy framework is portable by design. The same architecture can take additi
 
 # Conclusion
 
-The Fuzzy Audiometric Index (FAI) gives a continuous, frequency-resolved, interpretable classification of hearing loss that preserves the gradation lost to crisp PTA thresholds. Validated on a held-out NHANES test set (n = 3,912 ears from 1,966 participants), it shows substantial agreement with WHO PTA-4 classification (weighted κ = 0.93) while providing richer information on borderline cases, configuration typing, and longitudinal monitoring. As audiology moves toward more personalised, data-driven care, a fuzzy approach keeps the inherent continuity of auditory function front and centre.
+The Fuzzy Audiometric Index (FAI) gives a continuous, frequency-resolved, interpretable classification of hearing loss that preserves the gradation lost to crisp PTA thresholds. Validated on a held-out NHANES test set (n = 3,913 ears from 1,962 participants), it shows substantial agreement with WHO PTA-4 classification (weighted κ = 0.946) while providing richer information on borderline cases, configuration typing, and change over time. Its six severity memberships form a Ruspini partition, so every threshold from 0 to 120 dB HL is divided cleanly between neighbouring categories. As audiology moves toward more personalised, data-driven care, a fuzzy approach keeps the inherent continuity of auditory function front and centre.
 
 # Acknowledgements
 
@@ -354,19 +353,19 @@ These hedges are available for future refinements but were not needed in the cur
 
 ## Table 1. Demographic and Audiometric Characteristics of the NHANES Cohort
 
-| Characteristic | Training (n=15,656 ears) | Test (n=3,912 ears) |
+| Characteristic | Training (n=15,710 ears) | Test (n=3,913 ears) |
 |----------------|--------------------------|---------------------|
-| Participants (n) | 7,866 | 1,966 |
-| Age (years), mean (SD) | 44.1 (14.4) | 43.5 (14.6) |
-| Age (years), median (IQR) | 44 (31–56) | 43 (30–56) |
-| Female sex | 50.9% | 51.2% |
-| Mean PTA-4 (dB HL) | 13.3 (11.3) | 13.5 (12.2) |
-| Normal | 88.4% | 86.9% |
-| Mild | 8.6% | 9.2% |
-| Moderate | 2.2% | 2.6% |
-| Moderately Severe | 0.6% | 0.7% |
-| Severe | 0.3% | 0.5% |
-| Profound | 0.0% | 0.1% |
+| Participants (n) | 7,881 | 1,962 |
+| Age (years), mean (SD) | 44.1 (14.4) | 43.2 (14.4) |
+| Age (years), median (IQR) | 44 (31–57) | 42 (31–56) |
+| Female sex | 50.8% | 51.8% |
+| Mean PTA-4 (dB HL) | 13.6 (12.0) | 13.1 (11.8) |
+| Normal | 87.6% | 89.1% |
+| Mild | 8.9% | 7.9% |
+| Moderate | 2.4% | 1.9% |
+| Moderately Severe | 0.7% | 0.7% |
+| Severe | 0.4% | 0.3% |
+| Profound | 0.1% | 0.2% |
 
 *Cohort: NHANES cycles with adult (20–69 y) audiometry (1999–2000, 2011–2012, 2015–2016). Values are per ear unless noted.*
 
@@ -374,56 +373,57 @@ These hedges are available for future refinements but were not needed in the cur
 
 | Metric | FAI (Fuzzy) | PTA-4 (WHO) | XGBoost | Random Forest |
 |--------|------------|------------|---------|---------------|
-| Weighted κ vs. Reference | 0.93 | 1.00* | 0.98 | 0.98 |
-| Overall Agreement | 94.7% | 100%* | 98.8% | 98.8% |
-| Borderline Agreement (±5 dB) | 79.8% | 100%* | 93.4% | 93.6% |
-| Clear-case Agreement | 98.1% | 100%* | 100% | 100% |
+| Weighted κ vs. Reference | 0.946 | 1.00* | 0.982 | 0.981 |
+| Overall Agreement | 96.9% | 100%* | 99.0% | 99.0% |
+| Borderline Agreement (±5 dB) | 86.3% | 100%* | 94.2% | 94.2% |
+| Clear-case Agreement | 99.2% | 100%* | 100% | 99.97% |
 | Spearman ρ vs. PTA-4 | 0.80 | 1.00 | 1.00 | 1.00 |
-| MAE vs. PTA-4 (dB) | 6.1 | 0.0* | 0.2 | 0.5 |
+| MAE vs. PTA-4 (dB) | 4.32 | 0.0* | 0.22 | 0.52 |
 
 *PTA-4 is the reference standard; metrics reflect definitional agreement.
 
-## Table 3. Configuration Distribution in the NHANES Cohort (Exploratory)
+## Table 3. Configuration Labels Returned by the FIS on the Held-Out Test Set (Exploratory)
 
-| Configuration | Prevalence (%) | Slope Range |
-|---------------|---------------|-------------|
-| Flat | 56.7% | −5 to 12 dB |
-| Gently Sloping | 18.0% | 12–28 dB |
-| Steeply Sloping | 8.8% | 28–45 dB |
-| Precipitous | 3.5% | >45 dB |
-| Rising | 13.0% | <−5 dB |
+| Configuration | n | Share |
+|---------------|------|-------|
+| Flat | 1,630 | 41.7% |
+| Sloping | 960 | 24.5% |
+| Rising | 616 | 15.7% |
+| Precipitous | 509 | 13.0% |
+| Undetermined | 125 | 3.2% |
+| Notched | 73 | 1.9% |
 
-Configuration typing is a secondary, exploratory output; the per-type accuracy table reported in an earlier draft was not reproducible from the deployed pipeline and has been removed (see Configuration Classification).
+Shape rules only, over the 3,913 held-out ears, using the same Ruspini configuration as every other metric. *Undetermined* means the shape consequence had no area for that ear, so no crisp label exists; it is reported rather than imputed. The reference slope-band distribution of the cohort, which is the input these rules see, is shown in Figure 6. Configuration typing is a secondary, exploratory output; the per-type accuracy table reported in an earlier draft was not reproducible from the deployed pipeline and has been removed (see Configuration Classification).
 
 ## Table 4. Fuzzy vs. Crisp Classification at the Normal–Mild Boundary
 
 | PTA-4 (dB) | WHO Grade | FAI Score | FAI Grade | Key Memberships |
 |------------|-----------|-----------|-----------|-----------------|
-| 24 | Normal | 11.3 | Normal | Normal μ=0.33, Mild μ=0.00 |
-| 26 | Mild | 25.7 | Mild | Normal μ=0.16, Mild μ=0.40 |
-| 27 | Mild | 28.9 | Mild | Normal μ=0.07, Mild μ=1.00 |
-| 28 | Mild | 30.0 | Mild | Normal μ=0.00, Mild μ=1.00 |
+| 24 | Normal | 22.4 | Normal | Normal μ=0.44, Mild μ=0.56 |
+| 26 | Mild | 25.0 | Mild | Normal μ=0.29, Mild μ=0.71 |
+| 27 | Mild | 26.3 | Mild | Normal μ=0.22, Mild μ=0.78 |
+| 28 | Mild | 27.5 | Mild | Normal μ=0.15, Mild μ=0.85 |
 | 30 | Mild | 30.0 | Mild | Normal μ=0.00, Mild μ=1.00 |
 
-Values are re-optimised system outputs. Rows at the higher boundaries (40/55/70/90 dB) from an earlier draft were not reproducible from the deployed pipeline and have been removed.
+Values are flat-ear outputs of the deployed Ruspini configuration. The six memberships sum to 1.00 in every row, so the two entries in each Key Memberships cell are complementary. Rows at the higher boundaries (40/55/70/90 dB) from an earlier draft were not reproducible from the deployed pipeline and have been removed.
 
 ---
 
 # Figure Captions
 
-**Figure 1.** Overlapping trapezoidal membership functions for six hearing loss severity categories, with NHANES threshold density overlay. Population-optimised boundaries sit about 2 dB to the right of the classic WHO thresholds.
+**Figure 1.** Trapezoidal membership functions for six hearing loss severity categories arranged as a Ruspini partition. Left: the six memberships, with the normal–mild transition band shaded. Right: their sum, which equals 1.000 at all 1,201 evaluated points from 0 to 120 dB HL.
 
-**Figure 2.** Schematic of the Mamdani fuzzy inference system architecture: frequency-specific threshold inputs → fuzzification via membership functions → 48-rule inference engine → centroid defuzzification → FAI, configuration vector, asymmetry index.
+**Figure 2.** Schematic of the Mamdani fuzzy inference system architecture: frequency-specific threshold inputs → fuzzification via Ruspini-partition membership functions → 42-rule inference engine → centroid defuzzification → FAI, configuration vector, referral index.
 
 **Figure 3.** Bland-Altman plot showing agreement between FAI and PTA-4 reference on the held-out test set.
 
-**Figure 4.** Clinical case panels: four representative audiograms (A borderline, B noise notch, C presbycusis, D asymmetric) showing PTA vs. FAI labels, membership bar plots, and configuration vectors. Coloured background bands indicate WHO severity categories.
+**Figure 5.** Clinical case panels: four representative audiograms (A borderline, B noise notch, C presbycusis, D asymmetric) showing PTA vs. FAI labels, membership bar plots, and configuration vectors. Coloured background bands indicate WHO severity categories.
 
-**Figure 5.** Borderline case analysis: FAI agreement with the crisp WHO grade as a function of distance from the nearest boundary on the held-out test set — 98.1% in clear cases (≥6 dB from a boundary) and 79.8% within ±5 dB, with agreement recovering monotonically as distance increases.
+**Figure 4.** Borderline case analysis: FAI agreement with the crisp WHO grade as a function of distance from the nearest boundary on the held-out test set, from 87% at 1 dB to 100% beyond 11 dB (86.3% within ±5 dB, 99.2% in clear cases).
 
-**Figure 6.** Configuration distribution in the combined adult cohort (slope = 4 kHz − 500 Hz).
+**Figure 6.** Reference configuration distribution in the combined adult cohort, measured crisply as the 4 kHz − 500 Hz slope. This is the input to the shape rules; the labels the FIS returns are in Table 3.
 
-**Figure 7.** Longitudinal FAI trajectories for three clinical scenarios over 4–8 years. FAI shows smoother, more physiologically plausible progression than the stepwise PTA grade changes.
+**Figure 7.** Illustrative FAI trajectories for three stated annual threshold progressions passed through the deployed FIS. The FAI is continuous; the crisp PTA-4 grade changes only at boundary crossings. These are scenarios, not measured trajectories: the cohort contains no serial audiometry.
 
 ---
 

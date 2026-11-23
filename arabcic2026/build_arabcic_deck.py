@@ -185,7 +185,7 @@ txt(s, 0.8, 4.55, 11.73, 0.85,
      {"text": "King Fahad Multispecialists Hospital, Tabuk, Kingdom of Saudi Arabia",
       "size": 13, "color": RGBColor(0xBF, 0xD0, 0xE0), "align": PP_ALIGN.CENTER}])
 chip(s, 2.20, 5.80, 2.6, 1.05, "10,889", "adults 20–69 y · 3 NHANES cycles", big_size=24)
-chip(s, 5.37, 5.80, 2.6, 1.05, "48", "audiology-derived fuzzy rules", big_size=24)
+chip(s, 5.37, 5.80, 2.6, 1.05, "42", "audiology-derived fuzzy rules", big_size=24)
 chip(s, 8.54, 5.80, 2.6, 1.05, "0–100", "continuous FAI scale", big_size=24)
 
 # ================================================================ SLIDE 2 — PROBLEM (light)
@@ -262,7 +262,7 @@ txt(s, 7.10, 2.05, 5.45, 3.6,
                {"text": "Gradual membership (0 → 1) in every severity category",
                 "size": 13.5, "color": INK}], "space_after": 11, "line_spacing": 1.12},
      {"runs": [{"text": "✓  ", "size": 14, "bold": True, "color": TEAL},
-               {"text": "Overlapping trapezoidal functions at each boundary (2.0 dB overlap)",
+               {"text": "Ruspini partition: the six memberships sum to 1 at every threshold",
                 "size": 13.5, "color": INK}], "space_after": 11},
      {"runs": [{"text": "✓  ", "size": 14, "bold": True, "color": TEAL},
                {"text": "Continuous FAI score (0–100), frequency-resolved", "size": 13.5, "color": INK}],
@@ -285,7 +285,7 @@ txt(s, 0.80, 1.44, 5.1, 0.4,
 txt(s, 0.80, 1.84, 5.1, 2.56,
     [{"text": "•  Adults 20–69 y from 3 NHANES cycles (1999–2000, 2011–12, 2015–16), n = 10,889",
       "size": 12, "color": INK, "space_after": 7, "line_spacing": 1.12},
-     {"text": "•  Split 80/20 by participant, 15,656 training and 3,912 held-out ears, no bilateral "
+     {"text": "•  Split 80/20 by participant, 15,710 training and 3,913 held-out ears, no bilateral "
                "leakage", "size": 12, "color": INK, "space_after": 7, "line_spacing": 1.12},
      {"text": "•  Membership functions and rule base developed on the training set only",
       "size": 12, "color": INK, "space_after": 7, "line_spacing": 1.12},
@@ -304,9 +304,9 @@ txt(s, 0.78, 4.70, 5.14, 1.96,
      {"text": "A Mamdani fuzzy inference framework for graded pure-tone audiometric "
                "classification: development, validation, and open-source implementation",
       "size": 10, "italic": True, "color": WHITE, "line_spacing": 1.1}], anchor=MSO_ANCHOR.MIDDLE)
-img, iw, ih = pic(s, f"{HERE}/fig2_fis_architecture_48.png", 6.45, 1.60, w=6.35)
+img, iw, ih = pic(s, f"{FIG}/fig2_fis_architecture.png", 6.45, 1.60, w=6.35)
 txt(s, 6.45, 1.60 + ih + 0.12, 6.35, 0.7,
-    [{"text": "Mamdani FIS with 7 frequency thresholds → fuzzification → 48 rules → "
+    [{"text": "Mamdani FIS with 7 frequency thresholds → fuzzification → 42 rules → "
                "centroid defuzzification → FAI", "size": 11.5, "italic": True, "color": MUTED,
       "align": PP_ALIGN.CENTER, "line_spacing": 1.1}])
 
@@ -315,7 +315,7 @@ s = add_slide(LIGHT)
 title_bar(s, "Trapezoidal membership functions", 5)
 img, iw, ih = pic(s, f"{FIG}/fig1_membership_functions.png", 0.55, 1.35, w=6.5)
 txt(s, 0.55, 1.35 + ih + 0.10, 6.5, 0.6,
-    [{"text": "Overlapping trapezoids for six severity categories, with NHANES density overlay",
+    [{"text": "Six trapezoids that partition 0–120 dB HL, with the membership sum on the right",
       "size": 11, "italic": True, "color": MUTED, "align": PP_ALIGN.CENTER}])
 rect(s, 0.55, 5.30, 6.5, 1.55, SOFT_T, line=BORDER, rounded=True, radius=0.07)
 txt(s, 0.75, 5.45, 6.1, 1.3,
@@ -325,12 +325,12 @@ txt(s, 0.75, 5.45, 6.1, 1.3,
       "color": INK, "space_before": 4, "line_spacing": 1.12}])
 # param table
 data = [["Category", "a", "b", "c", "d"],
-        ["Normal", "0.0", "0.0", "16.4", "27.8"],
-        ["Mild", "25.8", "26.3", "35.7", "43.5"],
-        ["Moderate", "41.5", "42.0", "54.3", "58.5"],
-        ["Moderately Severe", "56.5", "57.0", "67.1", "73.5"],
-        ["Severe", "71.5", "72.0", "83.6", "93.0"],
-        ["Profound", "91.0", "91.5", "106.7", "120.0"]]
+        ["Normal", "−0.5", "0.0", "16.4", "30.0"],
+        ["Mild", "16.4", "30.0", "35.4", "45.4"],
+        ["Moderate", "35.4", "45.4", "52.1", "62.1"],
+        ["Moderately Severe", "52.1", "62.1", "66.1", "76.1"],
+        ["Severe", "66.1", "76.1", "85.0", "95.9"],
+        ["Profound", "85.0", "95.9", "120.0", "120.5"]]
 make_table(s, 7.30, 1.35, 5.5, data, [2.35, 0.79, 0.79, 0.79, 0.79], row_h=0.42,
            body_size=10.5, header_size=11)
 txt(s, 7.30, 4.50, 5.5, 0.35,
@@ -338,27 +338,28 @@ txt(s, 7.30, 4.50, 5.5, 0.35,
       "size": 10, "italic": True, "color": MUTED}])
 rect(s, 7.30, 4.95, 5.5, 1.9, CARD, line=BORDER, rounded=True, radius=0.07)
 txt(s, 7.50, 5.10, 5.1, 1.6,
-    [{"text": "Exactly 2.0 dB overlap at each WHO boundary → smooth transitions",
+    [{"text": "Ruspini partition: the feet are tied to neighbouring cores, so the "
+               "six memberships sum to 1 at every threshold, 0–120 dB HL",
       "size": 12, "color": INK, "space_after": 8, "line_spacing": 1.12},
      {"runs": [{"text": "26 dB HL → ", "size": 12, "color": INK},
-               {"text": "Normal μ 0.16", "size": 12, "bold": True, "color": TEAL},
+               {"text": "Normal μ 0.29", "size": 12, "bold": True, "color": TEAL},
                {"text": " and ", "size": 12, "color": INK},
-               {"text": "Mild μ 0.40", "size": 12, "bold": True, "color": TEAL},
-               {"text": ", borderline rather than binary", "size": 12, "color": INK}],
+               {"text": "Mild μ 0.71", "size": 12, "bold": True, "color": TEAL},
+               {"text": ", summing to 1.00", "size": 12, "color": INK}],
       "line_spacing": 1.12}])
 
 # ================================================================ SLIDE 6 — RULE BASE (light)
 s = add_slide(LIGHT)
-title_bar(s, "48 audiology-derived rules in four groups", 6)
+title_bar(s, "42 audiology-derived rules in four groups", 6)
 groups = [
     ("SEVERITY · 12 RULES", "Map thresholds to severity output, with blended rules for "
      "transitional zones.", "IF threshold is Mild AND slope is Flat\nTHEN severity is Mild", NAVY),
     ("CONFIGURATION · 14 RULES", "Combine slope and notch to type the audiogram shape.",
      "IF slope is Steeply Sloping AND notch is Deep\nTHEN configuration is Notched", TEAL),
-    ("ASYMMETRY · 12 RULES", "Score inter-aural differences and adjust severity.",
-     "IF inter-aural difference > 30 dB at 3+ frequencies\nTHEN asymmetry is Severely Asymmetric", NAVY),
-    ("MIXED-LOSS · 10 RULES", "Handle complex presentations combining all dimensions.",
-     "IF asymmetric AND notched\nTHEN flag mixed aetiology", TEAL),
+    ("REFERRAL · 12 RULES", "Map inter-aural difference to referral urgency, not to severity.",
+     "IF asymmetry is Moderately Asymmetric\nTHEN referral is Expedited", NAVY),
+    ("CONTOUR · 4 RULES", "Let the slope qualify the severity implied by the average.",
+     "IF slope is Precipitous AND threshold is Moderate\nTHEN severity is Severe", TEAL),
 ]
 pos = [(0.55, 1.35), (6.85, 1.35), (0.55, 3.85), (6.85, 3.85)]
 for (label, desc, ex, col), (x, y) in zip(groups, pos):
@@ -379,10 +380,10 @@ txt(s, 0.75, 6.35, 11.85, 0.65,
 s = add_slide(LIGHT)
 title_bar(s, "FAI against WHO PTA-4 and ML comparators", 7)
 data = [["Method", "Weighted κ", "Borderline (±5 dB)", "Clear-case"],
-        ["FAI (fuzzy)", "0.93", "79.8%", "98.1%"],
+        ["FAI (fuzzy)", "0.946", "86.3%", "99.2%"],
         ["PTA-4 (WHO)", "1.00*", "100%*", "100%*"],
-        ["XGBoost", "0.98", "93.4%", "100%"],
-        ["Random Forest", "0.98", "93.6%", "100%"]]
+        ["XGBoost", "0.982", "94.2%", "100%"],
+        ["Random Forest", "0.981", "94.2%", "99.97%"]]
 make_table(s, 0.55, 1.35, 7.6, data, [2.5, 1.7, 1.7, 1.7], row_h=0.5,
            body_size=12, header_size=12, highlight_rows={2})
 txt(s, 0.55, 3.85, 7.6, 0.35,
@@ -391,39 +392,39 @@ txt(s, 0.55, 3.85, 7.6, 0.35,
 rect(s, 0.55, 4.30, 7.6, 1.35, SOFT_T, line=BORDER, rounded=True, radius=0.07)
 txt(s, 0.75, 4.45, 7.2, 1.1,
     [{"text": "In borderline cases (±5 dB), the fuzzy system deliberately reclassifies "
-               "(79.8% agree with the crisp grade) while matching it in clear cases (98.1%).",
+               "(86.3% agree with the crisp grade) while matching it in clear cases (99.2%).",
       "size": 12.5, "color": INK, "line_spacing": 1.2}])
 img, iw, ih = pic(s, f"{FIG}/fig3_bland_altman.png", 8.45, 1.35, w=4.35)
 txt(s, 8.45, 1.35 + ih + 0.08, 4.35, 0.35,
     [{"text": "Bland–Altman, FAI against the PTA-4 reference", "size": 10, "italic": True,
       "color": MUTED, "align": PP_ALIGN.CENTER}])
-chip(s, 8.45, 5.05, 4.35, 0.95, "κ = 0.93", "vs WHO PTA-4 reference, 20–69 y test", big_size=20,
+chip(s, 8.45, 5.05, 4.35, 0.95, "κ = 0.946", "vs WHO PTA-4 reference, 20–69 y test", big_size=20,
      small_size=10, fill=NAVY, big_color=GOLD)
-chip(s, 8.45, 6.10, 4.35, 0.85, "ρ = 0.80 · MAE 6.1 dB", "FAI vs PTA-4, n = 3,912 test ears",
+chip(s, 8.45, 6.10, 4.35, 0.85, "ρ = 0.80 · MAE 4.3 dB", "FAI vs PTA-4, n = 3,913 test ears",
      big_size=15, small_size=10, fill=NAVY2, big_color=WHITE)
 
 # ================================================================ SLIDE 8 — 25/26 dB (light)
 s = add_slide(LIGHT)
 title_bar(s, "The 25/26 dB boundary is graded, not binary", 8)
 data = [["PTA-4", "Crisp label", "Fuzzy label", "FAI", "Normal μ", "Mild μ"],
-        ["24 dB", "Normal", "Normal", "11.3", "0.33", "0.00"],
-        ["26 dB", "Mild", "Mild", "25.7", "0.16", "0.40"],
-        ["27 dB", "Mild", "Mild", "28.9", "0.07", "1.00"],
-        ["28 dB", "Mild", "Mild", "30.0", "0.00", "1.00"],
+        ["24 dB", "Normal", "Normal", "22.4", "0.44", "0.56"],
+        ["26 dB", "Mild", "Mild", "25.0", "0.29", "0.71"],
+        ["27 dB", "Mild", "Mild", "26.3", "0.22", "0.78"],
+        ["28 dB", "Mild", "Mild", "27.5", "0.15", "0.85"],
         ["30 dB", "Mild", "Mild", "30.0", "0.00", "1.00"]]
 make_table(s, 0.55, 1.35, 6.4, data, [1.05, 1.05, 1.05, 0.85, 1.2, 1.2], row_h=0.42,
            body_size=11, header_size=11, highlight_rows={2})
 rect(s, 0.55, 4.60, 6.4, 2.05, CARD, line=BORDER, rounded=True, radius=0.06)
 txt(s, 0.75, 4.75, 6.0, 1.8,
-    [{"text": "A patient with PTA 26 dB is simultaneously 16% normal and 40% mild, and "
+    [{"text": "A patient with PTA 26 dB is simultaneously 29% normal and 71% mild, and "
                "the crisp label hides this ambiguity.", "size": 12.5, "color": INK,
       "space_after": 8, "line_spacing": 1.2},
-     {"text": "FAI rises smoothly from 11.3 at 24 dB to 30.0 by 28 dB, while crisp rules impose a step at 26 dB.",
+     {"text": "FAI rises smoothly from 22.4 at 24 dB to 27.5 at 28 dB, while crisp rules impose a step at 26 dB.",
       "size": 12.5, "color": INK, "line_spacing": 1.2}])
 img, iw, ih = pic(s, f"{FIG}/fig5_borderline_analysis.png", 7.25, 1.35, w=5.55)
 txt(s, 7.25, 1.35 + ih + 0.08, 5.55, 0.6,
     [{"text": "The fuzzy system deviates from crisp labels in the borderline zone "
-               "(agreement 80–84% within ±1–5 dB) while matching crisp in clear cases (98.1%)", "size": 10.5, "italic": True,
+               "(agreement 79–86% within ±1–5 dB) while matching crisp in clear cases (99.2%)", "size": 10.5, "italic": True,
       "color": MUTED, "align": PP_ALIGN.CENTER, "line_spacing": 1.1}])
 
 # ================================================================ SLIDE 9 — CASES (light)
@@ -434,10 +435,10 @@ txt(s, 0.55, 1.30 + ih + 0.06, 6.05, 0.3,
     [{"text": "Four representative audiograms with membership bar charts", "size": 9.5,
       "italic": True, "color": MUTED, "align": PP_ALIGN.CENTER}])
 cases = [
-    ("A · BORDERLINE", "PTA 27.5 dB “Mild” · FAI 29.4", "Normal μ 0.04, Mild μ 1.00, graded rather than forced"),
-    ("B · MASKED NOTCH", "PTA 23 dB “Normal”", "25 dB notch at 4 kHz · Notched μ 0.78 · missed by the PTA"),
+    ("A · BORDERLINE", "PTA 27.5 dB “Mild” · FAI 26.9", "Normal μ 0.18, Mild μ 0.82, graded rather than forced"),
+    ("B · MASKED NOTCH", "PTA 22.5 dB “Normal” · FAI 21.2", "30 dB notch at 4 kHz · typed Precipitous · missed by the PTA"),
     ("C · PRESBYCUSIS", "PTA 33.8 dB “Mild” · FAI 30.0", "Sloping 35 dB · frequency gradient preserved"),
-    ("D · ASYMMETRY", "R 53.8 dB Mod / L 28.8 Mild", "Composite FAI 54.5 (Mod-Sev) · impact quantified"),
+    ("D · ASYMMETRY", "Ear 55.0 dB Mod / contra 28.8 Mild", "FAI 53.9 · asymmetry lifts referral to expedited"),
 ]
 cpos = [(6.95, 1.30), (6.95, 3.10), (6.95, 4.90), (6.95, 6.05)]
 for (lab, head, sub), (x, y) in zip(cases, cpos):
@@ -451,16 +452,17 @@ for (lab, head, sub), (x, y) in zip(cases, cpos):
 # ================================================================ SLIDE 10 — CONFIGURATION (light)
 s = add_slide(LIGHT)
 title_bar(s, "Configuration typing and asymmetry", 10)
-img, iw, ih = pic(s, f"{FIG}/fig_eda_config_dist.png", 0.55, 1.35, w=4.9)
+img, iw, ih = pic(s, f"{FIG}/fig_config_fis.png", 0.55, 1.35, w=4.9)
 txt(s, 0.55, 1.35 + ih + 0.08, 4.9, 0.6,
-    [{"text": "Configuration distribution, combined adult cohort (slope = 4 kHz − 500 Hz)", "size": 10.5, "italic": True, "color": MUTED,
+    [{"text": "Configuration labels the shape rules returned, held-out test ears", "size": 10.5, "italic": True, "color": MUTED,
       "align": PP_ALIGN.CENTER, "line_spacing": 1.1}])
 rows = [
-    ("Flat 56.7% · Gently sloping 18.0%", "dominant configurations (4 kHz − 500 Hz)", NAVY, GOLD),
-    ("Steeply 8.8% · Precipitous 3.5% · Rising 13.0%", "exploratory output, accuracy table not reproducible", TEAL, WHITE),
+    ("Flat 41.7% · Sloping 24.5%", "FIS configuration labels, held-out test ears", NAVY, GOLD),
+    ("Rising 15.7% · Precipitous 13.0% · Notched 1.9%", "remaining labels; 3.2% undetermined by the shape rules",
+     TEAL, WHITE),
     ("6-shape membership vector", "graded configuration typing per ear", NAVY2, WHITE),
-    ("5.1% of participants", "exceed 15 dB inter-aural difference, and the continuous index feeds severity "
-     "adjustment (Case D)", TEAL, WHITE),
+    ("34.0% of participants", "exceed 15 dB inter-aural difference, which drives the referral output rather "
+     "than the grade (Case D)", TEAL, WHITE),
 ]
 y = 1.35
 for big, small, fill, bcol in rows:
@@ -473,13 +475,13 @@ s = add_slide(LIGHT)
 title_bar(s, "Longitudinal tracking of sub-threshold change", 11)
 img, iw, ih = pic(s, f"{FIG}/fig7_longitudinal.png", 0.55, 1.30, w=12.25)
 txt(s, 0.55, 1.30 + ih + 0.08, 12.25, 0.35,
-    [{"text": "FAI trajectories (coloured) vs PTA grade (grey steps) over 4–8 years, "
-               "smooth progression instead of discrete jumps", "size": 10.5, "italic": True,
+    [{"text": "FAI (coloured) vs crisp grade (grey steps, right axis) for three stated annual "
+               "threshold shifts; scenarios, not cohort data", "size": 10.5, "italic": True,
       "color": MUTED, "align": PP_ALIGN.CENTER}])
 stats = [
-    ("+1.7 pts/yr", "mean annual FAI change, age-related subgroup"),
-    ("1 grade / 4.2 yr", "PTA steps between categories"),
-    ("28%", "FAI shifts ≥ 5 pts without crossing a PTA boundary"),
+    ("+1.3 pts/yr", "FAI change, +0.7 dB/yr scenario"),
+    ("1 step in 2 yr", "crisp grade, +3 dB/yr scenario"),
+    ("+7.6 pts", "FAI change over four years at +3 dB/yr"),
 ]
 x = 0.55
 for big, small in stats:
@@ -526,6 +528,8 @@ txt(s, 0.80, 1.95, 5.5, 4.7,
       "space_after": 7, "line_spacing": 1.12},
      {"text": "•  Reference standard (WHO PTA-4) carries the same boundary issue",
       "size": 12, "color": INK, "space_after": 7, "line_spacing": 1.12},
+     {"text": "•  Shape rules return no crisp configuration for 3.2% of held-out ears", "size": 12,
+      "color": INK, "space_after": 7, "line_spacing": 1.12},
      {"text": "•  Outcome validation pending (hearing aids, CI candidacy)", "size": 12, "color": INK,
       "space_after": 0, "line_spacing": 1.12}])
 rect(s, 6.85, 1.30, 6.0, 5.5, CARD, line=BORDER, rounded=True, radius=0.05)
@@ -550,8 +554,8 @@ txt(s, 0.8, 0.85, 11.73, 0.4,
 concl = [
     "A continuous, frequency-resolved Fuzzy Audiometric Index preserves the gradation "
     "that crisp PTA thresholds discard.",
-    "κ = 0.93 against WHO PTA-4, with 98.1% agreement in clear cases and deliberate "
-    "graded reclassification in the borderline zone (79.8%).",
+    "κ = 0.946 against WHO PTA-4, with 99.2% agreement in clear cases and deliberate "
+    "graded reclassification in the borderline zone (86.3%).",
     "Interpretable by design, a rule base clinicians can inspect, question and modify.",
 ]
 y = 1.75
@@ -617,62 +621,67 @@ NOTES = [
     "everything stays inspectable. You can find the rule that fired and argue with it. That is the "
     "difference between a score you can inspect and a score you have to trust.",
     "The data are three NHANES cycles that tested adults aged 20 to 69, giving 10,889 "
-    "participants and 19,568 clean ears. The split is by participant, 80 to 20, so both ears of one "
+    "participants and 19,623 clean ears. The split is by participant, 80 to 20, so both ears of one "
     "person stay on the same side and no bilateral leakage can flatter agreement. Membership "
     "functions and rules were fitted on training data only, and every number that follows comes from "
     "the held-out set. Comparators are the WHO PTA-4 rules, XGBoost and a random forest. The "
     "framework is open source, and the preprint is on SSRN with DOI 10.2139 slash ssrn.7532157. Both "
     "ears are analysed, so a unilateral loss is not diluted by averaging across the pair.",
-    "Each frequency band carries six overlapping trapezoidal functions. The parameters "
-    "were optimised on the training distribution, not copied from WHO cutoffs, and they sit a "
-    "few decibels right of the classic boundaries with two decibels of overlap. The consequence is "
-    "on the right. At 26 decibels a patient is 16 per cent normal and 40 per cent mild at the "
-    "same time. At 30 they are fully mild. The transition is a slope, not a cliff. We chose "
+    "Each frequency band carries six trapezoidal functions. The parameters were fitted on the "
+    "training distribution, not copied from the WHO cutoffs, and each trapezoid's feet are tied to "
+    "its neighbours' cores rather than fitted on their own. That makes the six a Ruspini partition: "
+    "they sum to exactly one at every threshold from zero to 120 decibels, and the graded bands are "
+    "ten to fourteen decibels wide instead of the two decibels an independent fit left. The "
+    "consequence is on the right. At 26 decibels a patient is 29 per cent normal and 71 per cent "
+    "mild at the same time. At 30 they are fully mild. The transition is a slope, not a cliff. We chose "
     "trapezoids because these distributions have flat cores and asymmetric shoulders. The grey "
     "overlay is the actual NHANES distribution, so you can see where the boundaries fall relative "
     "to real ears.",
-    "The rule base has 48 rules in four groups. Twelve map thresholds to severity and blend "
+    "The rule base has 42 rules in four groups. Twelve map thresholds to severity and blend "
     "across transitional zones. Fourteen type the audiogram from slope and notch, which is how we "
-    "catch a noise notch hidden behind a normal average. Twelve score inter-aural difference and "
-    "adjust severity for asymmetry. Ten handle mixed presentations where several dimensions fire "
-    "together. Inference is Mamdani min-max composition with centroid defuzzification, which is a "
+    "catch a noise notch hidden behind a normal average. Twelve turn inter-aural difference into a "
+    "referral recommendation rather than a severity adjustment, so an ear is always graded on its "
+    "own thresholds. Four let the slope qualify the severity the average implies. Inference is Mamdani min-max composition with centroid defuzzification, which is a "
     "standard, well-understood route that returns an interpretable surface rather than a black box. "
-    "Nothing here needs a graphics card. Four groups, 48 rules, and every rule fits on one printed "
+    "Nothing here needs a graphics card. Four groups, 42 rules, and every rule fits on one printed "
     "line. The rule base is the part of this work I would most like you to audit.",
-    "Against the WHO reference the index reaches weighted kappa 0.93, with Spearman 0.80 and a "
-    "mean absolute error of 6.1 decibels on 3,912 held-out ears. In clear cases, more than "
-    "five decibels from any boundary, it agrees with the crisp grade 98.1 per cent of the time. In "
-    "the borderline band agreement falls to 79.8 per cent, and that disagreement is the point. Note "
+    "Against the WHO reference the index reaches weighted kappa 0.946, with Spearman 0.80 and a "
+    "mean absolute error of 4.3 decibels on 3,913 held-out ears. In clear cases, more than "
+    "five decibels from any boundary, it agrees with the crisp grade 99.2 per cent of the time. In "
+    "the borderline band agreement falls to 86.3 per cent, and that disagreement is the point. Note "
     "the comparators. XGBoost and random forest look excellent because they are trained to "
     "reproduce PTA-4 itself. They are the reference in disguise, not independent benchmarks. Kappa "
     "was weighted and quadratic, across the six WHO severity categories. The correlation is "
     "attenuated because most of this cohort has normal hearing.",
     "This slide is the one I would show a trainee. Walk the average up one decibel at a time. At "
-    "24 the index is 11.3 and the ear is essentially normal. At 26 the crisp rule jumps to mild, "
-    "while the fuzzy system reports 25.7, with membership split 16 per cent normal and 40 per "
-    "cent mild; at 27 it is 28.9, and by 28 decibels both agree again. We are not abolishing categories. "
+    "24 the index is 22.4 and the ear already holds more mild membership than normal. At 26 the "
+    "crisp rule jumps to mild, while the fuzzy system reports 25.0, with membership split 29 per "
+    "cent normal and 71 per cent mild; at 27 it is 26.3, and by 28 decibels it is 27.5. We are not "
+    "abolishing categories. "
     "We are refusing to pretend that a threshold has no width. For a patient monitored over "
     "years, that continuous score is more informative than a label that flips. The step is an "
     "artefact of the rule, not of the ear.",
     "Four cases show what this buys. Case A sits at 27.5 decibels, formally mild, with an index "
-    "of 29.4, so grade and score agree in a graded way. Case B has a normal average of 23 decibels "
-    "but a 25 decibel notch at four kilohertz, which the shape rules catch at 0.78 membership. "
-    "The average missed it. Case C is presbycusis, where the sloping configuration survives instead "
-    "of flattening into one number. Case D is asymmetric loss, right 53.8 and left 28.8, where "
-    "the composite score of 54.5 quantifies impact the average hides. That is the honest reading of "
+    "of 26.9 and membership of 0.18 normal against 0.82 mild, so grade and score agree in a graded "
+    "way. Case B has a normal average of 22.5 decibels but a 30 decibel notch at four kilohertz, "
+    "which the shape rules type as precipitous. The average missed it. Case C is presbycusis, where "
+    "the sloping configuration survives instead of flattening into one number. Case D is asymmetric "
+    "loss, the tested ear at 55 decibels and the other at 28.8: the grade stays 53.9, moderate, "
+    "and the asymmetry raises the referral output to expedited. That is the honest reading of "
     "the model, and it changes where the clinical effort goes.",
-    "Configuration typing is presented as exploratory. In the combined adult cohort 56.7 per cent of "
-    "ears are flat and 18 per cent gently sloping, which reflects our age range. Steeply sloping, "
+    "Configuration typing is presented as exploratory. Across the held-out ears the shape rules return flat for 41.7 per cent "
+    "and sloping for 24.5 per cent, which reflects our age range. Steeply sloping, "
     "precipitous and rising shapes are less common, and their accuracy table is not reproducible "
     "across cycles, so I do not claim it. What the fuzzy layer adds is a six-shape membership vector "
-    "per ear, so a mixed shape is not forced into one bucket. Asymmetry affects 5.1 per cent of "
-    "participants at the fifteen decibel threshold, and it feeds the severity estimate. I would "
+    "per ear, so a mixed shape is not forced into one bucket. Taking asymmetry as the largest inter-aural difference, 34 per cent of "
+    "participants exceed fifteen decibels, and that drives the referral output rather than the grade. I would "
     "treat the shape output as a research tool rather than a clinical one for now.",
-    "The longitudinal sub-cohort is small, 120 participants over four to eight years, so treat these "
-    "as hypothesis-generating. Within it the index moves about 1.7 points a year in age-related "
-    "loss, while the PTA grade steps once every 4.2 years. Twenty-eight per cent of participants "
-    "changed by five points or more without ever crossing a PTA boundary. Some of that is "
-    "ototoxicity, some is recovery after acute noise exposure. A categorical endpoint would "
+    "These are scenarios, not a cohort: NHANES measures each person once, so we have no serial "
+    "audiometry and I will not quote a progression rate. What the panels show is the shape of the "
+    "response. Feed the model 0.7 decibels a year and the index climbs 1.3 points a year for eight "
+    "years while the category never changes. Feed it 3 decibels a year at the high frequencies and "
+    "the index climbs 7.6 points over four years; the category steps once, at year two, and the "
+    "index records the intervening change a category cannot. A categorical endpoint would "
     "have recorded those patients as unchanged, and that is exactly the signal a hearing "
     "preservation trial wants. Age-related change dominates this subgroup, which is what a cohort "
     "sampled this way should show.",
@@ -689,11 +698,15 @@ NOTES = [
     "the obvious next methodological step. The cohort is adults aged 20 to 69 only, so nothing "
     "here speaks to children or to adults over 70. There is no extended high frequency audiometry. "
     "And the reference standard carries the same boundary problem I am criticising, which is a "
-    "fair objection. Next steps are multi-site validation, mobile integration, a web calculator with "
+    "fair objection. Two of the membership functions' properties I would flag: the graded bands are "
+    "ten to fourteen decibels wide by construction, which is the design choice that makes the index "
+    "graded, and the shape rules returned no crisp configuration for 3.2 per cent of held-out ears, "
+    "which we report rather than impute. Next steps are multi-site validation, mobile integration, "
+    "a web calculator with "
     "an API, and learned rule parameters. The full rule base is published with the preprint, so "
     "anyone in this room can audit it.",
     "Three take-home messages. A continuous, frequency-resolved index preserves gradation that crisp "
-    "thresholds discard. Agreement with the WHO reference is substantial at kappa 0.93, "
+    "thresholds discard. Agreement with the WHO reference is substantial at kappa 0.946, "
     "with deliberate disagreement in the borderline zone. And the method is interpretable "
     "by construction, because the rule base is something a clinician can read and change. For a "
     "cochlear implant service the point is narrower than it sounds. A graded score makes the "

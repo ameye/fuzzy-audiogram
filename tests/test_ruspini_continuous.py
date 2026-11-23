@@ -25,16 +25,17 @@ TOL = 1e-9
 UNIVERSE = (0.0, 120.0)
 N_DENSE = 20_001
 
-# Empirical percentile cores (P25, P75) per category, as the pipeline fits them.
-# These are the deployed values, so the test exercises the real partition rather
-# than a convenient fixture.
+# Empirical percentile cores (P25, P75) per category. These are the cores behind
+# the deployed parameters in fuzzy_audiogram/core.py, recovered from their
+# [a, b, c, d] quadruples (a_i = c_{i-1}, d_i = b_{i+1}), so the test exercises
+# the real partition rather than a convenient fixture.
 CORES = {
     "normal": (0.0, 16.4),
     "mild": (30.0, 35.4),
     "moderate": (45.4, 52.1),
     "moderately_severe": (62.1, 66.1),
-    "severe": (76.1, 83.6),
-    "profound": (94.8, 120.0),
+    "severe": (76.1, 85.0),
+    "profound": (95.9, 120.0),
 }
 
 _PARAMS = None

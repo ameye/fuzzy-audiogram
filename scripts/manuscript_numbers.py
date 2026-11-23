@@ -4,26 +4,36 @@
 Several figures in the manuscript were previously hand-derived: the normal-mild
 transition table, the decision-curve net benefits, and the case-study FAI
 values. Those cannot be reproduced and had drifted from the fitted model. This
-script recomputes all of them from the fitted partition and the held-out test
-set so that every reported value has a code path.
+script recomputes all of them from the fitted Ruspini partition and the
+held-out test set so that every reported value has a code path.
 
-Writes data/output_participant/manuscript_numbers.json.
+Reads  data/output_participant/{predictions_participant.pkl, metrics_participant.json,
+                                cohort_stats.json}
+Writes data/output_participant/manuscript_numbers.json
 """
-import sys, json, pickle, warnings
+import json
+import pickle
+import sys
+import warnings
 from pathlib import Path
 
 warnings.filterwarnings("ignore")
-ROOT = Path("/opt/data/fuzzy-audiogram")
+ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import numpy as np
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import cohen_kappa_score, accuracy_score, confusion_matrix, f1_score
+from sklearn.metrics import (accuracy_score, cohen_kappa_score, confusion_matrix,
+                             f1_score)
+
 from fuzzy_audiogram import core
-from fuzzy_audiogram.ruspini import trapmf, SEVERITY_ORDER
-from pipeline_participant import (build_fis_with_params, classify_ears_batched,
-                                  who_grade, PTA_IDX)
+from fuzzy_audiogram.cases import CASES
+from fuzzy_audiogram.rules import (get_complex_interaction_rules,
+                                   get_configuration_rules, get_referral_rules,
+                                   get_severity_rules)
+from fuzzy_audiogram.ruspini import SEVERITY_ORDER, trapmf, verify
+from pipeline_participant import (build_fis_with_params, who_grade, PTA_IDX)
 
 OUT = ROOT / "data/output_participant"
 D = pickle.load(open(OUT / "predictions_participant.pkl", "rb"))
@@ -46,10 +56,51 @@ NAMES = ["Normal", "Mild", "Moderate", "Moderately Severe", "Severe", "Profound"
 
 res = {}
 
+# ---------------------------------------------------------------- 0. partition
+# The claim the manuscript makes, recorded from the deployed constants rather
+# than asserted in prose.
+rep = verify(PARAMS)
+res["partition"] = {
+    "is_partition": bool(rep["is_partition"]),
+    "points_checked": int(rep["points_checked"]),
+    "n_offending": int(rep["n_offending"]),
+    "n_uncovered": int(rep["n_uncovered"]),
+    "max_deviation": float(rep["max_deviation"]),
+    "tolerance": rep["tolerance"],
+    "transition_widths_db": {k: round(v, 1) for k, v in rep["overlaps"].items()},
+    "sum_at_26db": round(float(sum(trapmf(26.0, PARAMS[k]) for k in SEVERITY_ORDER)), 6),
+    "sum_at_0db": round(float(sum(trapmf(0.0, PARAMS[k]) for k in SEVERITY_ORDER)), 6),
+    "sum_at_120db": round(float(sum(trapmf(120.0, PARAMS[k]) for k in SEVERITY_ORDER)), 6),
+}
+
+# ---------------------------------------------------------------- 0b. rule base
+# Counted from the rule factories, not from the docstring.
+system, sim, th_ant, sl_ant, no_ant, as_ant, sev_con, sh_con, ref_con = \
+    build_fis_with_params(PARAMS)
+groups = {
+    "severity": len(get_severity_rules(th_ant, sev_con)),
+    "configuration": len(get_configuration_rules(sl_ant, no_ant, sh_con, sev_con)),
+    "referral": len(get_referral_rules(as_ant, ref_con)),
+    "contour": len(get_complex_interaction_rules(th_ant, sl_ant, sev_con)),
+}
+res["rules"] = {"total": int(len(list(system.rules))), "groups": groups,
+                "single_ear": int(len(list(core.build_audiogram_fis(single_ear=True)[0].rules))),
+                "note": "Asymmetry drives the referral consequent, so the count does "
+                        "not change between single-ear and bilateral use."}
+
 # ---------------------------------------------------------------- 1. headline
 res["headline"] = {k: MET[k] for k in
                    ("kappa", "overall", "rho", "mae", "borderline", "clear",
                     "borderline_share", "bias", "loa_lo", "loa_hi", "test_ears")}
+res["comparators"] = MET.get("comparators", {})
+res["config_distribution"] = MET.get("config_distribution", {})
+
+# ---------------------------------------------------------------- 1b. cohort
+cohort_path = OUT / "cohort_stats.json"
+if cohort_path.exists():
+    res["cohort"] = json.loads(cohort_path.read_text(encoding="utf-8"))
+else:
+    print("  WARNING: cohort_stats.json missing; run scripts/cohort_stats.py")
 
 # ---------------------------------------------------------------- 2. by distance
 bands = []
@@ -84,9 +135,6 @@ res["downward"] = int(sum(e["n"] for e in edges
                           if NAMES.index(e["predicted"]) < NAMES.index(e["reference"])))
 
 # ---------------------------------------------------------------- 4. transition
-system, sim, *_ = build_fis_with_params(PARAMS)
-
-
 def memberships(x):
     x = float(np.clip(x, 0, 120))
     return {k: float(trapmf(x, PARAMS[k])) for k in SEVERITY_ORDER}
@@ -105,21 +153,36 @@ def flat_fai(p):
 
 
 trans = []
-for p in (24.0, 25.0, 26.0, 27.0):
+for p in (24.0, 25.0, 26.0, 27.0, 28.0, 30.0):
     sc = flat_fai(p)
     m = memberships(p)
     trans.append({"pta4": p, "fai": round(sc, 1),
-                  "normal": round(m["normal"], 2), "mild": round(m["mild"], 2),
-                  "label": core._interpret_severity_score(sc)})
+                  "fai_2dp": round(sc, 2),
+                  "normal": round(m["normal"], 3), "mild": round(m["mild"], 3),
+                  "label": core._interpret_severity_score(sc),
+                  "sum": round(sum(m.values()), 6)})
 res["normal_mild_transition"] = trans
 
 # where do the shoulders cross at 0.5? the midpoint of the shared band [c_i, b_{i+1}]
 cross = (PARAMS["normal"][2] + PARAMS["mild"][1]) / 2.0
 res["shoulder_cross_db"] = round(cross, 1)
-# transition band width between category i and i+1 is b_{i+1} - c_i
 res["transition_widths_db"] = [
     round(PARAMS[SEVERITY_ORDER[i + 1]][1] - PARAMS[SEVERITY_ORDER[i]][2], 1)
     for i in range(5)]
+
+# ---------------------------------------------------------------- 4b. every boundary
+# The full set of transitions, so Table 4 is not limited to the normal-mild one.
+all_bounds = []
+for i in range(5):
+    lo = SEVERITY_ORDER[i]
+    b = PARAMS[SEVERITY_ORDER[i + 1]][1]
+    c = PARAMS[lo][2]
+    mid = round((b + c) / 2.0, 1)
+    all_bounds.append({"boundary": f"{NAMES[i]}-{NAMES[i + 1]}",
+                       "core_gap_db": round(b - c, 1),
+                       "cross_50pct_db": mid,
+                       "fai_at_cross": round(flat_fai(mid), 2)})
+res["boundaries"] = all_bounds
 
 # ---------------------------------------------------------------- 5. decision curve
 prev_any = float((y >= 1).mean())
@@ -163,19 +226,11 @@ res["decision_curve"] = dc
 
 # ---------------------------------------------------------------- 6. case studies
 # The archetypes are synthetic illustrations. Their threshold arrays are stated
-# explicitly here and in Supplementary Table S5 so the reported values can be
-# reproduced; earlier versions of the manuscript quoted FAI values for
-# archetypes whose audiograms were never recorded.
-CASES = {
-    # label: (left thresholds, right thresholds or None)
-    "A_BorderlineMild": ([25, 25, 25, 30, 30, 30, 30, 30], None),
-    "B_NoiseNotch":     ([15, 10, 10, 20, 15, 50, 50, 20], None),
-    "C_Presbycusis":    ([20, 20, 25, 35, 45, 55, 60, 65], None),
-    "D_Asymmetric":     ([50, 55, 55, 55, 55, 55, 55, 55],
-                         [25, 25, 30, 30, 30, 30, 30, 30]),
-}
+# once, in fuzzy_audiogram/cases.py, so the text, the table, Figure 4 and the
+# deck cannot drift apart; earlier versions of the manuscript quoted FAI values
+# for archetypes whose audiograms were never recorded.
 cases = {}
-for name, (left, right) in CASES.items():
+for name, (_label, left, right) in CASES.items():
     a = np.array(left, float)
     b = np.array(right, float) if right is not None else None
     f = core.compute_audiogram_features(a, b)
@@ -215,6 +270,12 @@ res["mf_params"] = PARAMS
 out = OUT / "manuscript_numbers.json"
 json.dump(res, open(out, "w"), indent=2, default=float)
 
+print("  === partition ===")
+print(f"    is_partition {rep['is_partition']}  points {rep['points_checked']}  "
+      f"offending {rep['n_offending']}  uncovered {rep['n_uncovered']}")
+print(f"    sum at 0/26/120 dB: {res['partition']['sum_at_0db']} / "
+      f"{res['partition']['sum_at_26db']} / {res['partition']['sum_at_120db']}")
+print(f"  === rules === {res['rules']['total']} {res['rules']['groups']}")
 print("  === headline ===")
 print(f"    kappa {MET['kappa']:.3f}  overall {MET['overall']*100:.1f}%  "
       f"MAE {MET['mae']:.2f}  rho {MET['rho']:.3f}")
@@ -235,15 +296,9 @@ print(f"    errors: {res['upward']} upward, {res['downward']} downward")
 print("\n  === normal-mild transition ===")
 for t in trans:
     print(f"    PTA-4 {t['pta4']:>4.0f} dB  FAI {t['fai']:>5.1f}  "
-          f"Normal {t['normal']:.2f}  Mild {t['mild']:.2f}  -> {t['label']}")
+          f"Normal {t['normal']:.3f}  Mild {t['mild']:.3f}  -> {t['label']}")
 print(f"    shoulders cross at {res['shoulder_cross_db']} dB")
 print(f"    transition widths {res['transition_widths_db']} dB")
-print("\n  === decision curve ===")
-for c in dc["curves"]:
-    print(f"    {c['outcome']}")
-    for r in c["rows"]:
-        print(f"      t={r['threshold_prob']:.2f}  FAI {r['fai_net_benefit']:+.3f}  "
-              f"PTA {r['pta_net_benefit']:+.3f}  treat-all {r['treat_all']:+.3f}")
 print("\n  === case studies ===")
 for k, v in cases.items():
     print(f"    {k:<26} PTA-4 {v['pta4']:>5.1f}  FAI {v['fai']:>5.1f}  {v['label']}")

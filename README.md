@@ -42,8 +42,8 @@ That **1 dB difference is clinically meaningless**, yet the classification jumps
 
 ## ✨ Features
 
-- **Overlapping trapezoidal membership functions** — severity, slope, notch depth, asymmetry all modelled as continuous fuzzy sets
-- **Mamdani fuzzy inference system** — 48 expert-derived rules covering severity, configuration, asymmetry, and mixed-loss patterns
+- **Ruspini-partition trapezoidal membership functions** — the six severity memberships sum to 1 at every threshold; slope, notch depth and asymmetry are fuzzy sets too
+- **Mamdani fuzzy inference system** — 42 expert-derived rules covering severity, configuration, referral, and contour patterns
 - **Fuzzy Audiometric Index (FAI)** — a continuous 0–100 score replacing discrete severity categories
 - **Configuration classification** — flat, sloping, steeply sloping, precipitous, notched, rising
 - **Asymmetry detection** — inter-aural differences on a graded spectrum
@@ -77,16 +77,17 @@ from fuzzy_audiogram.core import classify_audiogram
 chidi_left = [20, 22, 25, 28, 30, 35, 28, 22]
 
 result = classify_audiogram(chidi_left)
-print(f"FAI Score: {result['fai_score']}")        # e.g., 26.3
-print(f"FAI Label: {result['fai_label']}")         # "Mild" 
+print(f"FAI Score: {result['fai_score']}")        # 26.89
+print(f"FAI Label: {result['fai_label']}")         # "Mild"
 print(f"PTA-4: {result['pt4a']} dB")               # 27.5 dB
 
 # But look — the membership degrees tell the real story:
-print(f"Normal: {result['threshold_memberships']['normal']:.1%}")  # 25%
-print(f"Mild:   {result['threshold_memberships']['mild']:.1%}")    # 100%
+print(f"Normal: {result['threshold_memberships']['normal']:.1%}")  # 18.4%
+print(f"Mild:   {result['threshold_memberships']['mild']:.1%}")    # 81.6%
 
 # By crisp rules, PTA=27.5 → "Mild Loss"
-# By fuzzy, FAI=26.3 on a 0-100 continuous scale
+# The two memberships sum to 100%: the six severities form a Ruspini partition
+# By fuzzy, FAI=26.89 on a 0-100 continuous scale
 ```
 
 ### Compare Fuzzy vs Crisp
@@ -125,7 +126,7 @@ fuzzy-audiogram/
 ├── fuzzy_audiogram/          # Python package
 │   ├── __init__.py           # Package init with public API
 │   ├── core.py               # Main FIS: membership functions, classifier, FAI
-│   ├── rules.py              # 48 expert-derived fuzzy rules
+│   ├── rules.py              # 42 expert-derived fuzzy rules
 │   ├── data.py               # NHANES data loader
 │   ├── viz.py                # Visualization (membership plots, audiograms, comparisons)
 │   ├── validate.py           # Comparators (XGBoost, RF) + metrics
@@ -156,6 +157,27 @@ A full IMRaD manuscript outline is available in [`MANUSCRIPT_OUTLINE.md`](MANUSC
 - **Journal of the American Academy of Audiology**
 - **Computers in Biology and Medicine**
 - **IEEE Transactions on Neural Systems and Rehabilitation Engineering**
+
+### Reproducing the reported numbers
+
+Every number in the manuscript comes from one chain, and each step writes a
+committed artefact:
+
+```bash
+python scripts/pipeline_participant.py      # fits the partition, calibrates labels,
+                                            # writes metrics_participant.json + predictions
+python scripts/cohort_stats.py              # Table 1 and the asymmetry figures
+python scripts/manuscript_numbers.py        # every derived table/case value
+python scripts/generate_figures.py          # figures 1-7 from those outputs
+python scripts/build_documents.py           # manuscript.pdf and manuscript_eh.pdf
+```
+
+`data/output_participant/metrics_participant.json` holds the configuration the
+manuscript reports: the six Ruspini-partition trapezoids, the calibrated label
+cut points `[24.6, 48.2, 57.3, 74.0, 85.8]`, and the 42-rule base. The superseded
+independently fitted set is kept only in `data/output/params_combined.json` and
+is not the basis of any reported metric; `tests/test_published_classifier.py`
+fails if the package ever ships it again.
 
 ---
 

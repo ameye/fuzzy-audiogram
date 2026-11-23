@@ -28,7 +28,10 @@ from fuzzy_audiogram.combined_data import (
     load_combined_nhanes, extract_combined_audiometry, clean_ears,
     FREQUENCIES)
 
-OUT = PROJECT / 'data' / 'output_participant'
+# FA_OUT_DIR lets a re-run write beside the committed outputs instead of over
+# them, so a reproducibility check can be diffed against the committed numbers
+# before anything is replaced.
+OUT = Path(os.environ.get('FA_OUT_DIR', PROJECT / 'data' / 'output_participant'))
 OUT.mkdir(parents=True, exist_ok=True)
 
 PTA_IDX = [1, 2, 3, 5]
@@ -172,7 +175,11 @@ def classify_ears_batched(system, ear_rows):
                 shape = float(sim.output['audiogram_shape'])
                 config_label = core._interpret_shape_score(shape)
             except (KeyError, TypeError, ValueError):
-                config_label = 'ERROR'
+                # The shape consequent had no crisp value: the shape rules had
+                # no support for this ear. core.classify_audiogram calls this
+                # 'Undetermined'; the same word is used here so the label
+                # distribution is comparable across the two code paths.
+                config_label = core.UNDETERMINED_SHAPE_LABEL
             out.append({'seqn': seqn, 'cycle': cycle, 'side': side,
                         'pta': round(float(feats['pta']), 1),
                         'fai_score': round(sev, 2),
@@ -259,10 +266,19 @@ def main():
     calib_fai = np.array([r['fai_score'] for r in calib_res])
     calib_pta = np.array([r['pta'] for r in calib_res])
     calib_yt = np.array([who_grade(p) for p in calib_pta])
-    # Start the search from the package's calibrated defaults rather than a
-    # second hard-coded copy; the deployed and re-run mechanisms then share one
-    # definition of the fallback.
-    DEFAULT_TH = list(core.SEVERITY_LABEL_THRESHOLDS)
+    # Fixed calibration start, independent of the constants being estimated.
+    #
+    # This used to be ``list(core.SEVERITY_LABEL_THRESHOLDS)``, which made the
+    # calibration circular: the search began at the very cut points it was
+    # fitting, so changing the deployed constants moved the optimum it found.
+    # Kappa has a flat ridge here. Starting from the Ruspini cut points lands on
+    # [24.0, 47.0, 55.0, 73.1, 84.3]; starting from the classic cut points below
+    # lands on the committed [24.6, 48.2, 57.3, 74.0, 85.8], at the same training
+    # kappa (0.970) but with borderline agreement 0.8 points different. The
+    # start is therefore pinned to the uncalibrated cut points the package
+    # originally shipped, so a re-run reproduces the committed analysis instead
+    # of depending on what core.py happens to contain.
+    DEFAULT_TH = [20.0, 35.0, 50.0, 65.0, 85.0]
 
     def _label_from_th(scores, th):
         th = np.sort(np.asarray(th, dtype=float))
@@ -317,7 +333,7 @@ def main():
 
     print('\n[5] Validation metrics (test set)')
     valid = [r for r in test_res if r['fai_score'] == r['fai_score']]
-    yf, yt, fai, pta = [], [], [], []
+    yf, yt, fai, pta, cfg = [], [], [], [], []
     test_th = {s: [] for s, _, _, _ in test_rows}
     for r in test_rows: test_th[r[0]].append(r[3])
     for row in valid:
@@ -327,7 +343,7 @@ def main():
         p = float(np.mean([th[i] for i in PTA_IDX]))
         yt.append(who_grade(p))
         yf.append(SEVERITY_HUMAN.index(row['fai_label']) if row['fai_label'] in SEVERITY_HUMAN else who_grade(p))
-        fai.append(row['fai_score']); pta.append(p)
+        fai.append(row['fai_score']); pta.append(p); cfg.append(row['config_label'])
     yf = np.array(yf); yt = np.array(yt); fai = np.array(fai); pta = np.array(pta)
     kappa = cohen_kappa_score(yt, yf, weights='quadratic')
     overall = accuracy_score(yt, yf)
@@ -357,14 +373,34 @@ def main():
     rf.fit(X_tr, y_tr)
     yc = np.array([who_grade(v) for v in y_te])
     bl_te = np.array([any(abs(v - b) <= 5 for b in BOUNDS) for v in y_te])
+    comparators = {}
     for name, mdl in [('XGBoost', xgbm), ('Random Forest', rf)]:
         pred = mdl.predict(X_te)
         plab = np.array([who_grade(v) for v in pred])
-        print(f'    {name}: kappa={cohen_kappa_score(yc, plab, weights="quadratic"):.3f} '
-              f'overall={accuracy_score(yc, plab)*100:.1f}% '
-              f'borderline={accuracy_score(yc[bl_te], plab[bl_te])*100:.1f}% '
-              f'clear={accuracy_score(yc[~bl_te], plab[~bl_te])*100:.1f}% '
-              f'MAE={mean_absolute_error(y_te, pred):.2f}')
+        comparators[name] = {
+            'kappa': round(float(cohen_kappa_score(yc, plab, weights='quadratic')), 3),
+            'overall': round(float(accuracy_score(yc, plab)), 4),
+            'borderline': round(float(accuracy_score(yc[bl_te], plab[bl_te])), 4),
+            'clear': round(float(accuracy_score(yc[~bl_te], plab[~bl_te])), 4),
+            'mae': round(float(mean_absolute_error(y_te, pred)), 2),
+            'n_test': int(len(y_te)),
+            'reference': 'PTA-4 WHO grade',
+        }
+        print(f"    {name}: kappa={comparators[name]['kappa']:.3f} "
+              f"overall={comparators[name]['overall']*100:.1f}% "
+              f"borderline={comparators[name]['borderline']*100:.1f}% "
+              f"clear={comparators[name]['clear']*100:.1f}% "
+              f"MAE={comparators[name]['mae']:.2f}")
+
+    # Configuration-label distribution over the held-out ears, which is a FIS
+    # output (shape rules), not a slope-band tabulation.
+    cfg_counts = {}
+    for c in cfg:
+        cfg_counts[c] = cfg_counts.get(c, 0) + 1
+    config_dist = {k: {'n': int(v), 'share': round(v / len(cfg), 4)}
+                   for k, v in sorted(cfg_counts.items(), key=lambda kv: -kv[1])}
+    print('    configuration labels: '
+          + ', '.join(f"{k} {v['share']*100:.1f}%" for k, v in config_dist.items()))
 
     metrics = {'cohort': 'combined 20-69 (AUX1+AUX_G+AUX_I)',
                'split': 'participant-level (80/20, SEQN-keyed, seed 42)',
@@ -379,10 +415,12 @@ def main():
                'bias': round(bias, 1), 'loa_lo': round(bias - 1.96*sd, 1),
                'loa_hi': round(bias + 1.96*sd, 1), 'n_valid': int(len(fai)),
                'label_thresholds': [round(x, 1) for x in label_th],
-               'single_ear': True, 'mf_params': params}
+               'single_ear': True, 'mf_params': params,
+               'comparators': comparators, 'config_distribution': config_dist}
     (OUT / 'metrics_participant.json').write_text(json.dumps(metrics, indent=2), encoding='utf-8')
     pickle.dump({'params': params, 'y_te': y_te, 'y_true': yt, 'yf': yf,
-                 'fai': fai, 'pta': pta, 'bl': bl, 'dist': dist},
+                 'fai': fai, 'pta': pta, 'bl': bl, 'dist': dist,
+                 'config': cfg},
                 open(OUT / 'predictions_participant.pkl', 'wb'))
     print('\nsaved:', OUT / 'metrics_participant.json')
 
