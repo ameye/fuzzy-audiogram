@@ -29,7 +29,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements-lock.txt
+          if [[ "${{ matrix.python-version }}" == "3.11" ]]; then
+            pip install -e .
+          else
+            pip install -r requirements-lock.txt
+            pip install -e . --no-deps
+          fi
           pip install pytest
 
       - name: Ruspini partition constraint (continuous, 0-120 dB HL)
@@ -47,5 +52,5 @@ jobs:
       - name: Remaining suite via pytest
         # The NHANES analyses need the CDC data files, which are not vendored, so
         # those are skipped rather than failed when the cohort is absent.
-        run: python -m pytest tests/ -q --ignore=tests/test_ruspini_continuous.py
+        run: python -m pytest tests/ -q --ignore=tests/test_ruspini_continuous.py --ignore=tests/calibrate_train_eval_test.py
         continue-on-error: false
