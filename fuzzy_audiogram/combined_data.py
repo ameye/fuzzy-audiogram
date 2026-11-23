@@ -9,13 +9,39 @@ The returned DataFrame mirrors the interface of extract_audiometry():
   - threshold_{ear}_{freq} for ear in {right, left}, freq in the 7 test freqs
   - tymp_/otoscopy columns are NOT carried over (absent from older cycles)
 """
+import os
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
+def _nhanes_file(name):
+    """Locate a CDC file without assuming a machine-specific layout.
+
+    Checked in order: ``$FA_NHANES_DIR``, the repository root (the files are
+    vendored there), then ``/opt/data`` (the historical analysis layout). The
+    first existing file wins; if none exists the repository-root path is
+    returned so the missing-file error names a useful location.
+    """
+    candidates = []
+    env_dir = os.environ.get("FA_NHANES_DIR")
+    if env_dir:
+        candidates.append(Path(env_dir))
+    candidates += [_PROJECT_ROOT, Path("/opt/data")]
+    for directory in candidates:
+        candidate = directory / name
+        if candidate.is_file():
+            return str(candidate)
+    return str(_PROJECT_ROOT / name)
+
+
 CYCLES = [
-    ('AUX1_1999-2000', '/opt/data/AUX1_9900.xpt', '/opt/data/DEMO_9900.xpt'),
-    ('AUX_G_2011-2012', '/opt/data/AUX_G_1112.xpt', '/opt/data/DEMO_G_1112.xpt'),
-    ('AUX_I_2015-2016', '/opt/data/AUX_I_1516.xpt', '/opt/data/DEMO_I_1516.xpt'),
+    ('AUX1_1999-2000', _nhanes_file('AUX1_9900.xpt'), _nhanes_file('DEMO_9900.xpt')),
+    ('AUX_G_2011-2012', _nhanes_file('AUX_G_1112.xpt'), _nhanes_file('DEMO_G_1112.xpt')),
+    ('AUX_I_2015-2016', _nhanes_file('AUX_I_1516.xpt'), _nhanes_file('DEMO_I_1516.xpt')),
 ]
 FREQUENCIES = [500, 1000, 2000, 3000, 4000, 6000, 8000]
 # AUXU column suffixes per frequency (same across all three cycles)

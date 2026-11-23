@@ -29,7 +29,7 @@ import pipeline_participant as pp
 from fuzzy_audiogram.combined_data import (
     load_combined_nhanes, extract_combined_audiometry, clean_ears)
 
-ROOT = Path("/opt/data/fuzzy-audiogram")
+ROOT = Path(__file__).resolve().parents[1]
 PTA_IDX = pp.PTA_IDX
 DEFAULT_TH = np.array([20.0, 35.0, 50.0, 65.0, 85.0])
 

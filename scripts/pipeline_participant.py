@@ -11,7 +11,7 @@ import sys, json, os, pickle, warnings, hashlib
 from pathlib import Path
 
 warnings.filterwarnings('ignore')
-PROJECT = Path('/opt/data/fuzzy-audiogram')
+PROJECT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT))
 
 import numpy as np
@@ -259,7 +259,10 @@ def main():
     calib_fai = np.array([r['fai_score'] for r in calib_res])
     calib_pta = np.array([r['pta'] for r in calib_res])
     calib_yt = np.array([who_grade(p) for p in calib_pta])
-    DEFAULT_TH = [20.0, 35.0, 50.0, 65.0, 85.0]
+    # Start the search from the package's calibrated defaults rather than a
+    # second hard-coded copy; the deployed and re-run mechanisms then share one
+    # definition of the fallback.
+    DEFAULT_TH = list(core.SEVERITY_LABEL_THRESHOLDS)
 
     def _label_from_th(scores, th):
         th = np.sort(np.asarray(th, dtype=float))
@@ -295,12 +298,20 @@ def main():
         label_th = [float(x) for x in _best[1]]
     print(f'  calibrated label thresholds: {[round(x, 1) for x in label_th]}'
           f' (train kappa {(-_best[0] if _best else -_obj_kappa(DEFAULT_TH)):.3f})')
-    core.SEVERITY_LABEL_THRESHOLDS = label_th
 
     print(f'\n[4] Classifying test ears (n={len(test_rows)})...')
     import time
     t0 = time.time()
-    test_res = classify_ears_batched(system, test_rows)
+    # _interpret_severity_score reads the module constant, so the run's
+    # calibration is installed only for the duration of classification and the
+    # deployed defaults are restored afterwards. Leaving it set would leak this
+    # run's thresholds into every later caller in the same process.
+    _orig_th = list(core.SEVERITY_LABEL_THRESHOLDS)
+    core.SEVERITY_LABEL_THRESHOLDS = label_th
+    try:
+        test_res = classify_ears_batched(system, test_rows)
+    finally:
+        core.SEVERITY_LABEL_THRESHOLDS = _orig_th
     dt = time.time() - t0
     print(f'  classified {len(test_res)} in {dt:.1f}s ({dt / len(test_res) * 1000:.0f} ms/ear)')
 

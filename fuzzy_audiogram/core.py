@@ -80,21 +80,35 @@ SLOPE_LABELS_HUMAN = ['Rising', 'Flat', 'Gently Sloping', 'Steeply Sloping',
 CONFIG_LABELS_HUMAN = ['Normal', 'Flat', 'Sloping', 'Notched',
                        'Precipitous', 'Rising']
 
-# Membership function parameters (trapezoidal [a, b, c, d])
+# Membership function parameters (trapezoidal [a, b, c, d]).
+#
+# These are the optimised training-set parameters reported in the manuscript
+# (Table 5; the same values are committed to data/output/params_combined.json).
+# They are the parameters behind every published table: at 26 dB HL they give
+# Normal mu = 0.158 and Mild mu = 0.400 and an FAI of 25.72, which is the
+# Table 4 row the package must reproduce.
+#
+# These are not a Ruspini partition. The feet were fitted independently
+# (P5 - 2, P95 + 2), so the six memberships sum to 1 in each core but fall
+# below 1 between a shoulder and the next category's foot (at 26 dB they sum
+# to 0.558, and the worst band reaches 0.175 at 25.8 dB). The Ruspini refit in
+# data/output_participant/ is a different classifier: it changes the published
+# FAI (26 dB -> 24.99) and was never the basis of the reported tables. See
+# tests/test_ruspini.py, which pins the non-partition property of this set.
 SEVERITY_MF_PARAMS = {
-    'normal':            [0.0, 0.0, 14.3, 28.0],
-    'mild':              [26.0, 30.0, 39.3, 44.0],
-    'moderate':          [41.0, 45.0, 53.6, 59.0],
-    'moderately_severe': [56.0, 60.0, 67.9, 74.0],
-    'severe':            [71.0, 75.0, 85.4, 94.0],
-    'profound':          [91.9, 94.4, 103.5, 120.0],
+    'normal':            [0.0, 0.0, 16.4, 27.8],
+    'mild':              [25.8, 26.3, 35.7, 43.5],
+    'moderate':          [41.5, 42.0, 54.3, 58.5],
+    'moderately_severe': [56.5, 57.0, 67.1, 73.5],
+    'severe':            [71.5, 72.0, 83.6, 93.0],
+    'profound':          [91.0, 91.5, 106.7, 120.0],
 }
 
-# Label thresholds applied to the defuzzified FAI (0-100) to produce the
-# severity label. Deployed default is [20, 35, 50, 65, 85]; the combined
-# pipeline calibrates these on the training set and monkeypatches this
-# constant (same pattern as SEVERITY_MF_PARAMS).
-SEVERITY_LABEL_THRESHOLDS = [20.0, 35.0, 50.0, 65.0, 85.0]
+# FAI-to-label cut points calibrated on the training set by maximising
+# quadratic-weighted kappa. These are the published cut points quoted in the
+# manuscript's Limitations section; they replace the uncalibrated
+# [20, 35, 50, 65, 85] that the package used to ship.
+SEVERITY_LABEL_THRESHOLDS = [21.9, 34.6, 52.5, 70.6, 74.1]
 
 SLOPE_MF_PARAMS = {
     'rising':           [-40, -40, -15, -3],

@@ -1,5 +1,8 @@
 # runtime logs and large run archives
 *.log
+*.egg-info/
+__pycache__/
+*.py[cod]
 ablation_driver.log
 archive/
 figures_300dpi_backup/

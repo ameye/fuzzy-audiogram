@@ -89,7 +89,10 @@ def test_some_consequents_unfired():
     assert result['outputs']['audiogram_shape']['rule_support'] == 0.0
 
     assert result['fai_label_source'] == 'fuzzy'
-    assert result['fai_score'] == pytest.approx(51.29, abs=0.01)
+    # 54.09 is what the published parameter set produces for this contour; the
+    # previous 51.29 was computed with the undeployed third parameter set and
+    # was pinned here by accident while testing consequent status.
+    assert result['fai_score'] == pytest.approx(54.09, abs=0.01)
     assert result['fai_label'] == 'Moderately Severe'
 
     assert result['configuration_label'] == core.UNDETERMINED_SHAPE_LABEL

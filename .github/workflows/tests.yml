@@ -18,6 +18,12 @@ jobs:
       matrix:
         python-version: ["3.13"]
 
+    # The suite imports the package from the checkout. Installing it editable
+    # below is the supported path; PYTHONPATH keeps the standalone scripts
+    # (which run outside the installed tree) importable as well.
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -30,6 +36,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-lock.txt
+          pip install --no-deps -e .
           pip install pytest
 
       - name: Ruspini partition constraint (continuous, 0-120 dB HL)
@@ -45,7 +52,7 @@ jobs:
         run: python tests/verify_asymmetry_refactor.py
 
       - name: Remaining suite via pytest
-        # The NHANES analyses need the CDC data files, which are not vendored, so
-        # those are skipped rather than failed when the cohort is absent.
+        # The NHANES files are vendored at the repository root and resolved by
+        # fuzzy_audiogram.combined_data, so no cohort skip is needed.
         run: python -m pytest tests/ -q --ignore=tests/test_ruspini_continuous.py
         continue-on-error: false
